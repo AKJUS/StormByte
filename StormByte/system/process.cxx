@@ -223,11 +223,10 @@ void Process::consume_and_forward(Process& exec) {
 	m_forwarder = std::make_unique<std::thread>(
 		[&]{
 			#ifdef LINUX
-			std::vector<char> buffer;
+			std::vector<char> buffer(Pipe::MAX_READ_BYTES);
 			ssize_t bytes_read;
 			bool chunks_written = true;
 			do {
-				buffer.reserve(Pipe::MAX_READ_BYTES);
 				bytes_read = m_pstdout.read(buffer, Pipe::MAX_READ_BYTES);
 				if (bytes_read > 0) {
 					chunks_written = exec.m_pstdin.write_atomic(std::string(buffer.data(), bytes_read));
