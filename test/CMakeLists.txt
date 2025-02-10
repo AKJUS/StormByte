@@ -1,2 +1,8 @@
-add_executable(test ${CMAKE_CURRENT_LIST_DIR}/test.cxx)
-target_link_libraries(test StormByte)
+add_executable(ProcessTests process_test.cxx)
+add_executable(ConfigTests config_test.cxx)
+
+target_link_libraries(ProcessTests StormByte)
+target_link_libraries(ConfigTests StormByte)
+
+add_test(NAME ProcessTests COMMAND ProcessTests)
+add_test(NAME ConfigTests COMMAND ConfigTests)

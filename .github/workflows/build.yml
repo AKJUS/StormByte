@@ -67,6 +67,10 @@ jobs:
               -DCMAKE_CXX_FLAGS="${{ matrix.stdlib == 'libc++' && matrix.compiler == 'clang' && '-stdlib=libc++' || '' }}" \
               -DENABLE_SQLITE=${{ matrix.sqlite }} \
               -DWITH_SYSTEM_SQLITE=${{ matrix.system_sqlite }} \
+              -DENABLE_TEST=ON \
 
     - name: Build
       run: cmake --build ${{ github.workspace }}/build --config ${{ env.BUILD_TYPE }}
+
+    - name: Run unit tests
+      run: ctest --output-on-failure --test-dir ${{ github.workspace }}/build
