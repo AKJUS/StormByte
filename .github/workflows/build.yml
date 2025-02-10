@@ -11,14 +11,17 @@ env:
 
 jobs:
   build:
+    runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        os: [ubuntu-24.04]
         compiler: [gcc, clang]
+        stdlib: [libstdc++, libc++]
         sqlite: [ON, OFF]
         system_sqlite: [ON, OFF]
-
-    runs-on: ${{ matrix.os }}
+        exclude:
+        - compiler: gcc
+          stdlib: libc++
 
     steps:
     - name: Checkout repository and submodules
@@ -31,17 +34,37 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install -y cmake
-        if [ "${{ matrix.sqlite }}" == "ON" ]; then sudo apt install -y libsqlite3-dev; fi
+        sudo apt install -y software-properties-common
+        sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+        sudo apt update
+        if [ "${{ matrix.compiler }}" == "gcc" ]; then
+          sudo apt install -y gcc g++
+        elif [ "${{ matrix.compiler }}" == "clang" ]; then
+          sudo apt install -y clang libc++-dev libc++abi-dev
+        fi
+
+    - name: Install CMake
+      run: sudo apt install -y cmake
+
+    - name: Install SQLite if needed
+      run: |
+        if [ "${{ matrix.sqlite }}" == "ON" ]; then
+          if [ "${{ matrix.system_sqlite }}" == "ON" ]; then
+            sudo apt install -y libsqlite3-dev
+          else
+            sudo apt remove -y --purge libsqlite3-dev
+          fi
+        fi
 
     - name: Configure CMake
       run: |
         cmake -B ${{ github.workspace }}/build \
               -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
               -DCMAKE_C_COMPILER=/usr/bin/${{ matrix.compiler }} \
-              -DCMAKE_CXX_COMPILER=/usr/bin/${{ matrix.compiler }}++ \
+              -DCMAKE_CXX_COMPILER=$([[ ${{ matrix.compiler }} == 'gcc' ]] && echo '/usr/bin/g++' || echo '/usr/bin/clang++') \
+              -DCMAKE_CXX_FLAGS="${{ matrix.stdlib == 'libc++' && matrix.compiler == 'clang' && '-stdlib=libc++' || '' }}" \
               -DENABLE_SQLITE=${{ matrix.sqlite }} \
-              -DWITH_SYSTEM_SQLITE=${{ matrix.system_sqlite }}
+              -DWITH_SYSTEM_SQLITE=${{ matrix.system_sqlite }} \
 
     - name: Build
       run: cmake --build ${{ github.workspace }}/build --config ${{ env.BUILD_TYPE }}
