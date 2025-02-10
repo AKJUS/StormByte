@@ -22,6 +22,8 @@ jobs:
         exclude:
         - compiler: gcc
           stdlib: libc++
+        - sqlite: OFF
+          system_sqlite: OFF # If sqlite is disabled this does not matter
 
     steps:
     - name: Checkout repository and submodules
