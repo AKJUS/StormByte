@@ -2,15 +2,17 @@
 
 #ifdef LINUX
 #include <sys/wait.h>
+#else
+#include <tlhelp32.h>
 #endif
 
 using namespace StormByte::System;
 
-Process::Process(const std::filesystem::path& prog, const std::vector<std::string>& args):m_program(prog), m_arguments(args) {
+Process::Process(const std::filesystem::path& prog, const std::vector<std::string>& args):m_status(Status::RUNNING), m_program(prog), m_arguments(args) {
 	run();
 }
 
-Process::Process(std::filesystem::path&& prog, std::vector<std::string>&& args):m_program(std::move(prog)), m_arguments(std::move(args)) {
+Process::Process(std::filesystem::path&& prog, std::vector<std::string>&& args):m_status(Status::RUNNING), m_program(std::move(prog)), m_arguments(std::move(args)) {
 	run();
 }
 
@@ -133,6 +135,7 @@ int Process::wait() noexcept {
 		m_forwarder.reset();
 	}
 	waitpid(m_pid, &status, 0);
+	m_status = Status::TERMINATED;
 	return WEXITSTATUS(status);
 }
 
@@ -151,6 +154,7 @@ DWORD Process::wait() noexcept {
 
 	CloseHandle(m_piProcInfo.hProcess);
 	CloseHandle(m_piProcInfo.hThread);
+	m_status = Status::TERMINATED;
 	return status;
 }
 
@@ -158,6 +162,62 @@ PROCESS_INFORMATION Process::get_pid() {
 	return m_piProcInfo;
 }
 #endif
+
+void Process::suspend() {
+	#ifdef LINUX
+	::kill(m_pid, SIGSTOP);
+	#else
+	HANDLE hThreadSnap = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+	if (hThreadSnap == INVALID_HANDLE_VALUE) {
+		return;
+	}
+
+	THREADENTRY32 te32;
+	te32.dwSize = sizeof(THREADENTRY32);
+
+	if (Thread32First(hThreadSnap, &te32)) {
+		do {
+			if (te32.th32OwnerProcessID == m_piProcInfo.dwProcessId) {
+				HANDLE hThread = OpenThread(THREAD_SUSPEND_RESUME, FALSE, te32.th32ThreadID);
+				if (hThread != NULL) {
+					SuspendThread(hThread);
+					CloseHandle(hThread);
+				}
+			}
+		} while (Thread32Next(hThreadSnap, &te32));
+	}
+	CloseHandle(hThreadSnap);
+	#endif
+	m_status = Status::SUSPENDED;
+}
+
+void Process::resume() {
+	#ifdef LINUX
+	::kill(m_pid, SIGCONT);
+	#else
+	HANDLE hThreadSnap = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+	if (hThreadSnap == INVALID_HANDLE_VALUE) {
+		return;
+	}
+
+	THREADENTRY32 te32;
+	te32.dwSize = sizeof(THREADENTRY32);
+
+	if (Thread32First(hThreadSnap, &te32)) {
+		do {
+			if (te32.th32OwnerProcessID == m_piProcInfo.dwProcessId) {
+				HANDLE hThread = OpenThread(THREAD_SUSPEND_RESUME, FALSE, te32.th32ThreadID);
+				if (hThread != NULL) {
+					ResumeThread(hThread);
+					CloseHandle(hThread);
+				}
+			}
+		} while (Thread32Next(hThreadSnap, &te32));
+	}
+	CloseHandle(hThreadSnap);
+	#endif
+	m_status = Status::RUNNING;
+}
 
 void Process::consume_and_forward(Process& exec) {
 	m_forwarder = std::make_unique<std::thread>(

@@ -7,6 +7,8 @@
 #include <thread>
 #ifdef LINUX
 #include <unistd.h>
+#else
+#include <windows.h>
 #endif
 #include <vector>
 
@@ -29,6 +31,8 @@ namespace StormByte::System {
 			DWORD wait() noexcept;
 			PROCESS_INFORMATION get_pid();
 			#endif
+			void suspend();
+			void resume();
 
 			Process& operator>>(Process&);
 			std::string& operator>>(std::string&);
@@ -36,7 +40,10 @@ namespace StormByte::System {
 			Process& operator<<(const std::string&);
 			void operator<<(const System::_EoF&);
 
+			enum class Status { RUNNING, SUSPENDED, TERMINATED };
+
 		protected:
+			Status m_status;
 			#ifdef LINUX
 			pid_t m_pid;
 			#else
