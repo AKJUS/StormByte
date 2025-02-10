@@ -159,10 +159,10 @@ PROCESS_INFORMATION Process::get_pid() {
 }
 #endif
 
-#ifdef LINUX
 void Process::consume_and_forward(Process& exec) {
 	m_forwarder = std::make_unique<std::thread>(
 		[&]{
+			#ifdef LINUX
 			std::vector<char> buffer;
 			ssize_t bytes_read;
 			bool chunks_written = true;
@@ -190,13 +190,7 @@ void Process::consume_and_forward(Process& exec) {
 					m_pstdout.read(buffer, Pipe::MAX_READ_BYTES);
 				}
 			}
-		}
-	);
-}
-#else
-void Process::consume_and_forward(Process& exec) {
-	m_forwarder = std::make_unique<std::thread>(
-		[&]{
+			#else
 			DWORD status;
 			std::vector<CHAR> buffer(Pipe::MAX_READ_BYTES);
 			SSIZE_T bytes_read;
@@ -214,10 +208,10 @@ void Process::consume_and_forward(Process& exec) {
 				TerminateProcess(m_piProcInfo.hProcess, 0);
 			}
 			exec.m_pstdin.close_write();
+			#endif
 		}
 	);
 }
-#endif
 
 #ifdef WINDOWS
 std::wstring Process::full_command() const {

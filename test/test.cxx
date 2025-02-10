@@ -1,11 +1,19 @@
-#include <StormByte/log/file.hxx>
+#include <StormByte/system/process.hxx>
 
-using namespace StormByte::Log;
+using namespace StormByte::System;
 
 int main() {
-	File f(Level::Info, "/tmp/test.log");
-	f << Level::Debug << "Debug test string" << Logger::endl;
-	f << Level::Info << "Info test string" << Logger::endl;
-	f << Level::Info << "Info test string" << " with more content" << Logger::endl;
+	Process echo("/bin/echo", {"hello world"});
+	Process tr("/usr/bin/tr", {"a-z", "A-Z"});
+	Process wc("/usr/bin/wc", {"-c"});
+
+	echo >> tr >> wc;
+
+	wc.wait();
+
+	std::string result;
+	wc >> result;
+
+	std::cout << "Result is: " << result << std::endl;
 	return 0;
 }
