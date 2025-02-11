@@ -5,15 +5,15 @@
 #include <variant>
 
 namespace StormByte::Config {
-	class STORMBYTE_PUBLIC Integer final: public Value {
+	class STORMBYTE_PUBLIC Double final: public Value {
 		public:
-			Integer(const std::string&);
-			Integer(std::string&&);
-			Integer(const Integer&)					= default;
-			Integer(Integer&&) noexcept				= default;
-			Integer& operator=(const Integer&)		= default;
-			Integer& operator=(Integer&&) noexcept	= default;
-			~Integer() noexcept override			= default;
+			Double(const std::string&);
+			Double(std::string&&);
+			Double(const Double&)					= default;
+			Double(Double&&) noexcept				= default;
+			Double& operator=(const Double&)		= default;
+			Double& operator=(Double&&) noexcept	= default;
+			~Double() noexcept override				= default;
 
 			const int& 				AsInteger() const override;
 			const double& 			AsDouble() const override;
@@ -29,6 +29,6 @@ namespace StormByte::Config {
 		private:
 			std::shared_ptr<Item>	Clone() override;
 
-			int m_value;
+			double m_value;
 	};
 }

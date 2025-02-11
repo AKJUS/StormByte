@@ -1,5 +1,6 @@
 #include <StormByte/config/exception.hxx>
 #include <StormByte/config/file.hxx>
+#include <StormByte/config/item/value/double.hxx>
 #include <StormByte/config/item/value/integer.hxx>
 #include <StormByte/config/item/value/string.hxx>
 #include <StormByte/config/item/group.hxx>
@@ -110,6 +111,12 @@ void File::Parse(std::istream& stream, std::shared_ptr<Group>& group) {
 				group->Add(item);
 				break;
 			}
+			case Item::Type::Double: {
+				auto item = std::make_shared<Double>(item_name);
+				item->SetDouble(ParseDoubleValue(stream));
+				group->Add(item);
+				break;
+			}
 		}
 		ConsumeEmptyChars(stream);
 	}
@@ -161,6 +168,16 @@ Item::Type File::GuessType(std::istream& stream) {
 		stream.get(c);
 		if (std::isdigit(c)) {
 			item_type = Item::Type::Integer;
+			// We assumed integer but will keep reading until we find a . for double or a ; which confirms it is an integer
+			while (!stream.eof()) {
+				stream.get(c);
+				if (c == '.') {
+					item_type = Item::Type::Double;
+					break;
+				}
+				else if (c == ';')
+					break;
+			}
 			break;
 		}
 		else if (c == '"') {
@@ -276,6 +293,34 @@ std::string File::ParseGroupContent(std::istream& stream) {
 		ExpectSemicolon(stream);
 
 	return accumulator;
+}
+
+double File::ParseDoubleValue(std::istream& stream) {
+	ConsumeEmptyChars(stream);
+	std::string accumulator = "";
+	bool found_point = false;
+	if (stream.eof())
+		throw ParseError("Expected number but got EOF");
+	while (!stream.eof()) {
+		char c;
+		stream.get(c);
+		if (std::isdigit(c))
+			accumulator += c;
+		else if (c == '.') {
+			if (found_point)
+				throw ParseError("The double number is illformed as it contains more than one decimal dot");
+			found_point = true;
+			accumulator += c;
+		}
+		else if (c == ';')
+			break;
+		else
+			throw ParseError((std::string)"Expected number or ; but got " + c);
+	}
+	if (accumulator.empty())
+		throw ParseError("Expected number but got ; without any");
+	
+	return std::stod(accumulator);
 }
 
 void File::ConsumeEmptyChars(std::istream& stream) {

@@ -5,6 +5,7 @@ set(STORMBYTE_SOURCES
 	${STORMBYTE_DIR}/StormByte/config/item.cxx
 	${STORMBYTE_DIR}/StormByte/config/item/group.cxx
 	${STORMBYTE_DIR}/StormByte/config/item/value.cxx
+	${STORMBYTE_DIR}/StormByte/config/item/value/double.cxx
 	${STORMBYTE_DIR}/StormByte/config/item/value/integer.cxx
 	${STORMBYTE_DIR}/StormByte/config/item/value/string.cxx
 	${STORMBYTE_DIR}/StormByte/log/file.cxx

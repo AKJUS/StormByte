@@ -1,4 +1,5 @@
 #include <StormByte/config/item/group.hxx>
+#include <StormByte/config/item/value/double.hxx>
 #include <StormByte/config/item/value/integer.hxx>
 #include <StormByte/config/item/value/string.hxx>
 #include <StormByte/config/exception.hxx>
@@ -41,6 +42,10 @@ const int& Group::AsInteger() const {
 	throw WrongValueTypeConversion(*this, "AsInt");
 }
 
+const double& Group::AsDouble() const {
+	throw WrongValueTypeConversion(*this, "AsDouble");
+}
+
 std::shared_ptr<Item> Group::Add(const std::string& name, const Type& type) {
 	if (std::find_if(name.begin(), name.end(), 
         [](char c) { return !(isalnum(c) || c == '_'); }) != name.end())
@@ -58,6 +63,10 @@ std::shared_ptr<Item> Group::Add(const std::string& name, const Type& type) {
 
 		case Type::String:
 			item = std::make_shared<String>(name);
+			break;
+
+		case Type::Double:
+			item = std::make_shared<Double>(name);
 			break;
 	}
 	m_children.insert({ name, item });
@@ -88,6 +97,10 @@ void Group::Remove(const std::string& child) {
 
 void Group::SetInteger(const int&) {
 	throw ValueFailure(*this, Type::Integer);
+}
+
+void Group::SetDouble(const double&) {
+	throw ValueFailure(*this, Type::Double);
 }
 
 void Group::SetString(const std::string&) {

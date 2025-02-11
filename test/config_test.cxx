@@ -250,6 +250,34 @@ int bad_config2() {
 	return 0;
 }
 
+int bad_config3() {
+	ConfigFile cfg(get_current_path() / "bad_config3.conf");
+	try {
+		cfg.Read();
+		std::cerr << "Config read ok when it should not!";
+		return 1;
+	}
+	catch(...) {
+		//Expected
+	}
+	return 0;
+}
+
+int good_double_conf1() {
+	ConfigFile cfg(get_current_path() / "good_double_conf1.conf");
+	try {
+		cfg.Read();
+		auto lookup_double = cfg.LookUp("test_double");
+		ASSERT_EQ(666.666, lookup_double->AsDouble());
+		return 0;
+	}
+	catch(...) {
+		std::cerr << "Got exception when we should not" << std::endl;
+		return 1;
+	}
+	return 0;
+}
+
 int main() {
     int result = 0;
 	try {
@@ -261,6 +289,8 @@ int main() {
     	result += test_complex_config_creation();
 		result += bad_config1();
 		result += bad_config2();
+		result += bad_config3();
+		result += good_double_conf1();
 	}
 	catch (const StormByte::Config::Exception& ex) {
 		std::cerr << ex.what() << std::endl;

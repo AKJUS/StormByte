@@ -13,12 +13,20 @@ const int& String::AsInteger() const {
 	throw WrongValueTypeConversion(*this, "AsInteger");
 }
 
+const double& String::AsDouble() const {
+	throw WrongValueTypeConversion(*this, "AsDouble");
+}
+
 const std::string& String::AsString() const {
 	return m_value;
 }
 
 void String::SetInteger(const int&) {
 	throw ValueFailure(*this, Type::Integer);
+}
+
+void String::SetDouble(const double&) {
+	throw ValueFailure(*this, Type::Double);
 }
 
 void String::SetString(const std::string& val) {

@@ -32,6 +32,10 @@ const std::string Item::GetTypeAsString(const Type& t) noexcept {
 		case Type::Integer:
 			str = "Integer";
 			break;
+
+		case Type::Double:
+			str = "Double";
+			break;
 	}
 	return str;
 }

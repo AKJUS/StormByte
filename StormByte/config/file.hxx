@@ -42,6 +42,7 @@ namespace StormByte::Config {
 			int						ParseIntValue(std::istream&);
 			std::string 			ParseStringValue(std::istream&);
 			std::string 			ParseGroupContent(std::istream&);
+			double 					ParseDoubleValue(std::istream&);
 			void 					ConsumeEmptyChars(std::istream&);
 			void 					ExpectSemicolon(std::istream&);
 	};

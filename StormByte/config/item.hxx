@@ -15,6 +15,7 @@ namespace StormByte::Config {
 				Group = 0,
 				String,
 				Integer,
+				Double
 			};
 
 			Item(const Item&)					= default;
@@ -30,9 +31,11 @@ namespace StormByte::Config {
 			
 			virtual Group&						AsGroup()			= 0;
 			virtual const int&					AsInteger() const 	= 0;
+			virtual const double&				AsDouble() const 	= 0;
 			virtual const std::string&			AsString() const	= 0;
 
 			virtual void						SetInteger(const int&)			= 0;
+			virtual void						SetDouble(const double&)		= 0;
 			virtual void						SetString(const std::string&)	= 0;
 			virtual void						SetString(std::string&&)		= 0;
 
