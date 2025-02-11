@@ -18,6 +18,15 @@ namespace StormByte::Config {
 				Double,
 				Comment
 			};
+			static constexpr const char* GetTypeAsString(const Type& t) noexcept {
+				switch(t) {
+					case Type::Group:    return "Group";
+					case Type::String:   return "String";
+					case Type::Integer:  return "Integer";
+					case Type::Double:   return "Double";
+					case Type::Comment:  return "Comment";
+				}
+			}
 
 			Item(const Item&)					= default;
 			Item(Item&&) noexcept				= default;
@@ -28,7 +37,6 @@ namespace StormByte::Config {
 			const std::string&					GetName() const noexcept;
 			const Type&							GetType() const noexcept;
 			const std::string					GetTypeAsString() const noexcept;
-			static const std::string			GetTypeAsString(const Type&) noexcept;
 			
 			virtual Group&						AsGroup()			= 0;
 			virtual const int&					AsInteger() const 	= 0;
