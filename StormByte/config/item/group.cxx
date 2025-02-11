@@ -1,3 +1,4 @@
+#include <StormByte/config/item/comment.hxx>
 #include <StormByte/config/item/group.hxx>
 #include <StormByte/config/item/value/double.hxx>
 #include <StormByte/config/item/value/integer.hxx>
@@ -67,6 +68,10 @@ std::shared_ptr<Item> Group::Add(const std::string& name, const Type& type) {
 
 		case Type::Double:
 			item = std::make_shared<Double>(name);
+			break;
+
+		case Type::Comment:
+			item = std::make_shared<Comment>();
 			break;
 	}
 	m_children.insert({ name, item });

@@ -278,6 +278,45 @@ int good_double_conf1() {
 	return 0;
 }
 
+int commented_config() {
+	const std::string temp_file = get_temp_filename();
+	ConfigFile file(temp_file);
+	const std::string config_str = "# The following is a test integer\n"
+		"test_integer = 666;\n"
+		"\n"
+		"# Now a group\n"
+		"test_group = { # We can have a comment here!\n"
+		"\t# And also here\n"
+		"\ttest_string = \"# But this is not a comment\";\n"
+		"};\n"
+		"# Ending comment no newline";
+	const std::string expected_str = "# The following is a test integer\n"
+		"test_integer = 666;\n"
+		"# Now a group\n"
+		"test_group = {\n"
+		"\t# We can have a comment here!\n"
+		"\t# And also here\n"
+		"\ttest_string = \"# But this is not a comment\";\n"
+		"};\n"
+		"# Ending comment no newline\n";
+	file.ReadFromString(config_str);
+	file.Write();
+
+	auto test_string = file.LookUp("test_group/test_string");
+	ASSERT_EQ("# But this is not a comment", test_string->AsString());
+
+	// Validate the written content
+    std::ifstream temp_file_stream(temp_file);
+    std::stringstream buffer;
+    buffer << temp_file_stream.rdbuf();
+
+	ASSERT_EQ(expected_str, buffer.str());
+
+    std::remove(temp_file.c_str());
+
+	return 0;
+}
+
 int main() {
     int result = 0;
 	try {
@@ -291,6 +330,7 @@ int main() {
 		result += bad_config2();
 		result += bad_config3();
 		result += good_double_conf1();
+		result += commented_config();
 	}
 	catch (const StormByte::Config::Exception& ex) {
 		std::cerr << ex.what() << std::endl;

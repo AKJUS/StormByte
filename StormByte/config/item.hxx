@@ -15,7 +15,8 @@ namespace StormByte::Config {
 				Group = 0,
 				String,
 				Integer,
-				Double
+				Double,
+				Comment
 			};
 
 			Item(const Item&)					= default;

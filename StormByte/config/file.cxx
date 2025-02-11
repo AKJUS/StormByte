@@ -85,7 +85,7 @@ std::shared_ptr<Item> File::LookUp(const std::string& path) const {
 }
 
 void File::Parse(std::istream& stream, std::shared_ptr<Group>& group) {
-	ConsumeEmptyChars(stream);
+	while (FindAndParseComment(stream, group)) {}
 	while (!stream.eof()) {
 		// The first thing we expect to encounter is the item name
 		std::string item_name = ParseItemName(stream);
@@ -117,8 +117,11 @@ void File::Parse(std::istream& stream, std::shared_ptr<Group>& group) {
 				group->Add(item);
 				break;
 			}
+			case Item::Type::Comment:
+				// This should never happen but we make compiler happy
+				break;
 		}
-		ConsumeEmptyChars(stream);
+		while (FindAndParseComment(stream, group)) {}
 	}
 }
 
@@ -186,6 +189,10 @@ Item::Type File::GuessType(std::istream& stream) {
 		}
 		else if (c == '{') {
 			item_type = Item::Type::Group;
+			break;
+		}
+		else if (c == '#') {
+			item_type = Item::Type::Comment;
 			break;
 		}
 		else
@@ -321,6 +328,29 @@ double File::ParseDoubleValue(std::istream& stream) {
 		throw ParseError("Expected number but got ; without any");
 	
 	return std::stod(accumulator);
+}
+
+bool File::FindAndParseComment(std::istream& stream, std::shared_ptr<Group>& group) {
+	ConsumeEmptyChars(stream);
+	std::string accumulator;
+	if (stream.eof())
+		return false;
+	char c;
+	stream.get(c);
+	if (c == '#') {
+		std::getline(stream, accumulator, '\n');
+		if (!accumulator.empty() && accumulator.back() == '\n')
+			accumulator.pop_back();
+
+		if (!accumulator.empty())
+			group->Add("_comment_", Item::Type::Comment)->SetString(accumulator);
+	}
+	else {
+		// Leave the position before this read
+		stream.seekg(-1, std::ios::cur);
+	}
+
+	return !accumulator.empty();
 }
 
 void File::ConsumeEmptyChars(std::istream& stream) {
