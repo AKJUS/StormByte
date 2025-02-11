@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 project("StormByte"
-	VERSION 0.0.1
+	VERSION 0.0.2
 	DESCRIPTION "The conveninence StormByte C++ library"
 	HOMEPAGE_URL "https://github.com/StormBytePP/StormByte"
 )
