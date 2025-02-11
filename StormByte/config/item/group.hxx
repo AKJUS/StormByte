@@ -10,7 +10,7 @@
 namespace StormByte::Config {
 	class STORMBYTE_PUBLIC Group final: public Item {
 		friend class File;
-		using GroupStorage = std::map<std::string, std::shared_ptr<Item>>;
+		using GroupStorage = std::vector<std::shared_ptr<Item>>;
 		public:
 			Group(const std::string&);
 			Group(std::string&&);
@@ -99,6 +99,7 @@ namespace StormByte::Config {
 			bool						Exists(std::queue<std::string>&) const noexcept;
 			std::queue<std::string> 	ExplodePath(const std::string&) const noexcept;
 
-			std::map<std::string, std::shared_ptr<Item>> m_children;
+			std::map<std::string, std::shared_ptr<Item>>	m_children;
+			std::vector<std::shared_ptr<Item>> 				m_ordered;
 	};
 }

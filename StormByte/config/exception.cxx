@@ -13,14 +13,8 @@ Exception("Try to add/set " + Item::GetTypeAsString(type) + " value to " + item.
 InvalidName::InvalidName(const std::string& name):
 Exception("Invalid name " + name + " given as identifier, only alfanumeric is allowed") {}
 
-ParseError::ParseError(const std::string& fragment):
-Exception("Parse error near " + fragment) {}
-
-ParseError::ParseError(const std::string& name, const std::string& fragment):
-Exception("Parse error on " + name + " near " + fragment) {}
-
-ParseError::ParseError(const std::string& name, const std::string& fragment, const std::string& reason):
-Exception("Parse error (" + reason + ") on " + name + " near " + fragment) {}
+ParseError::ParseError(const std::string& reason):
+Exception("Parse error: " + reason) {}
 
 ItemNotFound::ItemNotFound(const std::string& name):
 Exception("Item " + name + " do not exist") {}

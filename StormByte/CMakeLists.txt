@@ -3,7 +3,6 @@ set(STORMBYTE_SOURCES
 	${STORMBYTE_DIR}/StormByte/config/exception.cxx
 	${STORMBYTE_DIR}/StormByte/config/file.cxx
 	${STORMBYTE_DIR}/StormByte/config/item.cxx
-	${STORMBYTE_DIR}/StormByte/config/parser.cxx
 	${STORMBYTE_DIR}/StormByte/config/item/group.cxx
 	${STORMBYTE_DIR}/StormByte/config/item/value.cxx
 	${STORMBYTE_DIR}/StormByte/config/item/value/integer.cxx

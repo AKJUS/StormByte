@@ -61,6 +61,7 @@ std::shared_ptr<Item> Group::Add(const std::string& name, const Type& type) {
 			break;
 	}
 	m_children.insert({ name, item });
+	m_ordered.push_back(item);
 	return item;
 }
 
@@ -70,12 +71,17 @@ std::shared_ptr<Item> Group::Add(std::shared_ptr<Item> item) {
 		throw InvalidName(item->GetName());
 		
 	m_children.insert({ item->GetName(), item });
+	m_ordered.push_back(item);
 	return item;
 }
 
 void Group::Remove(const std::string& child) {
-	if (m_children.find(child) != m_children.end())
-		m_children.erase(child);
+	auto it = m_children.find(child);
+	if (it != m_children.end()) {
+		auto vec_it = std::find(m_ordered.begin(), m_ordered.end(), it->second);
+		m_ordered.erase(vec_it); // No need to check for presence, it will be present for sure
+		m_children.erase(it);
+	}
 	else
 		throw ItemNotFound(child);
 }
@@ -117,8 +123,8 @@ std::shared_ptr<Item> Group::Child(const std::string& path) const {
 
 std::string Group::Serialize(const int& indent_level) const noexcept {
 	std::string serial = Indent(indent_level) + m_name + " = {\n";
-	for (auto it = m_children.begin(); it != m_children.end(); it++) {
-		serial += it->second->Serialize(indent_level + 1) + "\n";
+	for (auto it = m_ordered.begin(); it != m_ordered.end(); it++) {
+		serial += it->get()->Serialize(indent_level + 1) + "\n";
 	}
 	serial += Indent(indent_level) + "};";
 	return serial;
@@ -218,7 +224,7 @@ bool Group::Iterator::operator!=(const Iterator& it) const noexcept {
 }
 
 Item* Group::Iterator::operator->() noexcept {
-	return m_it->second.operator->();
+	return m_it->operator->();
 }
 
 Group::Const_Iterator& Group::Const_Iterator::operator++() noexcept {
@@ -252,41 +258,41 @@ bool Group::Const_Iterator::operator!=(const Const_Iterator& it) const noexcept 
 }
 
 const Item* Group::Const_Iterator::operator->() const noexcept {
-	return m_it->second.operator->();
+	return m_it->operator->();
 }
 
 Group::Iterator Group::Begin() noexcept {
 	Iterator it;
-	it.m_it = m_children.begin();
+	it.m_it = m_ordered.begin();
 	return it;
 }
 
 Group::Const_Iterator Group::Begin() const noexcept {
 	Const_Iterator it;
-	it.m_it = m_children.begin();
+	it.m_it = m_ordered.begin();
 	return it;
 }
 
 Group::Iterator Group::End() noexcept {
 	Iterator it;
-	it.m_it = m_children.end();
+	it.m_it = m_ordered.end();
 	return it;
 }
 
 Group::Const_Iterator Group::End() const noexcept {
 	Const_Iterator it;
-	it.m_it = m_children.end();
+	it.m_it = m_ordered.end();
 	return it;
 }
 
 Group::Const_Iterator Group::CBegin() const noexcept {
 	Const_Iterator it;
-	it.m_it = m_children.cbegin();
+	it.m_it = m_ordered.cbegin();
 	return it;
 }
 
 Group::Const_Iterator Group::CEnd() const noexcept {
 	Const_Iterator it;
-	it.m_it = m_children.cend();
+	it.m_it = m_ordered.cend();
 	return it;
 }

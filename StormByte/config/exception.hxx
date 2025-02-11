@@ -41,8 +41,6 @@ namespace StormByte::Config {
 	class STORMBYTE_PUBLIC ParseError final: public Exception {
 		public:
 			ParseError(const std::string&);
-			ParseError(const std::string&, const std::string&);
-			ParseError(const std::string&, const std::string&, const std::string&);
 			ParseError(const ParseError&)				= default;
 			ParseError& operator=(const ParseError&)	= default;
 			~ParseError() noexcept override				= default;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <StormByte/config/exception.hxx>
-#include <StormByte/config/parser.hxx>
 #include <StormByte/config/item/group.hxx>
 
 #include <filesystem>
@@ -32,11 +31,18 @@ namespace StormByte::Config {
 		protected:
 			virtual void			PostRead() noexcept = 0;
 
-			std::unique_ptr<Group> 	m_root;
+			std::shared_ptr<Group> 	m_root;
 			std::filesystem::path 	m_file;
 
 		private:
-			void					Add(Item* parent, Parser::Content&& content);
-			void					Add(Item* parent, std::vector<Parser::Content>&& content);
+			void 					Parse(std::istream&, std::shared_ptr<Group>& group);
+			std::string 			ParseItemName(std::istream&);
+			void 					ExpectEqualSign(std::istream&);
+			Item::Type 				GuessType(std::istream&);
+			int						ParseIntValue(std::istream&);
+			std::string 			ParseStringValue(std::istream&);
+			std::string 			ParseGroupContent(std::istream&);
+			void 					ConsumeEmptyChars(std::istream&);
+			void 					ExpectSemicolon(std::istream&);
 	};
 }

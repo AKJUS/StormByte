@@ -33,6 +33,10 @@ std::string get_temp_filename() {
     return std::string(temp_filename);
 }
 
+std::filesystem::path get_current_path() {
+	return std::filesystem::path(__FILE__).parent_path();
+}
+
 int test_add_and_lookup() {
     std::string temp_file = get_temp_filename();
     ConfigFile file(temp_file);
@@ -205,13 +209,13 @@ int test_complex_config_creation() {
 
     std::string expected_content = 
         "Group1 = {\n"
-        "    Group2 = {\n"
-        "        IntItem1 = 123;\n"
-        "        StrItem1 = \"Nested String\";\n"
-        "    };\n"
+        "\tGroup2 = {\n"
+        "\t\tIntItem1 = 123;\n"
+        "\t\tStrItem1 = \"Nested String\";\n"
+        "\t};\n"
         "};\n"
         "Group3 = {\n"
-        "    IntItem2 = 456;\n"
+        "\tIntItem2 = 456;\n"
         "};\n";
 
     ASSERT_EQ(expected_content, buffer.str());
@@ -220,14 +224,48 @@ int test_complex_config_creation() {
     return 0;
 }
 
+int bad_config1() {
+	ConfigFile cfg(get_current_path() / "bad_config1.conf");
+	try {
+		cfg.Read();
+		std::cerr << "Config read ok when it should not!";
+		return 1;
+	}
+	catch(...) {
+		//Expected
+	}
+	return 0;
+}
+
+int bad_config2() {
+	ConfigFile cfg(get_current_path() / "bad_config2.conf");
+	try {
+		cfg.Read();
+		std::cerr << "Config read ok when it should not!";
+		return 1;
+	}
+	catch(...) {
+		//Expected
+	}
+	return 0;
+}
+
 int main() {
     int result = 0;
-    result += test_add_and_lookup();
-    result += test_write_and_read();
-    result += test_nested_groups();
-    result += test_add_remove_group();
-    result += test_write_nested_groups();
-    result += test_complex_config_creation();
+	try {
+		result += test_add_and_lookup();
+		result += test_write_and_read();
+		result += test_nested_groups();
+		result += test_add_remove_group();
+		result += test_write_nested_groups();
+    	result += test_complex_config_creation();
+		result += bad_config1();
+		result += bad_config2();
+	}
+	catch (const StormByte::Config::Exception& ex) {
+		std::cerr << ex.what() << std::endl;
+		result++;
+	}
     if (result == 0) {
         std::cout << "All tests passed!" << std::endl;
     } else {
