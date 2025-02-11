@@ -67,12 +67,11 @@ int test_pipeline_find_sort_wc() {
     // Test a pipeline that finds a pattern, sorts the results, and counts lines.
     std::vector<std::string> args1 = { "-e", "apple\nbanana\ncherry\napple\nbanana\ncherry" };
     std::vector<std::string> args2 = { "apple" };
-    std::vector<std::string> args3;
     std::vector<std::string> args4 = { "-l" };
 
     StormByte::System::Process proc1("/bin/echo", args1);
     StormByte::System::Process proc2("/bin/grep", args2);
-    StormByte::System::Process proc3("/usr/bin/sort", args3);
+    StormByte::System::Process proc3("/usr/bin/sort");
     StormByte::System::Process proc4("/usr/bin/wc", args4);
 
     proc1 >> proc2 >> proc3 >> proc4;
@@ -93,13 +92,11 @@ int test_pipeline_find_sort_wc() {
 int test_pipeline_echo_sort_wc() {
     // Test a pipeline that echoes, sorts, and counts lines.
     std::vector<std::string> args1 = { "-e", "orange\nbanana\napple\ncherry\nbanana\napple" };
-    std::vector<std::string> args2;
-    std::vector<std::string> args3;
     std::vector<std::string> args4 = { "-l" };
 
     StormByte::System::Process proc1("/bin/echo", args1);
-    StormByte::System::Process proc2("/usr/bin/sort", args2);
-    StormByte::System::Process proc3("/usr/bin/uniq", args3);
+    StormByte::System::Process proc2("/usr/bin/sort");
+    StormByte::System::Process proc3("/usr/bin/uniq");
     StormByte::System::Process proc4("/usr/bin/wc", args4);
 
     proc1 >> proc2 >> proc3 >> proc4;
