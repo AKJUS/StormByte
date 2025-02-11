@@ -7,7 +7,7 @@ StormByte is a comprehensive, cross-platform C++ library aimed at easing system 
 - **System Operations**: Handles pipes, processes, and system variables seamlessly across different platforms.
 - **Configuration Management**: Provides an intuitive API for reading and writing configuration files.
 - **Logging**: Supports various logging levels and outputs, including file-based logging.
-- **Database Handling**: Includes SQLite support for embedded database management.
+- **Database Handling**: Includes SQLite support for embedded database management while hiding SQLite3 internals conveniently.
 
 ## Table of Contents
 
