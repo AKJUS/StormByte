@@ -317,6 +317,28 @@ int commented_config() {
 	return 0;
 }
 
+int good_string_conf() {
+	ConfigFile cfg(get_current_path() / "good_string_conf.conf");
+	try {
+		cfg.Read();
+		auto lookup_string = cfg.LookUp("test_string");
+		ASSERT_EQ("This is a test string", lookup_string->AsString());
+
+		auto lookup_quoted = cfg.LookUp("test_quoted");
+		ASSERT_EQ("This \"quote\" allows more things", lookup_quoted->AsString());
+
+		auto lookup_unfinished = cfg.LookUp("test_unfinished");
+		ASSERT_EQ("When you see a \" you might have the start of a string", lookup_unfinished->AsString());
+
+		return 0;
+	}
+	catch(...) {
+		std::cerr << "Got exception when we should not" << std::endl;
+		return 1;
+	}
+	return 0;
+}
+
 int main() {
     int result = 0;
 	try {
@@ -331,6 +353,7 @@ int main() {
 		result += bad_config3();
 		result += good_double_conf1();
 		result += commented_config();
+		result += good_string_conf();
 	}
 	catch (const StormByte::Config::Exception& ex) {
 		std::cerr << ex.what() << std::endl;

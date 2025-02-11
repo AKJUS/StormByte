@@ -38,7 +38,14 @@ void String::SetString(std::string&& val) {
 }
 
 std::string String::Serialize(const int& indent_level) const noexcept {
-	return Indent(indent_level) + m_name + " = \"" + m_value + "\";";
+    std::string escaped_value = m_value;
+    // Escape the " characters in the string value
+    size_t pos = 0;
+    while ((pos = escaped_value.find('"', pos)) != std::string::npos) {
+        escaped_value.insert(pos, "\\");
+        pos += 2; // Skip the escaped quote
+    }
+    return Indent(indent_level) + m_name + " = \"" + escaped_value + "\";";
 }
 
 std::shared_ptr<Item> String::Clone() {

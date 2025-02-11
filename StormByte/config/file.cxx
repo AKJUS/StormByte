@@ -224,33 +224,48 @@ int File::ParseIntValue(std::istream& stream) {
 }
 
 std::string File::ParseStringValue(std::istream& stream) {
-	ConsumeEmptyChars(stream);
-	std::string accumulator;
-	// Guesser already detected the opened " so we skip it
-	stream.seekg(1, std::ios::cur);
-	bool string_closed = false;
+    ConsumeEmptyChars(stream);
+    std::string accumulator;
+    // Guesser already detected the opened " so we skip it
+    stream.seekg(1, std::ios::cur);
+    bool string_closed = false;
 
-	if (stream.eof())
-		throw ParseError("String content was expected but found EOF");
+    if (stream.eof())
+        throw ParseError("String content was expected but found EOF");
 
-	// Do not skip space characters
-	stream >> std::noskipws;
-	while (!stream.eof()) {
-		char c;
-		stream.get(c);
-		if (c == '"') {
-			string_closed = true;
-			ExpectSemicolon(stream);
-			break;
-		}
-		else
-			accumulator += c;
-	}
+    // Do not skip space characters
+    stream >> std::noskipws;
+    bool escape_next = false;
+    while (!stream.eof()) {
+        char c;
+        stream.get(c);
 
-	if (!string_closed)
-		throw ParseError("Expected string closure but got EOF");
+        if (escape_next) {
+            // Handle escaped characters
+            if (c == '"' || c == '\\') {
+                accumulator += c;
+            } else {
+                throw ParseError(std::string("Invalid escape sequence: \\") + c);
+            }
+            escape_next = false;
+        } else {
+            if (c == '\\') {
+                // Indicate that the next character should be escaped
+                escape_next = true;
+            } else if (c == '"') {
+                string_closed = true;
+                ExpectSemicolon(stream);
+                break;
+            } else {
+                accumulator += c;
+            }
+        }
+    }
 
-	return accumulator;
+    if (!string_closed)
+        throw ParseError("Expected string closure but got EOF");
+
+    return accumulator;
 }
 
 std::string File::ParseGroupContent(std::istream& stream) {
