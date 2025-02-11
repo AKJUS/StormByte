@@ -52,7 +52,7 @@ std::shared_ptr<Row> PreparedSTMT::Step() {
 			std::shared_ptr<Result> item;
 			switch(sqlite3_column_type(m_stmt, i)) {
 				case SQLITE_INTEGER:
-					item = std::make_shared<Result>(sqlite3_column_int(m_stmt, i));
+					item = std::make_shared<Result>((int64_t)sqlite3_column_int(m_stmt, i));
 					break;
 
 				case SQLITE_TEXT:

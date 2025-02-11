@@ -2,6 +2,7 @@
 #include <StormByte/database/sqlite/prepared_stmt.hxx>
 #include <StormByte/database/sqlite/row.hxx>
 #include <StormByte/database/sqlite/result.hxx>
+#include <StormByte/database/sqlite/exception.hxx>
 #include <cassert>
 #include <memory>
 #include <iostream>
@@ -83,6 +84,7 @@ int main() {
         assert(rows[0]->At(0)->Value<std::string>() == "Laptop");
         assert(rows[0]->At(1)->Value<double>() == 999.99);
 
+		assert(rows[1]->Columns() == 2);
         assert(rows[1]->At(0)->Value<std::string>() == "Mouse");
         assert(rows[1]->At(1)->Value<double>() == 19.99);
 
@@ -93,6 +95,7 @@ int main() {
         assert(rows[0]->At(1)->Value<int>() == 1);
         assert(rows[0]->At(2)->Value<int>() == 1);
 
+		assert(rows[1]->Columns() == 3);
         assert(rows[1]->At(0)->Value<int>() == 2);
         assert(rows[1]->At(1)->Value<int>() == 2);
         assert(rows[1]->At(2)->Value<int>() == 2);
@@ -104,6 +107,7 @@ int main() {
         assert(rows[0]->At(1)->Value<std::string>() == "Laptop");
         assert(rows[0]->At(2)->Value<int>() == 1);
 
+		assert(rows[1]->Columns() == 3);
         assert(rows[1]->At(0)->Value<std::string>() == "Bob");
         assert(rows[1]->At(1)->Value<std::string>() == "Mouse");
         assert(rows[1]->At(2)->Value<int>() == 2);
@@ -111,7 +115,11 @@ int main() {
         std::cout << "All tests passed successfully.\n";
     } catch (const std::exception& e) {
         std::cerr << "An exception occurred: " << e.what() << '\n';
-    }
+		return 1;
+    } catch (const StormByte::Database::SQLite::Exception& e) {
+		std::cerr << "An exception occurred: " << e.what() << '\n';
+		return 1;
+	}
 
     return 0;
 }

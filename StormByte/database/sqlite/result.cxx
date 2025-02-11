@@ -53,9 +53,6 @@ template<> const double& Result::Value<double>() const {
 	if (m_type != Type::Double)
 		throw WrongResultType(m_type, Type::Double);
 
-	if (std::get<int64_t>(m_value) > std::numeric_limits<int>::max())
-		throw Overflow(std::get<int64_t>(m_value));
-
 	return std::get<double>(m_value);
 }
 
