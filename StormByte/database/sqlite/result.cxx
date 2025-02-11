@@ -13,6 +13,10 @@ Result::Result(std::string&& value):m_type(Type::String), m_value(std::move(valu
 
 Result::Result(std::nullptr_t):m_type(Type::Null), m_value() {}
 
+Result::Result(const double& value):m_type(Type::Double), m_value(value) {}
+
+Result::Result(double&& value):m_type(Type::Double), m_value(std::move(value)) {}
+
 bool Result::IsNull() const noexcept { return m_type == Type::Null; }
 
 const Type& Result::GetType() const noexcept { return m_type; }
@@ -43,6 +47,16 @@ template<> const bool& Result::Value<bool>() const {
 	m_bool_conversion = std::get<int64_t>(m_value) == 1;
 
 	return m_bool_conversion;
+}
+
+template<> const double& Result::Value<double>() const {
+	if (m_type != Type::Double)
+		throw WrongResultType(m_type, Type::Double);
+
+	if (std::get<int64_t>(m_value) > std::numeric_limits<int>::max())
+		throw Overflow(std::get<int64_t>(m_value));
+
+	return std::get<double>(m_value);
 }
 
 template<> const std::string& Result::Value<std::string>() const {

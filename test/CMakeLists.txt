@@ -6,3 +6,9 @@ target_link_libraries(ConfigTests StormByte)
 
 add_test(NAME ProcessTests COMMAND ProcessTests)
 add_test(NAME ConfigTests COMMAND ConfigTests)
+
+if (ENABLE_SQLITE)
+	add_executable(DatabaseTests database_test.cxx)
+	target_link_libraries(DatabaseTests StormByte)
+	add_test(NAME DatabaseTests COMMAND DatabaseTests)
+endif()

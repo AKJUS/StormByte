@@ -6,6 +6,7 @@
 	namespace StormByte::Database::SQLite {
 		enum class STORMBYTE_PUBLIC Type: unsigned short {
 			Integer = 0,
+			Double,
 			Bool,
 			String,
 			Null

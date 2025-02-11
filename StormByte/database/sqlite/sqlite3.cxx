@@ -6,6 +6,8 @@
 
 using namespace StormByte::Database::SQLite;
 
+SQLite3::SQLite3():m_database_file(":memory:") {}
+
 SQLite3::SQLite3(const std::filesystem::path& dbfile):m_database_file(dbfile) {}
 
 SQLite3::SQLite3(std::filesystem::path&& dbfile):m_database_file(std::move(dbfile)) {}

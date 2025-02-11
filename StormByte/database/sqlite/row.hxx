@@ -13,6 +13,7 @@
 		class STORMBYTE_PUBLIC Row {
 			friend class PreparedSTMT;
 			public:
+				Row()							= default;
 				Row(const Row&)					= default;
 				Row(Row&&)						= default;
 				Row& operator=(const Row&)		= default;
@@ -30,7 +31,6 @@
 				const std::shared_ptr<Result>	At(const std::string&) const;
 
 			private:
-				Row()							= default;
 				void add(std::string&&, std::shared_ptr<Result>);
 				std::shared_ptr<Result> get(const size_t&);
 				const std::shared_ptr<Result> get(const size_t&) const;

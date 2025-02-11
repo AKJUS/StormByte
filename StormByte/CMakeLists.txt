@@ -58,7 +58,7 @@ target_include_directories(StormByte SYSTEM BEFORE
 )
 
 # Enable features
-if (STORMBYTE_ENABLE_SQLITE)
+if (ENABLE_SQLITE)
 	target_sources(StormByte PRIVATE ${STORMBYTE_SQLITE_SOURCES})
 	target_compile_definitions(StormByte PUBLIC STORMBYTE_ENABLE_SQLITE)
 	target_link_libraries(StormByte PUBLIC sqlite3)

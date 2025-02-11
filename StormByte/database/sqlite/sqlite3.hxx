@@ -21,6 +21,7 @@
 				virtual ~SQLite3() noexcept;
 
 			protected:
+				SQLite3();
 				SQLite3(const std::filesystem::path& dbfile);
 				SQLite3(std::filesystem::path&& dbfile);
 

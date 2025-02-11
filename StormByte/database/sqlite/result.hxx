@@ -14,6 +14,8 @@
 				Result(const std::string&);
 				Result(std::string&&);
 				Result(std::nullptr_t);
+				Result(const double&);
+				Result(double&&);
 				Result(const Result&)							= default;
 				Result(Result&&) noexcept						= default;
 				Result& operator=(const Result&)				= default;
@@ -26,6 +28,7 @@
 				template<> const int&					Value<int>() const;
 				template<> const int64_t&				Value<int64_t>() const;
 				template<> const bool&					Value<bool>() const;
+				template<> const double&				Value<double>() const;
 				template<> const std::string&			Value<std::string>() const;
 				#endif
 
@@ -33,7 +36,7 @@
 
 			protected:
 				Type m_type;
-				std::variant<int64_t, std::string> m_value;
+				std::variant<int64_t, std::string, double> m_value;
 				mutable bool m_bool_conversion;
 				mutable int m_int_conversion;
 		};

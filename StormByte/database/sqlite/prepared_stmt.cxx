@@ -47,6 +47,7 @@ void PreparedSTMT::Reset() noexcept {
 std::shared_ptr<Row> PreparedSTMT::Step() {
 	std::shared_ptr<Row> result = nullptr;
 	if (sqlite3_step(m_stmt) == SQLITE_ROW) {
+		result = std::make_shared<Row>();
 		for (auto i = 0; i < sqlite3_column_count(m_stmt); i++) {
 			std::shared_ptr<Result> item;
 			switch(sqlite3_column_type(m_stmt, i)) {
@@ -60,6 +61,10 @@ std::shared_ptr<Row> PreparedSTMT::Step() {
 
 				case SQLITE_NULL:
 					item = std::make_shared<Result>(nullptr);
+					break;
+
+				case SQLITE_FLOAT:
+					item = std::make_shared<Result>(sqlite3_column_double(m_stmt, i));
 					break;
 
 				default:
