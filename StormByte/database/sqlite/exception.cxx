@@ -30,6 +30,10 @@ std::string WrongResultType::type_to_string(const Type& type) const {
 		case Type::String:
 			t = "string";
 			break;
+
+		case Type::Double:
+			t = "double";
+			break;
 	}
 	return t;
 }
