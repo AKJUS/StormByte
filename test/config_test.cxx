@@ -11,6 +11,7 @@
 #include <sstream>
 #include <cstdlib>  // For mkstemp
 #include <unistd.h> // For close
+#include <climits> // For INT_MAX
 
 #define ASSERT_EQ(expected, actual) if ((expected) != (actual)) { \
     std::cerr << "Assertion failed at " << __FILE__ << ":" << __LINE__ << ": expected " << (expected) << ", got " << (actual) << std::endl; \
@@ -339,26 +340,158 @@ int good_string_conf() {
 	return 0;
 }
 
+int test_empty_string() {
+    ConfigFile file("/tmp/config_test_empty_string.conf");
+
+    auto str_item = file.Add("EmptyString", StormByte::Config::Item::Type::String);
+    str_item->SetString("");
+
+    auto lookup_str = file.LookUp("EmptyString");
+    ASSERT_EQ("", lookup_str->AsString());
+
+    return 0;
+}
+
+int test_integer_boundaries() {
+    ConfigFile file("/tmp/config_test_integer_boundaries.conf");
+
+    auto max_int_item = file.Add("MaxInt", StormByte::Config::Item::Type::Integer);
+    max_int_item->SetInteger(INT_MAX);
+
+    auto min_int_item = file.Add("MinInt", StormByte::Config::Item::Type::Integer);
+    min_int_item->SetInteger(INT_MIN);
+
+    auto lookup_max_int = file.LookUp("MaxInt");
+    ASSERT_EQ(INT_MAX, lookup_max_int->AsInteger());
+
+    auto lookup_min_int = file.LookUp("MinInt");
+    ASSERT_EQ(INT_MIN, lookup_min_int->AsInteger());
+
+    return 0;
+}
+
+int test_special_characters_in_string() {
+    ConfigFile file("/tmp/config_test_special_characters.conf");
+
+    auto str_item = file.Add("SpecialChars", StormByte::Config::Item::Type::String);
+    str_item->SetString("Line1\nLine2\tTabbed");
+
+    auto lookup_str = file.LookUp("SpecialChars");
+    ASSERT_EQ("Line1\nLine2\tTabbed", lookup_str->AsString());
+
+    return 0;
+}
+
+int test_deeply_nested_groups() {
+    ConfigFile file("/tmp/config_test_deeply_nested_groups.conf");
+
+    auto group1 = file.Add("Group1", StormByte::Config::Item::Type::Group);
+    auto group2 = group1->AsGroup().Add("Group2", StormByte::Config::Item::Type::Group);
+    auto group3 = group2->AsGroup().Add("Group3", StormByte::Config::Item::Type::Group);
+    auto group4 = group3->AsGroup().Add("Group4", StormByte::Config::Item::Type::Group);
+
+    auto int_item = group4->AsGroup().Add("DeepInt", StormByte::Config::Item::Type::Integer);
+    int_item->SetInteger(1234);
+
+    auto lookup_int = file.LookUp("Group1/Group2/Group3/Group4/DeepInt");
+    ASSERT_EQ(1234, lookup_int->AsInteger());
+
+    return 0;
+}
+
+int test_invalid_syntax() {
+    ConfigFile file("/tmp/config_test_invalid_syntax.conf");
+    std::string invalid_config = "Invalid = { Unclosed }";
+
+    try {
+        file.ReadFromString(invalid_config);
+        std::cerr << "Expected exception for invalid syntax but none was thrown.\n";
+        return 1;
+    } catch (const StormByte::Config::ParseError&) {
+        // Expected exception
+    }
+
+    return 0;
+}
+
+int test_special_characters_string() {
+    ConfigFile cfg(get_current_path() / "special_characters_conf.conf");
+    try {
+        cfg.Read();
+        auto lookup_special = cfg.LookUp("special_string");
+        ASSERT_EQ("This is a test string with special characters: \n, \t, \\", lookup_special->AsString());
+        return 0;
+    } catch (const StormByte::Config::Exception& ex) {
+        std::cerr << "Got exception when we should not: " << ex.what() << std::endl;
+        return 1;
+    }
+}
+
+int test_long_string() {
+    ConfigFile cfg(get_current_path() / "long_string_conf.conf");
+    try {
+        cfg.Read();
+        auto lookup_long = cfg.LookUp("long_string");
+        ASSERT_EQ(std::string(1000, 'a'), lookup_long->AsString());
+        return 0;
+    } catch (...) {
+        std::cerr << "Got exception when we should not" << std::endl;
+        return 1;
+    }
+}
+
+int test_missing_semicolon() {
+    ConfigFile cfg(get_current_path() / "missing_semicolon.conf");
+    try {
+        cfg.Read();
+        std::cerr << "Config read ok when it should not!";
+        return 1;
+    } catch (...) {
+        // Expected
+    }
+    return 0;
+}
+
+int test_unmatched_braces() {
+    ConfigFile cfg(get_current_path() / "unmatched_braces.conf");
+    try {
+        cfg.Read();
+        std::cerr << "Config read ok when it should not!";
+        return 1;
+    } catch (...) {
+        // Expected
+    }
+    return 0;
+}
+
 int main() {
     int result = 0;
-	try {
-		result += test_add_and_lookup();
+    try {
+        result += test_add_and_lookup();
 		result += test_write_and_read();
 		result += test_nested_groups();
 		result += test_add_remove_group();
 		result += test_write_nested_groups();
-    	result += test_complex_config_creation();
+		result += test_complex_config_creation();
 		result += bad_config1();
 		result += bad_config2();
 		result += bad_config3();
 		result += good_double_conf1();
 		result += commented_config();
 		result += good_string_conf();
-	}
-	catch (const StormByte::Config::Exception& ex) {
-		std::cerr << ex.what() << std::endl;
-		result++;
-	}
+		result += test_empty_string();
+		result += test_integer_boundaries();
+		result += test_special_characters_in_string();
+		result += test_deeply_nested_groups();
+		result += test_invalid_syntax();
+		result += test_special_characters_string();
+		result += test_long_string();
+		result += test_missing_semicolon();
+		result += test_unmatched_braces();
+    } catch (const StormByte::Config::Exception& ex) {
+        std::cerr << ex.what() << std::endl;
+        result++;
+    }
     if (result == 0) {
         std::cout << "All tests passed!" << std::endl;
     } else {

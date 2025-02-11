@@ -224,48 +224,61 @@ int File::ParseIntValue(std::istream& stream) {
 }
 
 std::string File::ParseStringValue(std::istream& stream) {
-    ConsumeEmptyChars(stream);
-    std::string accumulator;
-    // Guesser already detected the opened " so we skip it
-    stream.seekg(1, std::ios::cur);
-    bool string_closed = false;
+	ConsumeEmptyChars(stream);
+	std::string accumulator;
+	// Guesser already detected the opened " so we skip it
+	stream.seekg(1, std::ios::cur);
+	bool string_closed = false;
 
-    if (stream.eof())
-        throw ParseError("String content was expected but found EOF");
+	if (stream.eof())
+		throw ParseError("String content was expected but found EOF");
 
-    // Do not skip space characters
-    stream >> std::noskipws;
-    bool escape_next = false;
-    while (!stream.eof()) {
-        char c;
-        stream.get(c);
+	// Do not skip space characters
+	stream >> std::noskipws;
+	bool escape_next = false;
+	while (!stream.eof()) {
+		char c;
+		stream.get(c);
 
-        if (escape_next) {
-            // Handle escaped characters
-            if (c == '"' || c == '\\') {
-                accumulator += c;
-            } else {
-                throw ParseError(std::string("Invalid escape sequence: \\") + c);
-            }
-            escape_next = false;
-        } else {
-            if (c == '\\') {
-                // Indicate that the next character should be escaped
-                escape_next = true;
-            } else if (c == '"') {
-                string_closed = true;
-                ExpectSemicolon(stream);
-                break;
-            } else {
-                accumulator += c;
-            }
-        }
-    }
+		if (escape_next) {
+			// Handle escaped characters
+			switch (c) {
+				case '"':
+				case '\\':
+					accumulator += c;
+					break;
+				case 'n':
+					accumulator += '\n';
+					break;
+				case 'r':
+					accumulator += '\r';
+					break;
+				case 't':
+					accumulator += '\t';
+					break;
+				default:
+					throw ParseError(std::string("Invalid escape sequence: \\") + c);
+					break;
+			}
+			escape_next = false;
+		} else {
+			if (c == '\\') {
+				// Indicate that the next character should be escaped
+				escape_next = true;
+			} else if (c == '"') {
+				string_closed = true;
+				ExpectSemicolon(stream);
+				break;
+			} else {
+				accumulator += c;
+			}
+		}
+	}
 
-    if (!string_closed)
-        throw ParseError("Expected string closure but got EOF");
+	if (!string_closed)
+		throw ParseError("Expected string closure but got EOF");
 
-    return accumulator;
+	return accumulator;
 }
 
 std::string File::ParseGroupContent(std::istream& stream) {
