@@ -1,4 +1,5 @@
 if (STORMBYTE_ENABLE_SQLITE)
+	file(APPEND ${CMAKE_BINARY_DIR}/generated/StormByte/Features.h "#define STORMBYTE_SQLITE ${STORMBYTE_ENABLE_SQLITE}\n")
 	if (WITH_SYSTEM_SQLITE)
 		find_package(SQLite3 REQUIRED)
 	else()
@@ -8,8 +9,8 @@ if (STORMBYTE_ENABLE_SQLITE)
 		set(sqlite3_VERSION 3.47.0)
 
 		FetchContent_Declare(sqlite3
-			URL      https://sqlite.org/2024/sqlite-amalgamation-3470000.zip
-			URL_HASH SHA3_256=e35ee48efc24fe58d0e9102034ac0a41e3904641a745e94ab11a841fe9d7355e
+			URL      https://sqlite.org/2025/sqlite-amalgamation-3490000.zip
+			URL_HASH SHA3-256=138b6922eb274c953c9d8f3249c39706ad3e40f3eef5d81bbeb73509b41f52c9
 			DOWNLOAD_EXTRACT_TIMESTAMP false
 		)
 		
