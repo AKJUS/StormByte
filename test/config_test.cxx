@@ -225,9 +225,9 @@ int main() {
     result += test_add_and_lookup();
     result += test_write_and_read();
     result += test_nested_groups();
-    //result += test_add_remove_group();
-    //result += test_write_nested_groups();
-    //result += test_complex_config_creation();
+    result += test_add_remove_group();
+    result += test_write_nested_groups();
+    result += test_complex_config_creation();
     if (result == 0) {
         std::cout << "All tests passed!" << std::endl;
     } else {
