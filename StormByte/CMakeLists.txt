@@ -97,7 +97,7 @@ if(ENABLE_DOC)
 	set(DOXYGEN_PROJECT_NAME "StormByte C++ Library")
 	set(DOXYGEN_PROJECT_NUMBER "${PROJECT_VERSION}")
 	set(DOXYGEN_PROJECT_BRIEF "StormByte is a comprehensive, cross-platform C++ library aimed at easing system programming, configuration management, logging, and database handling tasks. This library provides a unified API that abstracts away the complexities and inconsistencies of different platforms (Windows, Linux).")
-	set(DOXYGEN_OUTPUT_DIRECTORY "${STORMBYTE_DIR}/doc")
+	set(DOXYGEN_OUTPUT_DIRECTORY "${STORMBYTE_DIR}/docs")
 	set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${STORMBYTE_DIR}/README.md")
 	set(DOXYGEN_EXCLUDE_PATTERNS
 		"CMakeLists.txt"
