@@ -263,7 +263,7 @@ int test_complex_config_creation() {
 }
 
 int bad_config1() {
-	ConfigFile cfg(get_current_path() / "bad_config1.conf");
+	ConfigFile cfg(get_current_path() / "files" / "bad_config1.conf");
 	try {
 		cfg.Read();
 		std::cerr << "Config read ok when it should not!";
@@ -276,7 +276,7 @@ int bad_config1() {
 }
 
 int bad_config2() {
-	ConfigFile cfg(get_current_path() / "bad_config2.conf");
+	ConfigFile cfg(get_current_path() / "files" / "bad_config2.conf");
 	try {
 		cfg.Read();
 		std::cerr << "Config read ok when it should not!";
@@ -289,7 +289,7 @@ int bad_config2() {
 }
 
 int bad_config3() {
-	ConfigFile cfg(get_current_path() / "bad_config3.conf");
+	ConfigFile cfg(get_current_path() / "files" / "bad_config3.conf");
 	try {
 		cfg.Read();
 		std::cerr << "Config read ok when it should not!";
@@ -302,7 +302,7 @@ int bad_config3() {
 }
 
 int good_double_conf1() {
-	ConfigFile cfg(get_current_path() / "good_double_conf1.conf");
+	ConfigFile cfg(get_current_path() / "files" / "good_double_conf1.conf");
 	try {
 		cfg.Read();
 		auto lookup_double = cfg.LookUp("test_double");
@@ -317,7 +317,7 @@ int good_double_conf1() {
 }
 
 int good_double_conf2() {
-	ConfigFile cfg(get_current_path() / "good_double_conf2.conf");
+	ConfigFile cfg(get_current_path() / "files" / "good_double_conf2.conf");
 	try {
 		cfg.Read();
 		auto lookup_test_double = cfg.LookUp("test_double");
@@ -373,7 +373,7 @@ int commented_config() {
 }
 
 int good_string_conf() {
-	ConfigFile cfg(get_current_path() / "good_string_conf.conf");
+	ConfigFile cfg(get_current_path() / "files" / "good_string_conf.conf");
 	try {
 		cfg.Read();
 		auto lookup_string = cfg.LookUp("test_string");
@@ -395,7 +395,8 @@ int good_string_conf() {
 }
 
 int test_empty_string() {
-    ConfigFile file("/tmp/config_test_empty_string.conf");
+	std::string temp_file = get_temp_filename();
+    ConfigFile file(temp_file);
 
     auto str_item = file.Add("EmptyString", StormByte::Config::Item::Type::String);
     str_item->SetString("");
@@ -403,11 +404,14 @@ int test_empty_string() {
     auto lookup_str = file.LookUp("EmptyString");
     ASSERT_EQ("", lookup_str->AsString());
 
+	std::remove(temp_file.c_str());
+
     return 0;
 }
 
 int test_integer_boundaries() {
-    ConfigFile file("/tmp/config_test_integer_boundaries.conf");
+	std::string temp_file = get_temp_filename();
+    ConfigFile file(temp_file);
 
     auto max_int_item = file.Add("MaxInt", StormByte::Config::Item::Type::Integer);
     max_int_item->SetInteger(INT_MAX);
@@ -421,11 +425,14 @@ int test_integer_boundaries() {
     auto lookup_min_int = file.LookUp("MinInt");
     ASSERT_EQ(INT_MIN, lookup_min_int->AsInteger());
 
+	std::remove(temp_file.c_str());
+
     return 0;
 }
 
 int test_special_characters_in_string() {
-    ConfigFile file("/tmp/config_test_special_characters.conf");
+	std::string temp_file = get_temp_filename();
+    ConfigFile file(temp_file);
 
     auto str_item = file.Add("SpecialChars", StormByte::Config::Item::Type::String);
     str_item->SetString("Line1\nLine2\tTabbed");
@@ -433,11 +440,14 @@ int test_special_characters_in_string() {
     auto lookup_str = file.LookUp("SpecialChars");
     ASSERT_EQ("Line1\nLine2\tTabbed", lookup_str->AsString());
 
+	std::remove(temp_file.c_str());
+
     return 0;
 }
 
 int test_deeply_nested_groups() {
-    ConfigFile file("/tmp/config_test_deeply_nested_groups.conf");
+	std::string temp_file = get_temp_filename();
+    ConfigFile file(temp_file);
 
     auto group1 = file.Add("Group1", StormByte::Config::Item::Type::Group);
     auto group2 = group1->AsGroup().Add("Group2", StormByte::Config::Item::Type::Group);
@@ -450,11 +460,14 @@ int test_deeply_nested_groups() {
     auto lookup_int = file.LookUp("Group1/Group2/Group3/Group4/DeepInt");
     ASSERT_EQ(1234, lookup_int->AsInteger());
 
+	std::remove(temp_file.c_str());
+
     return 0;
 }
 
 int test_invalid_syntax() {
-    ConfigFile file("/tmp/config_test_invalid_syntax.conf");
+	std::string temp_file = get_temp_filename();
+    ConfigFile file(temp_file);
     std::string invalid_config = "Invalid = { Unclosed }";
 
     try {
@@ -463,13 +476,14 @@ int test_invalid_syntax() {
         return 1;
     } catch (const StormByte::Config::ParseError&) {
         // Expected exception
+		std::remove(temp_file.c_str());
     }
 
     return 0;
 }
 
 int test_special_characters_string() {
-    ConfigFile cfg(get_current_path() / "special_characters_conf.conf");
+    ConfigFile cfg(get_current_path() / "files" / "special_characters_conf.conf");
     try {
         cfg.Read();
         auto lookup_special = cfg.LookUp("special_string");
@@ -482,7 +496,7 @@ int test_special_characters_string() {
 }
 
 int test_long_string() {
-    ConfigFile cfg(get_current_path() / "long_string_conf.conf");
+    ConfigFile cfg(get_current_path() / "files" / "long_string_conf.conf");
     try {
         cfg.Read();
         auto lookup_long = cfg.LookUp("long_string");
@@ -495,7 +509,7 @@ int test_long_string() {
 }
 
 int test_missing_semicolon() {
-    ConfigFile cfg(get_current_path() / "missing_semicolon.conf");
+    ConfigFile cfg(get_current_path() / "files" / "missing_semicolon.conf");
     try {
         cfg.Read();
         std::cerr << "Config read ok when it should not!";
@@ -507,7 +521,7 @@ int test_missing_semicolon() {
 }
 
 int test_unmatched_braces() {
-    ConfigFile cfg(get_current_path() / "unmatched_braces.conf");
+    ConfigFile cfg(get_current_path() / "files" / "unmatched_braces.conf");
     try {
         cfg.Read();
         std::cerr << "Config read ok when it should not!";
@@ -519,7 +533,7 @@ int test_unmatched_braces() {
 }
 
 int good_boolean_config1() {
-	ConfigFile cfg(get_current_path() / "good_boolean_conf1.conf");
+	ConfigFile cfg(get_current_path() / "files" / "good_boolean_conf1.conf");
 	try {
 		cfg.Read();
 		auto lookup_enable_feature = cfg.LookUp("settings/enable_feature");
@@ -537,7 +551,7 @@ int good_boolean_config1() {
 }
 
 int bad_boolean_config1() {
-	ConfigFile cfg(get_current_path() / "bad_boolean_conf1.conf");
+	ConfigFile cfg(get_current_path() / "files" / "bad_boolean_conf1.conf");
 	try {
 		cfg.Read();
 		std::cerr << "File was read ok but it should have failed" << std::endl;
