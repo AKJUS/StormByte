@@ -9,9 +9,15 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
-#include <cstdlib>  // For mkstemp
-#include <unistd.h> // For close
-#include <climits> // For INT_MAX
+#ifdef WINDOWS
+    #include <direct.h> // For _getcwd
+    #include <windows.h> // For MAX_PATH
+    #include <StormByte/system/functions.hxx>
+#else
+    #include <cstdlib> // For mkstemp
+    #include <unistd.h> // For close
+    #include <climits> // For INT_MAX
+#endif
 
 #define ASSERT_EQ(expected, actual) if ((expected) != (actual)) { \
     std::cerr << "Assertion failed at " << __FILE__ << ":" << __LINE__ << ": expected " << (expected) << ", got " << (actual) << std::endl; \
@@ -25,6 +31,22 @@ public:
 };
 
 std::string get_temp_filename() {
+#ifdef WINDOWS
+    wchar_t tempPath[MAX_PATH];
+    wchar_t tempFile[MAX_PATH];
+
+    // Get the path to the temporary file directory
+    if (GetTempPathW(MAX_PATH, tempPath) == 0) {
+        throw std::runtime_error("Error getting temp path");
+    }
+
+    // Create a unique temporary filename
+    if (GetTempFileNameW(tempPath, L"TMP", 0, tempFile) == 0) {
+        throw std::runtime_error("Error getting temp file name");
+    }
+
+    return StormByte::System::Functions::UTF8Encode(std::wstring(tempFile));
+#else
     char temp_filename[] = "/tmp/config_testXXXXXX";
     int fd = mkstemp(temp_filename);
     if (fd == -1) {
@@ -32,11 +54,13 @@ std::string get_temp_filename() {
     }
     close(fd);
     return std::string(temp_filename);
+#endif
 }
 
 std::filesystem::path get_current_path() {
-	return std::filesystem::path(__FILE__).parent_path();
+    return std::filesystem::path(__FILE__).parent_path();
 }
+
 
 int test_add_and_lookup() {
     std::string temp_file = get_temp_filename();
@@ -468,26 +492,26 @@ int main() {
     int result = 0;
     try {
         result += test_add_and_lookup();
-		result += test_write_and_read();
-		result += test_nested_groups();
-		result += test_add_remove_group();
-		result += test_write_nested_groups();
-		result += test_complex_config_creation();
-		result += bad_config1();
-		result += bad_config2();
-		result += bad_config3();
-		result += good_double_conf1();
-		result += commented_config();
-		result += good_string_conf();
-		result += test_empty_string();
-		result += test_integer_boundaries();
-		result += test_special_characters_in_string();
-		result += test_deeply_nested_groups();
-		result += test_invalid_syntax();
-		result += test_special_characters_string();
-		result += test_long_string();
-		result += test_missing_semicolon();
-		result += test_unmatched_braces();
+        result += test_write_and_read();
+        result += test_nested_groups();
+        result += test_add_remove_group();
+        result += test_write_nested_groups();
+        result += test_complex_config_creation();
+        result += bad_config1();
+        result += bad_config2();
+        result += bad_config3();
+        result += good_double_conf1();
+        result += commented_config();
+        result += good_string_conf();
+        result += test_empty_string();
+        result += test_integer_boundaries();
+        result += test_special_characters_in_string();
+        result += test_deeply_nested_groups();
+        result += test_invalid_syntax();
+        result += test_special_characters_string();
+        result += test_long_string();
+        result += test_missing_semicolon();
+        result += test_unmatched_braces();
     } catch (const StormByte::Config::Exception& ex) {
         std::cerr << ex.what() << std::endl;
         result++;

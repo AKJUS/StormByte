@@ -20,11 +20,12 @@ namespace StormByte::Config {
 			};
 			static constexpr const char* GetTypeAsString(const Type& t) noexcept {
 				switch(t) {
-					case Type::Group:    return "Group";
-					case Type::String:   return "String";
-					case Type::Integer:  return "Integer";
-					case Type::Double:   return "Double";
-					case Type::Comment:  return "Comment";
+					case Type::Group:  	return "Group";
+					case Type::String: 	return "String";
+					case Type::Integer:	return "Integer";
+					case Type::Double: 	return "Double";
+					case Type::Comment:	return "Comment";
+					default:			return "Unknown";
 				}
 			}
 

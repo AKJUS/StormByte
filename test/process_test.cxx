@@ -273,16 +273,18 @@ int test_complex_pipeline_with_suspend_resume() {
 
 int main() {
     int result = 0;
-    result += test_basic_execution();
-    result += test_pipeline_execution();
-    result += test_pipeline_sort();
-    result += test_pipeline_find_sort_wc();
-    result += test_pipeline_echo_sort_wc();
-	result += test_suspend_resume();
-	result += test_multiple_suspend_resume();
-	result += test_suspend_resume_pipeline();
-	result += test_suspend_resume_long_pipeline_mid_operation();
-	result += test_complex_pipeline_with_suspend_resume();
+	#ifdef LINUX
+		result += test_basic_execution();
+		result += test_pipeline_execution();
+		result += test_pipeline_sort();
+		result += test_pipeline_find_sort_wc();
+		result += test_pipeline_echo_sort_wc();
+		result += test_suspend_resume();
+		result += test_multiple_suspend_resume();
+		result += test_suspend_resume_pipeline();
+		result += test_suspend_resume_long_pipeline_mid_operation();
+		result += test_complex_pipeline_with_suspend_resume();
+	#endif
     if (result == 0) {
         std::cout << "All tests passed!" << std::endl;
     } else {

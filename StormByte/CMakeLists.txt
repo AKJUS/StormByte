@@ -28,7 +28,7 @@ set(STORMBYTE_SQLITE_SOURCES
 )
 
 if (NOT STORMBYTE_AS_SUBPROJECT OR WIN32)
-	add_library(StormByte SHARED ${STORMBYTE_SOURCES})
+	add_library(StormByte SHARED ${STORMBYTE_SOURCES} "system/functions.cxx")
 else()
 	add_library(StormByte STATIC ${STORMBYTE_SOURCES})
 endif()
