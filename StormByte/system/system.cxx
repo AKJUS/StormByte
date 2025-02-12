@@ -43,7 +43,7 @@ std::filesystem::path System::TempFileName() {
         throw std::runtime_error("Error getting temp file name");
     }
 
-    return StormByte::System::System::UTF8Encode(std::wstring(tempFile));
+    return System::UTF8Encode(std::wstring(tempFile));
 #else
     char temp_filename[] = "/tmp/config_testXXXXXX";
     int fd = mkstemp(temp_filename);

@@ -33,7 +33,7 @@ int non_existant_file_parse() {
 }
 
 int test_add_and_lookup() {
-    std::string temp_file = StormByte::System::TempFileName();
+    std::filesystem::path temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
 
     // Add Integer and String items
@@ -49,12 +49,12 @@ int test_add_and_lookup() {
     auto lookup_str = file.LookUp("TestStr");
     ASSERT_EQUAL("Hello, World!", lookup_str->AsString());
 
-    std::remove(temp_file.c_str());
+    std::remove(temp_file.string().c_str());
     return 0;
 }
 
 int test_write_and_read() {
-    std::string temp_file = StormByte::System::TempFileName();
+    std::filesystem::path temp_file = StormByte::System::TempFileName();
     std::string config_content = 
         "TestInt = 42;\n"
         "TestStr = \"Hello, World!\";\n";
@@ -84,12 +84,12 @@ int test_write_and_read() {
     auto str_item2 = file2.LookUp("TestStr");
     ASSERT_EQUAL("Hello, World!", str_item2->AsString());
 
-    std::remove(temp_file.c_str());
+    std::remove(temp_file.string().c_str());
     return 0;
 }
 
 int test_nested_groups() {
-    std::string temp_file = StormByte::System::TempFileName();
+    std::filesystem::path temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
 
     // Create nested groups
@@ -109,12 +109,12 @@ int test_nested_groups() {
     auto lookup_str = file.LookUp("Group1/Group2/SubTestStr");
     ASSERT_EQUAL("Sub Hello", lookup_str->AsString());
 
-    std::remove(temp_file.c_str());
+    std::remove(temp_file.string().c_str());
     return 0;
 }
 
 int test_add_remove_group() {
-    std::string temp_file = StormByte::System::TempFileName();
+    std::filesystem::path temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
 
     // Add group and items
@@ -134,12 +134,12 @@ int test_add_remove_group() {
         // Expected outcome
     }
 
-    std::remove(temp_file.c_str());
+    std::remove(temp_file.string().c_str());
     return 0;
 }
 
 int test_write_nested_groups() {
-    std::string temp_file = StormByte::System::TempFileName();
+    std::filesystem::path temp_file = StormByte::System::TempFileName();
     std::string config_content = 
         "Group1 = {\n"
         "    Group2 = {\n"
@@ -173,12 +173,12 @@ int test_write_nested_groups() {
     auto lookup_str2 = file2.LookUp("Group1/Group2/SubTestStr");
     ASSERT_EQUAL("Sub Hello", lookup_str2->AsString());
 
-    std::remove(temp_file.c_str());
+    std::remove(temp_file.string().c_str());
     return 0;
 }
 
 int test_complex_config_creation() {
-    std::string temp_file = StormByte::System::TempFileName();
+    std::filesystem::path temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
 
     // Create a complex configuration
@@ -215,7 +215,7 @@ int test_complex_config_creation() {
 
     ASSERT_EQUAL(expected_content, buffer.str());
 
-    std::remove(temp_file.c_str());
+    std::remove(temp_file.string().c_str());
     return 0;
 }
 
@@ -291,7 +291,7 @@ int good_double_conf2() {
 }
 
 int commented_config() {
-	const std::string temp_file = StormByte::System::TempFileName();
+	const std::filesystem::path temp_file = StormByte::System::TempFileName();
 	ConfigFile file(temp_file);
 	const std::string config_str = "# The following is a test integer\n"
 		"test_integer = 666;\n"
@@ -324,7 +324,7 @@ int commented_config() {
 
 	ASSERT_EQUAL(expected_str, buffer.str());
 
-    std::remove(temp_file.c_str());
+    std::remove(temp_file.string().c_str());
 
 	return 0;
 }
@@ -352,7 +352,7 @@ int good_string_conf() {
 }
 
 int test_empty_string() {
-	std::string temp_file = StormByte::System::TempFileName();
+	std::filesystem::path temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
 
     auto str_item = file.Add("EmptyString", StormByte::Config::Item::Type::String);
@@ -361,13 +361,13 @@ int test_empty_string() {
     auto lookup_str = file.LookUp("EmptyString");
     ASSERT_EQUAL("", lookup_str->AsString());
 
-	std::remove(temp_file.c_str());
+	std::remove(temp_file.string().c_str());
 
     return 0;
 }
 
 int test_integer_boundaries() {
-	std::string temp_file = StormByte::System::TempFileName();
+	std::filesystem::path temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
 
     auto max_int_item = file.Add("MaxInt", StormByte::Config::Item::Type::Integer);
@@ -382,13 +382,13 @@ int test_integer_boundaries() {
     auto lookup_min_int = file.LookUp("MinInt");
     ASSERT_EQUAL(INT_MIN, lookup_min_int->AsInteger());
 
-	std::remove(temp_file.c_str());
+	std::remove(temp_file.string().c_str());
 
     return 0;
 }
 
 int test_special_characters_in_string() {
-	std::string temp_file = StormByte::System::TempFileName();
+	std::filesystem::path temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
 
     auto str_item = file.Add("SpecialChars", StormByte::Config::Item::Type::String);
@@ -397,13 +397,13 @@ int test_special_characters_in_string() {
     auto lookup_str = file.LookUp("SpecialChars");
     ASSERT_EQUAL("Line1\nLine2\tTabbed", lookup_str->AsString());
 
-	std::remove(temp_file.c_str());
+	std::remove(temp_file.string().c_str());
 
     return 0;
 }
 
 int test_deeply_nested_groups() {
-	std::string temp_file = StormByte::System::TempFileName();
+	std::filesystem::path temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
 
     auto group1 = file.Add("Group1", StormByte::Config::Item::Type::Group);
@@ -417,13 +417,13 @@ int test_deeply_nested_groups() {
     auto lookup_int = file.LookUp("Group1/Group2/Group3/Group4/DeepInt");
     ASSERT_EQUAL(1234, lookup_int->AsInteger());
 
-	std::remove(temp_file.c_str());
+	std::remove(temp_file.string().c_str());
 
     return 0;
 }
 
 int test_invalid_syntax() {
-	std::string temp_file = StormByte::System::TempFileName();
+	std::filesystem::path temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
     std::string invalid_config = "Invalid = { Unclosed }";
 
@@ -433,7 +433,7 @@ int test_invalid_syntax() {
         return 1;
     } catch (const StormByte::Config::ParseError&) {
         // Expected exception
-		std::remove(temp_file.c_str());
+		std::remove(temp_file.string().c_str());
     }
 
     return 0;
