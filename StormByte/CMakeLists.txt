@@ -90,3 +90,30 @@ endif()
 
 file(CONFIGURE OUTPUT ${CMAKE_BINARY_DIR}/generated/StormByte.h CONTENT "#pragma once
 #define STORMBYTE_VERSION \"${${PROJECT_NAME}_VERSION}\"")
+
+option(ENABLE_DOC "Enable documentation generation with Doxygen" OFF)
+if(ENABLE_DOC)
+	find_package(Doxygen REQUIRED)
+	set(DOXYGEN_PROJECT_NAME "StormByte C++ Library")
+	set(DOXYGEN_PROJECT_NUMBER "${PROJECT_VERSION}")
+	set(DOXYGEN_PROJECT_BRIEF "StormByte is a comprehensive, cross-platform C++ library aimed at easing system programming, configuration management, logging, and database handling tasks. This library provides a unified API that abstracts away the complexities and inconsistencies of different platforms (Windows, Linux).")
+	set(DOXYGEN_OUTPUT_DIRECTORY "${STORMBYTE_DIR}/doc")
+	set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${STORMBYTE_DIR}/README.md")
+	set(DOXYGEN_EXCLUDE_PATTERNS
+		"CMakeLists.txt"
+		".git/*"
+		"doc/*"
+		"thirdparty/*"
+	)
+	set(DOXYGEN_GENERATE_HTML YES)
+	set(DOXYGEN_HTML_OUTPUT ".")
+	set(DOXYGEN_GENERATE_MAN NO)
+	set(DOXYGEN_GENERATE_LATEX NO)
+
+	doxygen_add_docs(
+		StormByteDoc
+		${STORMBYTE_DIR}
+		COMMENT "Generate HTML pages"
+		WORKING_DIRECTORY "${STORMBYTE_DIR}"
+	)
+endif()
