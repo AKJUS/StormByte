@@ -3,21 +3,14 @@
 #include <StormByte/config/item/value/integer.hxx>
 #include <StormByte/config/item/value/string.hxx>
 #include <StormByte/config/item/group.hxx>
+#include <StormByte/system/functions.hxx>
 
 #include <iostream>
 #include <cassert>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
-#ifdef WINDOWS
-    #include <direct.h> // For _getcwd
-    #include <windows.h> // For MAX_PATH
-    #include <StormByte/system/functions.hxx>
-#else
-    #include <cstdlib> // For mkstemp
-    #include <unistd.h> // For close
-    #include <climits> // For INT_MAX
-#endif
+#include <climits>
 
 #define ASSERT_EQ(expected, actual) if ((expected) != (actual)) { \
     std::cerr << "Assertion failed at " << __FILE__ << ":" << __LINE__ << ": expected " << (expected) << ", got " << (actual) << std::endl; \
@@ -29,37 +22,6 @@ public:
     using StormByte::Config::File::File;
     void PostRead() noexcept override {}
 };
-
-std::string get_temp_filename() {
-#ifdef WINDOWS
-    wchar_t tempPath[MAX_PATH];
-    wchar_t tempFile[MAX_PATH];
-
-    // Get the path to the temporary file directory
-    if (GetTempPathW(MAX_PATH, tempPath) == 0) {
-        throw std::runtime_error("Error getting temp path");
-    }
-
-    // Create a unique temporary filename
-    if (GetTempFileNameW(tempPath, L"TMP", 0, tempFile) == 0) {
-        throw std::runtime_error("Error getting temp file name");
-    }
-
-    return StormByte::System::Functions::UTF8Encode(std::wstring(tempFile));
-#else
-    char temp_filename[] = "/tmp/config_testXXXXXX";
-    int fd = mkstemp(temp_filename);
-    if (fd == -1) {
-        throw std::runtime_error("Failed to create temporary file");
-    }
-    close(fd);
-    return std::string(temp_filename);
-#endif
-}
-
-std::filesystem::path get_current_path() {
-    return std::filesystem::path(__FILE__).parent_path();
-}
 
 int non_existant_file_parse() {
 	ConfigFile file("nonexistant.conf");
@@ -76,7 +38,7 @@ int non_existant_file_parse() {
 }
 
 int test_add_and_lookup() {
-    std::string temp_file = get_temp_filename();
+    std::string temp_file = StormByte::System::Functions::TempFileName();
     ConfigFile file(temp_file);
 
     // Add Integer and String items
@@ -97,7 +59,7 @@ int test_add_and_lookup() {
 }
 
 int test_write_and_read() {
-    std::string temp_file = get_temp_filename();
+    std::string temp_file = StormByte::System::Functions::TempFileName();
     std::string config_content = 
         "TestInt = 42;\n"
         "TestStr = \"Hello, World!\";\n";
@@ -132,7 +94,7 @@ int test_write_and_read() {
 }
 
 int test_nested_groups() {
-    std::string temp_file = get_temp_filename();
+    std::string temp_file = StormByte::System::Functions::TempFileName();
     ConfigFile file(temp_file);
 
     // Create nested groups
@@ -157,7 +119,7 @@ int test_nested_groups() {
 }
 
 int test_add_remove_group() {
-    std::string temp_file = get_temp_filename();
+    std::string temp_file = StormByte::System::Functions::TempFileName();
     ConfigFile file(temp_file);
 
     // Add group and items
@@ -182,7 +144,7 @@ int test_add_remove_group() {
 }
 
 int test_write_nested_groups() {
-    std::string temp_file = get_temp_filename();
+    std::string temp_file = StormByte::System::Functions::TempFileName();
     std::string config_content = 
         "Group1 = {\n"
         "    Group2 = {\n"
@@ -221,7 +183,7 @@ int test_write_nested_groups() {
 }
 
 int test_complex_config_creation() {
-    std::string temp_file = get_temp_filename();
+    std::string temp_file = StormByte::System::Functions::TempFileName();
     ConfigFile file(temp_file);
 
     // Create a complex configuration
@@ -263,7 +225,7 @@ int test_complex_config_creation() {
 }
 
 int bad_config1() {
-	ConfigFile cfg(get_current_path() / "files" / "bad_config1.conf");
+	ConfigFile cfg(CurrentFileDirectory / "files" / "bad_config1.conf");
 	try {
 		cfg.Read();
 		std::cerr << "Config read ok when it should not!";
@@ -276,7 +238,7 @@ int bad_config1() {
 }
 
 int bad_config2() {
-	ConfigFile cfg(get_current_path() / "files" / "bad_config2.conf");
+	ConfigFile cfg(CurrentFileDirectory / "files" / "bad_config2.conf");
 	try {
 		cfg.Read();
 		std::cerr << "Config read ok when it should not!";
@@ -289,7 +251,7 @@ int bad_config2() {
 }
 
 int bad_config3() {
-	ConfigFile cfg(get_current_path() / "files" / "bad_config3.conf");
+	ConfigFile cfg(CurrentFileDirectory / "files" / "bad_config3.conf");
 	try {
 		cfg.Read();
 		std::cerr << "Config read ok when it should not!";
@@ -302,7 +264,7 @@ int bad_config3() {
 }
 
 int good_double_conf1() {
-	ConfigFile cfg(get_current_path() / "files" / "good_double_conf1.conf");
+	ConfigFile cfg(CurrentFileDirectory / "files" / "good_double_conf1.conf");
 	try {
 		cfg.Read();
 		auto lookup_double = cfg.LookUp("test_double");
@@ -317,7 +279,7 @@ int good_double_conf1() {
 }
 
 int good_double_conf2() {
-	ConfigFile cfg(get_current_path() / "files" / "good_double_conf2.conf");
+	ConfigFile cfg(CurrentFileDirectory / "files" / "good_double_conf2.conf");
 	try {
 		cfg.Read();
 		auto lookup_test_double = cfg.LookUp("test_double");
@@ -334,7 +296,7 @@ int good_double_conf2() {
 }
 
 int commented_config() {
-	const std::string temp_file = get_temp_filename();
+	const std::string temp_file = StormByte::System::Functions::TempFileName();
 	ConfigFile file(temp_file);
 	const std::string config_str = "# The following is a test integer\n"
 		"test_integer = 666;\n"
@@ -373,7 +335,7 @@ int commented_config() {
 }
 
 int good_string_conf() {
-	ConfigFile cfg(get_current_path() / "files" / "good_string_conf.conf");
+	ConfigFile cfg(CurrentFileDirectory / "files" / "good_string_conf.conf");
 	try {
 		cfg.Read();
 		auto lookup_string = cfg.LookUp("test_string");
@@ -395,7 +357,7 @@ int good_string_conf() {
 }
 
 int test_empty_string() {
-	std::string temp_file = get_temp_filename();
+	std::string temp_file = StormByte::System::Functions::TempFileName();
     ConfigFile file(temp_file);
 
     auto str_item = file.Add("EmptyString", StormByte::Config::Item::Type::String);
@@ -410,7 +372,7 @@ int test_empty_string() {
 }
 
 int test_integer_boundaries() {
-	std::string temp_file = get_temp_filename();
+	std::string temp_file = StormByte::System::Functions::TempFileName();
     ConfigFile file(temp_file);
 
     auto max_int_item = file.Add("MaxInt", StormByte::Config::Item::Type::Integer);
@@ -431,7 +393,7 @@ int test_integer_boundaries() {
 }
 
 int test_special_characters_in_string() {
-	std::string temp_file = get_temp_filename();
+	std::string temp_file = StormByte::System::Functions::TempFileName();
     ConfigFile file(temp_file);
 
     auto str_item = file.Add("SpecialChars", StormByte::Config::Item::Type::String);
@@ -446,7 +408,7 @@ int test_special_characters_in_string() {
 }
 
 int test_deeply_nested_groups() {
-	std::string temp_file = get_temp_filename();
+	std::string temp_file = StormByte::System::Functions::TempFileName();
     ConfigFile file(temp_file);
 
     auto group1 = file.Add("Group1", StormByte::Config::Item::Type::Group);
@@ -466,7 +428,7 @@ int test_deeply_nested_groups() {
 }
 
 int test_invalid_syntax() {
-	std::string temp_file = get_temp_filename();
+	std::string temp_file = StormByte::System::Functions::TempFileName();
     ConfigFile file(temp_file);
     std::string invalid_config = "Invalid = { Unclosed }";
 
@@ -483,7 +445,7 @@ int test_invalid_syntax() {
 }
 
 int test_special_characters_string() {
-    ConfigFile cfg(get_current_path() / "files" / "special_characters_conf.conf");
+    ConfigFile cfg(CurrentFileDirectory / "files" / "special_characters_conf.conf");
     try {
         cfg.Read();
         auto lookup_special = cfg.LookUp("special_string");
@@ -496,7 +458,7 @@ int test_special_characters_string() {
 }
 
 int test_long_string() {
-    ConfigFile cfg(get_current_path() / "files" / "long_string_conf.conf");
+    ConfigFile cfg(CurrentFileDirectory / "files" / "long_string_conf.conf");
     try {
         cfg.Read();
         auto lookup_long = cfg.LookUp("long_string");
@@ -509,7 +471,7 @@ int test_long_string() {
 }
 
 int test_missing_semicolon() {
-    ConfigFile cfg(get_current_path() / "files" / "missing_semicolon.conf");
+    ConfigFile cfg(CurrentFileDirectory / "files" / "missing_semicolon.conf");
     try {
         cfg.Read();
         std::cerr << "Config read ok when it should not!";
@@ -521,7 +483,7 @@ int test_missing_semicolon() {
 }
 
 int test_unmatched_braces() {
-    ConfigFile cfg(get_current_path() / "files" / "unmatched_braces.conf");
+    ConfigFile cfg(CurrentFileDirectory / "files" / "unmatched_braces.conf");
     try {
         cfg.Read();
         std::cerr << "Config read ok when it should not!";
@@ -533,7 +495,7 @@ int test_unmatched_braces() {
 }
 
 int good_boolean_config1() {
-	ConfigFile cfg(get_current_path() / "files" / "good_boolean_conf1.conf");
+	ConfigFile cfg(CurrentFileDirectory / "files" / "good_boolean_conf1.conf");
 	try {
 		cfg.Read();
 		auto lookup_enable_feature = cfg.LookUp("settings/enable_feature");
@@ -551,7 +513,7 @@ int good_boolean_config1() {
 }
 
 int bad_boolean_config1() {
-	ConfigFile cfg(get_current_path() / "files" / "bad_boolean_conf1.conf");
+	ConfigFile cfg(CurrentFileDirectory / "files" / "bad_boolean_conf1.conf");
 	try {
 		cfg.Read();
 		std::cerr << "File was read ok but it should have failed" << std::endl;

@@ -1,7 +1,11 @@
 #include <StormByte/system/functions.hxx>
 #ifdef WINDOWS
-#include <windows.h>
+#include <windows.h> // For MAX_PATH
 #include <tchar.h>
+#include <direct.h> // For _getcwd
+#else
+#include <cstdlib> // For mkstemp
+#include <unistd.h> // For close
 #endif
 
 using namespace StormByte::System;
@@ -23,3 +27,30 @@ std::wstring Functions::UTF8Decode(const std::string& str) {
 	return wstrTo;
 }
 #endif
+
+std::filesystem::path Functions::TempFileName() {
+#ifdef WINDOWS
+    wchar_t tempPath[MAX_PATH];
+    wchar_t tempFile[MAX_PATH];
+
+    // Get the path to the temporary file directory
+    if (GetTempPathW(MAX_PATH, tempPath) == 0) {
+        throw std::runtime_error("Error getting temp path");
+    }
+
+    // Create a unique temporary filename
+    if (GetTempFileNameW(tempPath, L"TMP", 0, tempFile) == 0) {
+        throw std::runtime_error("Error getting temp file name");
+    }
+
+    return StormByte::System::Functions::UTF8Encode(std::wstring(tempFile));
+#else
+    char temp_filename[] = "/tmp/config_testXXXXXX";
+    int fd = mkstemp(temp_filename);
+    if (fd == -1) {
+        throw std::runtime_error("Failed to create temporary file");
+    }
+    close(fd);
+    return std::string(temp_filename);
+#endif
+}
