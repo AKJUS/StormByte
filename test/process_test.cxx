@@ -1,11 +1,45 @@
+#include <StormByte/system/functions.hxx>
 #include <StormByte/system/process.hxx>
 #include <iostream>
 
 #define ASSERT_EQ(expected, actual) if ((expected) != (actual)) { \
-    std::cerr << "Assertion failed at " << __FILE__ << ":" << __LINE__ << ": expected " << (expected) << ", got " << (actual) << std::endl; \
+    std::cerr << "Assertion failed at " << __FILE__ << ":" << __LINE__ << ": expected \"" << (expected) << "\", got \"" << (actual) << "\"" << std::endl; \
     return 1; \
 }
 
+#define ASSERT_FALSE(condition) if ((condition)) { \
+    std::cerr << "Assertion failed at " << __FILE__ << ":" << __LINE__ << ": condition is true, expected false" << std::endl; \
+    return 1; \
+}
+
+std::string get_temp_filename() {
+	#ifdef WINDOWS
+	wchar_t tempPath[MAX_PATH];
+	wchar_t tempFile[MAX_PATH];
+
+	// Get the path to the temporary file directory
+	if (GetTempPathW(MAX_PATH, tempPath) == 0) {
+		throw std::runtime_error("Error getting temp path");
+	}
+
+	// Create a unique temporary filename
+	if (GetTempFileNameW(tempPath, L"TMP", 0, tempFile) == 0) {
+		throw std::runtime_error("Error getting temp file name");
+	}
+
+	return StormByte::System::Functions::UTF8Encode(std::wstring(tempFile));
+	#else
+	char temp_filename[] = "/tmp/config_testXXXXXX";
+	int fd = mkstemp(temp_filename);
+	if (fd == -1) {
+		throw std::runtime_error("Failed to create temporary file");
+	}
+	close(fd);
+	return std::string(temp_filename);
+	#endif
+}
+
+#ifdef LINUX
 int test_basic_execution() {
     // Test a simple command that prints "Hello, World!".
     std::vector<std::string> args = { "Hello, World!" };
@@ -269,7 +303,57 @@ int test_complex_pipeline_with_suspend_resume() {
 
     return 0;
 }
+#else
+int test_basic_execution_windows() {
+    // Test a simple command that prints "Hello, World!".
+    std::vector<std::string> args = { "Hello, World!" };
+    StormByte::System::Process proc(L"cmd.exe /c echo", args);
 
+    std::string output;
+    proc >> output;
+
+    ASSERT_EQ("Hello, World! \r\n", output);
+
+    DWORD exit_code = proc.wait();
+    ASSERT_EQ(0, exit_code);
+
+    return 0;
+}
+
+int test_suspend_resume_windows() {
+    // Test suspending and resuming a process.
+    std::vector<std::string> args = { "ping -n 5 127.0.0.1" }; // This will ping localhost 5 times, creating a 5 second delay.
+    StormByte::System::Process proc(L"cmd.exe /c", args);
+
+    // Suspend the process.
+    proc.suspend();
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
+    // Resume the process.
+    proc.resume();
+
+    DWORD exit_code = proc.wait();
+    ASSERT_EQ(0, exit_code);
+
+    return 0;
+}
+
+int test_complex_command_windows() {
+    // Test a more complex command with multiple arguments.
+    std::vector<std::string> args = { "/c", "dir", "/b", "/a-d" };
+    StormByte::System::Process proc(L"cmd.exe", args);
+
+    std::string output;
+    proc >> output;
+
+    ASSERT_FALSE(output.empty());  // Check that output is not empty.
+
+    DWORD exit_code = proc.wait();
+    ASSERT_EQ(0, exit_code);
+
+    return 0;
+}
+#endif
 
 int main() {
     int result = 0;
@@ -284,6 +368,10 @@ int main() {
 		result += test_suspend_resume_pipeline();
 		result += test_suspend_resume_long_pipeline_mid_operation();
 		result += test_complex_pipeline_with_suspend_resume();
+	#else
+		result += test_basic_execution_windows();
+		result += test_suspend_resume_windows();
+		result += test_complex_command_windows();
 	#endif
     if (result == 0) {
         std::cout << "All tests passed!" << std::endl;

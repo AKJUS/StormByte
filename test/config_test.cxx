@@ -61,6 +61,19 @@ std::filesystem::path get_current_path() {
     return std::filesystem::path(__FILE__).parent_path();
 }
 
+int non_existant_file_parse() {
+	ConfigFile file("nonexistant.conf");
+	try {
+		file.Read();
+		std::cerr << "File was somehow read and this should not happen" << std::endl;
+		return 1;
+	}
+	catch (...) {
+		// Expected exception
+		return 0;
+	}
+	return 0;
+}
 
 int test_add_and_lookup() {
     std::string temp_file = get_temp_filename();
@@ -491,6 +504,7 @@ int test_unmatched_braces() {
 int main() {
     int result = 0;
     try {
+		result += non_existant_file_parse();
         result += test_add_and_lookup();
         result += test_write_and_read();
         result += test_nested_groups();
