@@ -4,22 +4,57 @@
 
 #include <variant>
 
+/**
+ * @namespace StormByte::Config
+ * @brief All the classes for handling configuration files and items
+ */
 namespace StormByte::Config {
 	/**
-	 * Class representing a boolean in configuration files (true or false in lowercase)
+	 * @class Bool
+	 * @brief A boolean configuration item
+	 * @code
+	 * bool_item = false;
+	 * @endcode
 	 */
 	class STORMBYTE_PUBLIC Bool final: public Value {
+		/**
+	 	 * @brief representing a boolean in configuration files (true or false in lowercase)
+	 	 * @example bool_item = false;
+	 	 */
 		public:
-			Bool(const std::string&);
-			Bool(std::string&&);
+			/**
+			 * Constructor
+			 * @param name item name
+			 */
+			Bool(const std::string& name);
+			/**
+			 * Constructor
+			 * @param name item name
+			 */
+			Bool(std::string&& name);
+			/**
+			 * Copy constructor
+			 */
 			Bool(const Bool&)					= default;
+			/**
+			 * Move constructor
+			 */
 			Bool(Bool&&) noexcept				= default;
+			/**
+			 * Assignment operator
+			 */
 			Bool& operator=(const Bool&)		= default;
+			/**
+			 * Move assignment operator
+			 */
 			Bool& operator=(Bool&&) noexcept	= default;
+			/**
+			 * Destructor
+			 */
 			~Bool() noexcept override			= default;
 
 			/**
-			 * Gets the boolean item value
+			 * Value getter
 			 * @return boolean value
 			 */
 			bool 					AsBool() const override;
@@ -31,8 +66,8 @@ namespace StormByte::Config {
 			void					SetBool(bool value) override;
 
 			/**
-			 * Serializes the boolean item:
-			 * @return Serialized string, for example: item = false;
+			 * Serializes the boolean item
+			 * @return serialized string
 			 */
 			std::string				Serialize(const int& indent) const noexcept override;
 

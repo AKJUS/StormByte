@@ -36,22 +36,6 @@ Group& Group::AsGroup() {
 	return *this;
 }
 
-const std::string& Group::AsString() const {
-	throw WrongValueTypeConversion(*this, "AsString");
-}
-
-const int& Group::AsInteger() const {
-	throw WrongValueTypeConversion(*this, "AsInt");
-}
-
-const double& Group::AsDouble() const {
-	throw WrongValueTypeConversion(*this, "AsDouble");
-}
-
-bool Group::AsBool() const {
-	throw WrongValueTypeConversion(*this, "AsBool");
-}
-
 std::shared_ptr<Item> Group::Add(const std::string& name, const Type& type) {
 	if (std::find_if(name.begin(), name.end(), 
         [](char c) { return !(isalnum(c) || c == '_'); }) != name.end())
@@ -106,26 +90,6 @@ void Group::Remove(const std::string& child) {
 	}
 	else
 		throw ItemNotFound(child);
-}
-
-void Group::SetInteger(const int&) {
-	throw ValueFailure(*this, Type::Integer);
-}
-
-void Group::SetDouble(const double&) {
-	throw ValueFailure(*this, Type::Double);
-}
-
-void Group::SetString(const std::string&) {
-	throw ValueFailure(*this, Type::String);
-}
-
-void Group::SetString(std::string&&) {
-	throw ValueFailure(*this, Type::String);
-}
-
-void Group::SetBool(bool) {
-	throw ValueFailure(*this, Type::Bool);
 }
 
 bool Group::Exists(const std::string& path) const noexcept {

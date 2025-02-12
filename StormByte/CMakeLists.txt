@@ -100,10 +100,12 @@ if(ENABLE_DOC)
 	set(DOXYGEN_OUTPUT_DIRECTORY "${STORMBYTE_DIR}/docs")
 	set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${STORMBYTE_DIR}/README.md")
 	set(DOXYGEN_EXCLUDE_PATTERNS
-		"CMakeLists.txt"
-		".git/*"
-		"doc/*"
-		"thirdparty/*"
+		"*/CMakeLists.txt"
+		"*/.git/*"
+		"*/doc/*"
+		"*/thirdparty/*"
+		"*/build/*"
+		"*/*.cxx"
 	)
 	set(DOXYGEN_GENERATE_HTML YES)
 	set(DOXYGEN_HTML_OUTPUT ".")

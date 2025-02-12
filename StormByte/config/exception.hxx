@@ -3,7 +3,15 @@
 #include <StormByte/config/item.hxx>
 #include <StormByte/system/exception.hxx>
 
+/**
+ * @namespace StormByte::Config
+ * @brief All the classes for handling configuration files and items
+ */
 namespace StormByte::Config {
+	/**
+	 * @class Exception
+	 * @brief Base class for Config exceptions
+	 */
 	class STORMBYTE_PUBLIC Exception: public System::Exception {
 		public:
 			Exception(const std::string&);
@@ -14,6 +22,10 @@ namespace StormByte::Config {
 			~Exception() noexcept						= default;		
 	};
 
+	/**
+	 * @class WrongValueTypeConversion
+	 * @brief Exception thrown when value type requested is not correct
+	 */
 	class STORMBYTE_PUBLIC WrongValueTypeConversion final: public Exception {
 		public:
 			WrongValueTypeConversion(const Item&, const std::string&);
@@ -22,6 +34,10 @@ namespace StormByte::Config {
 			~WrongValueTypeConversion() noexcept override							= default;
 	};
 
+	/**
+	 * @class ValueFailure
+	 * @brief Exception thrown when setting a value to the wrong type
+	 */
 	class STORMBYTE_PUBLIC ValueFailure final: public Exception {
 		public:
 			ValueFailure(const Item&, const Item::Type&);
@@ -30,6 +46,10 @@ namespace StormByte::Config {
 			~ValueFailure() noexcept override				= default;
 	};
 
+	/**
+	 * @class InvalidName
+	 * @brief Exception thrown when adding to a group an item with invalid name
+	 */
 	class STORMBYTE_PUBLIC InvalidName final: public Exception {
 		public:
 			InvalidName(const std::string&);
@@ -38,6 +58,10 @@ namespace StormByte::Config {
 			~InvalidName() noexcept override			= default;
 	};
 
+	/**
+	 * @class ParserError
+	 * @brief Thrown when a parser error is found when parsing File
+	 */
 	class STORMBYTE_PUBLIC ParseError final: public Exception {
 		public:
 			ParseError(const std::string&);
@@ -46,6 +70,10 @@ namespace StormByte::Config {
 			~ParseError() noexcept override				= default;
 	};
 
+	/**
+	 * @class ItemNotFound
+	 * @brief Exception thrown lookup path fails
+	 */
 	class STORMBYTE_PUBLIC ItemNotFound final: public Exception {
 		public:
 			ItemNotFound(const std::string&);
