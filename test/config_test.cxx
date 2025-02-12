@@ -316,6 +316,23 @@ int good_double_conf1() {
 	return 0;
 }
 
+int good_double_conf2() {
+	ConfigFile cfg(get_current_path() / "good_double_conf2.conf");
+	try {
+		cfg.Read();
+		auto lookup_test_double = cfg.LookUp("test_double");
+		ASSERT_EQ(19.89, lookup_test_double->AsDouble());
+		auto lookup_test_exp = cfg.LookUp("test_exp");
+		ASSERT_EQ(1.87e-6, lookup_test_exp->AsDouble());
+		return 0;
+	}
+	catch(...) {
+		std::cerr << "Got exception when we should not" << std::endl;
+		return 1;
+	}
+	return 0;
+}
+
 int commented_config() {
 	const std::string temp_file = get_temp_filename();
 	ConfigFile file(temp_file);
@@ -546,6 +563,7 @@ int main() {
         result += bad_config2();
         result += bad_config3();
         result += good_double_conf1();
+		result += good_double_conf2();
         result += commented_config();
         result += good_string_conf();
         result += test_empty_string();

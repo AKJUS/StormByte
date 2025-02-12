@@ -43,6 +43,7 @@ namespace StormByte::Config {
 			std::string 			ParseStringValue(std::istream&);
 			std::string 			ParseGroupContent(std::istream&);
 			double 					ParseDoubleValue(std::istream&);
+			std::string 			ParseExpValue(std::istream&);
 			bool 					ParseBoolValue(std::istream&);
 			bool 					FindAndParseComment(std::istream&, std::shared_ptr<Group>& group);
 			void 					ConsumeEmptyChars(std::istream&);

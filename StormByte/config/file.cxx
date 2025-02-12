@@ -358,6 +358,10 @@ double File::ParseDoubleValue(std::istream& stream) {
 		}
 		else if (c == ';')
 			break;
+		else if (c == 'e') {
+			accumulator += "e" + ParseExpValue(stream);
+			break;
+		}
 		else
 			throw ParseError((std::string)"Expected number or ; but got " + c);
 	}
@@ -365,6 +369,30 @@ double File::ParseDoubleValue(std::istream& stream) {
 		throw ParseError("Expected number but got ; without any");
 	
 	return std::stod(accumulator);
+}
+
+std::string File::ParseExpValue(std::istream& stream) {
+	// We start here past the e item in exponential double
+	std::string accumulator = "";
+	char c;
+
+	if (stream.eof())
+		throw ParseError("Expected exponential notation when EOF found");
+
+	// We expect a sign + or -
+	stream.get(c);
+	switch (c) {
+		case '+':
+		case '-':
+			accumulator += c;
+			accumulator += std::to_string(ParseIntValue(stream));
+			break;
+		default:
+			throw ParseError(std::string("Expected expontial sign + or - but got ") + c);
+			break;
+	}
+	// ParseIntValue already skips ; so we have finished
+	return accumulator;
 }
 
 bool File::ParseBoolValue(std::istream& stream) {
