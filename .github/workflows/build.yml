@@ -36,8 +36,6 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install -y software-properties-common
-        sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
         sudo apt update
         if [ "${{ matrix.compiler }}" == "gcc" ]; then
           sudo apt install -y gcc g++
