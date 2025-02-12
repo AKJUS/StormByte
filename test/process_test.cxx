@@ -1,43 +1,6 @@
-#include <StormByte/system/functions.hxx>
+#include <StormByte/system/system.hxx>
 #include <StormByte/system/process.hxx>
 #include <iostream>
-
-#define ASSERT_EQ(expected, actual) if ((expected) != (actual)) { \
-    std::cerr << "Assertion failed at " << __FILE__ << ":" << __LINE__ << ": expected \"" << (expected) << "\", got \"" << (actual) << "\"" << std::endl; \
-    return 1; \
-}
-
-#define ASSERT_FALSE(condition) if ((condition)) { \
-    std::cerr << "Assertion failed at " << __FILE__ << ":" << __LINE__ << ": condition is true, expected false" << std::endl; \
-    return 1; \
-}
-
-std::string get_temp_filename() {
-	#ifdef WINDOWS
-	wchar_t tempPath[MAX_PATH];
-	wchar_t tempFile[MAX_PATH];
-
-	// Get the path to the temporary file directory
-	if (GetTempPathW(MAX_PATH, tempPath) == 0) {
-		throw std::runtime_error("Error getting temp path");
-	}
-
-	// Create a unique temporary filename
-	if (GetTempFileNameW(tempPath, L"TMP", 0, tempFile) == 0) {
-		throw std::runtime_error("Error getting temp file name");
-	}
-
-	return StormByte::System::Functions::UTF8Encode(std::wstring(tempFile));
-	#else
-	char temp_filename[] = "/tmp/config_testXXXXXX";
-	int fd = mkstemp(temp_filename);
-	if (fd == -1) {
-		throw std::runtime_error("Failed to create temporary file");
-	}
-	close(fd);
-	return std::string(temp_filename);
-	#endif
-}
 
 #ifdef LINUX
 int test_basic_execution() {
@@ -48,10 +11,10 @@ int test_basic_execution() {
     std::string output;
     proc >> output;
 
-    ASSERT_EQ("Hello, World!\n", output);
+    ASSERT_EQUAL("Hello, World!\n", output);
 
     int exit_code = proc.wait();
-    ASSERT_EQ(0, exit_code);
+    ASSERT_EQUAL(0, exit_code);
 
     return 0;
 }
@@ -69,7 +32,7 @@ int test_pipeline_execution() {
     std::string output;
     proc2 >> output;
 
-    ASSERT_EQ("6\n", output);  // "Hello\n" has 6 characters including the newline.
+    ASSERT_EQUAL("6\n", output);  // "Hello\n" has 6 characters including the newline.
 
     proc1.wait();
     proc2.wait();
@@ -89,7 +52,7 @@ int test_pipeline_sort() {
     std::string output;
     proc2 >> output;
 
-    ASSERT_EQ("apple\nbanana\ncherry\n", output);  // Sorted output.
+    ASSERT_EQUAL("apple\nbanana\ncherry\n", output);  // Sorted output.
 
     proc1.wait();
     proc2.wait();
@@ -113,7 +76,7 @@ int test_pipeline_find_sort_wc() {
     std::string output;
     proc4 >> output;
 
-    ASSERT_EQ("2\n", output);  // There are 2 lines containing "apple".
+    ASSERT_EQUAL("2\n", output);  // There are 2 lines containing "apple".
 
     proc1.wait();
     proc2.wait();
@@ -138,7 +101,7 @@ int test_pipeline_echo_sort_wc() {
     std::string output;
     proc4 >> output;
 
-    ASSERT_EQ("4\n", output);  // There are 4 unique sorted lines.
+    ASSERT_EQUAL("4\n", output);  // There are 4 unique sorted lines.
 
     proc1.wait();
     proc2.wait();
@@ -161,7 +124,7 @@ int test_suspend_resume() {
     proc.resume();
     
     int exit_code = proc.wait();
-    ASSERT_EQ(0, exit_code);
+    ASSERT_EQUAL(0, exit_code);
 
     return 0;
 }
@@ -180,7 +143,7 @@ int test_multiple_suspend_resume() {
     }
     
     int exit_code = proc.wait();
-    ASSERT_EQ(0, exit_code);
+    ASSERT_EQUAL(0, exit_code);
 
     return 0;
 }
@@ -211,7 +174,7 @@ int test_suspend_resume_pipeline() {
     std::string output;
     proc3 >> output;
 
-    ASSERT_EQ("3\n", output);  // There are 3 lines after sorting.
+    ASSERT_EQUAL("3\n", output);  // There are 3 lines after sorting.
 
     proc1.wait();
     proc2.wait();
@@ -249,7 +212,7 @@ int test_suspend_resume_long_pipeline_mid_operation() {
     std::string output;
     proc3 >> output;
 
-    ASSERT_EQ("8\n", output);  // There are 8 lines after sorting.
+    ASSERT_EQUAL("8\n", output);  // There are 8 lines after sorting.
 
     proc1.wait();
     proc2.wait();
@@ -295,7 +258,7 @@ int test_complex_pipeline_with_suspend_resume() {
     std::string output;
     proc3 >> output;
 
-    ASSERT_EQ("8\n", output);  // Hay 8 líneas después de ordenar.
+    ASSERT_EQUAL("8\n", output);  // Hay 8 líneas después de ordenar.
 
     proc1.wait();
     proc2.wait();
@@ -312,10 +275,10 @@ int test_basic_execution_windows() {
     std::string output;
     proc >> output;
 
-    ASSERT_EQ("Hello, World! \r\n", output);
+    ASSERT_EQUAL("Hello, World! \r\n", output);
 
     DWORD exit_code = proc.wait();
-    ASSERT_EQ(0, exit_code);
+    ASSERT_EQUAL(0, exit_code);
 
     return 0;
 }
@@ -333,7 +296,7 @@ int test_suspend_resume_windows() {
     proc.resume();
 
     DWORD exit_code = proc.wait();
-    ASSERT_EQ(0, exit_code);
+    ASSERT_EQUAL(0, exit_code);
 
     return 0;
 }
@@ -349,7 +312,7 @@ int test_complex_command_windows() {
     ASSERT_FALSE(output.empty());  // Check that output is not empty.
 
     DWORD exit_code = proc.wait();
-    ASSERT_EQ(0, exit_code);
+    ASSERT_EQUAL(0, exit_code);
 
     return 0;
 }

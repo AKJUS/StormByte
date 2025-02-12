@@ -3,7 +3,7 @@
 #include <StormByte/database/sqlite/row.hxx>
 #include <StormByte/database/sqlite/result.hxx>
 #include <StormByte/database/sqlite/exception.hxx>
-#include <cassert>
+#include <StormByte/system/system.hxx>
 #include <memory>
 #include <iostream>
 
@@ -70,47 +70,47 @@ int main() {
 
         // 1. Verify that users were inserted correctly
         auto rows = db.get_users();
-        assert(rows[0]->Columns() == 2);
-        assert(rows[0]->At(0)->Value<std::string>() == "Alice");
-        assert(rows[0]->At(1)->Value<std::string>() == "alice@example.com");
+        ASSERT_EQUAL(2, rows[0]->Columns());
+        ASSERT_EQUAL("Alice", rows[0]->At(0)->Value<std::string>());
+        ASSERT_EQUAL("alice@example.com", rows[0]->At(1)->Value<std::string>());
 
-		assert(rows[1]->Columns() == 2);
-        assert(rows[1]->At(0)->Value<std::string>() == "Bob");
-        assert(rows[1]->At(1)->Value<std::string>() == "bob@example.com");
+		ASSERT_EQUAL(2, rows[1]->Columns());
+        ASSERT_EQUAL("Bob", rows[1]->At(0)->Value<std::string>());
+        ASSERT_EQUAL("bob@example.com", rows[1]->At(1)->Value<std::string>());
 
         // 2. Verify that products were inserted correctly
         rows = db.get_products();
-        assert(rows[0]->Columns() == 2);
-        assert(rows[0]->At(0)->Value<std::string>() == "Laptop");
-        assert(rows[0]->At(1)->Value<double>() == 999.99);
+        ASSERT_EQUAL(2, rows[0]->Columns());
+        ASSERT_EQUAL("Laptop", rows[0]->At(0)->Value<std::string>());
+        ASSERT_EQUAL(999.99, rows[0]->At(1)->Value<double>());
 
-		assert(rows[1]->Columns() == 2);
-        assert(rows[1]->At(0)->Value<std::string>() == "Mouse");
-        assert(rows[1]->At(1)->Value<double>() == 19.99);
+		ASSERT_EQUAL(2, rows[1]->Columns());
+        ASSERT_EQUAL("Mouse", rows[1]->At(0)->Value<std::string>());
+        ASSERT_EQUAL(19.99, rows[1]->At(1)->Value<double>());
 
         // 3. Verify that orders were inserted correctly
         rows = db.get_orders();
-        assert(rows[0]->Columns() == 3);
-        assert(rows[0]->At(0)->Value<int>() == 1);
-        assert(rows[0]->At(1)->Value<int>() == 1);
-        assert(rows[0]->At(2)->Value<int>() == 1);
+        ASSERT_EQUAL(3, rows[0]->Columns());
+        ASSERT_EQUAL(1, rows[0]->At(0)->Value<int>());
+        ASSERT_EQUAL(1, rows[0]->At(1)->Value<int>());
+        ASSERT_EQUAL(1, rows[0]->At(2)->Value<int>());
 
-		assert(rows[1]->Columns() == 3);
-        assert(rows[1]->At(0)->Value<int>() == 2);
-        assert(rows[1]->At(1)->Value<int>() == 2);
-        assert(rows[1]->At(2)->Value<int>() == 2);
+		ASSERT_EQUAL(3, rows[1]->Columns());
+        ASSERT_EQUAL(2, rows[1]->At(0)->Value<int>());
+        ASSERT_EQUAL(2, rows[1]->At(1)->Value<int>());
+        ASSERT_EQUAL(2, rows[1]->At(2)->Value<int>());
 
         // 4. Verify that the relationship between tables works correctly
         rows = db.get_joined_data();
-        assert(rows[0]->Columns() == 3);
-        assert(rows[0]->At(0)->Value<std::string>() == "Alice");
-        assert(rows[0]->At(1)->Value<std::string>() == "Laptop");
-        assert(rows[0]->At(2)->Value<int>() == 1);
+        ASSERT_EQUAL(3, rows[0]->Columns());
+        ASSERT_EQUAL("Alice", rows[0]->At(0)->Value<std::string>());
+        ASSERT_EQUAL("Laptop", rows[0]->At(1)->Value<std::string>());
+        ASSERT_EQUAL(1, rows[0]->At(2)->Value<int>());
 
-		assert(rows[1]->Columns() == 3);
-        assert(rows[1]->At(0)->Value<std::string>() == "Bob");
-        assert(rows[1]->At(1)->Value<std::string>() == "Mouse");
-        assert(rows[1]->At(2)->Value<int>() == 2);
+		ASSERT_EQUAL(3, rows[1]->Columns());
+        ASSERT_EQUAL("Bob", rows[1]->At(0)->Value<std::string>());
+        ASSERT_EQUAL("Mouse", rows[1]->At(1)->Value<std::string>());
+        ASSERT_EQUAL(2, rows[1]->At(2)->Value<int>());
 
         std::cout << "All tests passed successfully.\n";
     } catch (const std::exception& e) {

@@ -16,6 +16,7 @@ set(STORMBYTE_SOURCES
 	${STORMBYTE_DIR}/StormByte/system/pipe.cxx
 	${STORMBYTE_DIR}/StormByte/system/process.cxx
 	${STORMBYTE_DIR}/StormByte/system/variable.cxx
+	${STORMBYTE_DIR}/StormByte/system/system.cxx
 	${STORMBYTE_DIR}/StormByte/system/worker.cxx
 )
 
@@ -29,7 +30,7 @@ set(STORMBYTE_SQLITE_SOURCES
 )
 
 if (NOT STORMBYTE_AS_SUBPROJECT OR WIN32)
-	add_library(StormByte SHARED ${STORMBYTE_SOURCES} "system/functions.cxx")
+	add_library(StormByte SHARED ${STORMBYTE_SOURCES})
 else()
 	add_library(StormByte STATIC ${STORMBYTE_SOURCES})
 endif()

@@ -1,4 +1,4 @@
-#include <StormByte/system/functions.hxx>
+#include <StormByte/system/system.hxx>
 #include <StormByte/system/variable.hxx>
 
 #ifdef LINUX
@@ -26,7 +26,7 @@ std::string Variable::Expand(const std::wstring& var) {
 
 std::string Variable::ExpandEnvironmentVariable(const std::string& var) {
 	#ifdef WINDOWS
-	return ExpandEnvironmentVariable(Functions::UTF8Decode(var));
+	return ExpandEnvironmentVariable(UTF8Decode(var));
 	#else
 	return std::regex_replace(var, std::regex("~"), HomePath());
 	#endif
@@ -36,7 +36,7 @@ std::string Variable::ExpandEnvironmentVariable(const std::wstring& var) {
 	TCHAR  infoBuf[INFO_BUFFER_SIZE] = { '\0' };
 	::ExpandEnvironmentStrings(var.c_str(), infoBuf, INFO_BUFFER_SIZE);
 
-	return Functions::UTF8Encode(infoBuf);
+	return UTF8Encode(infoBuf);
 }
 #else
 std::string Variable::HomePath() {

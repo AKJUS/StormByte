@@ -3,7 +3,7 @@
 #include <StormByte/config/item/value/integer.hxx>
 #include <StormByte/config/item/value/string.hxx>
 #include <StormByte/config/item/group.hxx>
-#include <StormByte/system/functions.hxx>
+#include <StormByte/system/system.hxx>
 
 #include <iostream>
 #include <cassert>
@@ -11,11 +11,6 @@
 #include <fstream>
 #include <sstream>
 #include <climits>
-
-#define ASSERT_EQ(expected, actual) if ((expected) != (actual)) { \
-    std::cerr << "Assertion failed at " << __FILE__ << ":" << __LINE__ << ": expected " << (expected) << ", got " << (actual) << std::endl; \
-    return 1; \
-}
 
 class ConfigFile : public StormByte::Config::File {
 public:
@@ -38,7 +33,7 @@ int non_existant_file_parse() {
 }
 
 int test_add_and_lookup() {
-    std::string temp_file = StormByte::System::Functions::TempFileName();
+    std::string temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
 
     // Add Integer and String items
@@ -49,17 +44,17 @@ int test_add_and_lookup() {
 
     // Lookup and validate items
     auto lookup_int = file.LookUp("TestInt");
-    ASSERT_EQ(42, lookup_int->AsInteger());
+    ASSERT_EQUAL(42, lookup_int->AsInteger());
 
     auto lookup_str = file.LookUp("TestStr");
-    ASSERT_EQ("Hello, World!", lookup_str->AsString());
+    ASSERT_EQUAL("Hello, World!", lookup_str->AsString());
 
     std::remove(temp_file.c_str());
     return 0;
 }
 
 int test_write_and_read() {
-    std::string temp_file = StormByte::System::Functions::TempFileName();
+    std::string temp_file = StormByte::System::TempFileName();
     std::string config_content = 
         "TestInt = 42;\n"
         "TestStr = \"Hello, World!\";\n";
@@ -71,10 +66,10 @@ int test_write_and_read() {
 
     // Validate items
     auto int_item = file.LookUp("TestInt");
-    ASSERT_EQ(42, int_item->AsInteger());
+    ASSERT_EQUAL(42, int_item->AsInteger());
 
     auto str_item = file.LookUp("TestStr");
-    ASSERT_EQ("Hello, World!", str_item->AsString());
+    ASSERT_EQUAL("Hello, World!", str_item->AsString());
 
     // Write to file
     file.Write();
@@ -84,17 +79,17 @@ int test_write_and_read() {
     file2.Read();
 
     auto int_item2 = file2.LookUp("TestInt");
-    ASSERT_EQ(42, int_item2->AsInteger());
+    ASSERT_EQUAL(42, int_item2->AsInteger());
 
     auto str_item2 = file2.LookUp("TestStr");
-    ASSERT_EQ("Hello, World!", str_item2->AsString());
+    ASSERT_EQUAL("Hello, World!", str_item2->AsString());
 
     std::remove(temp_file.c_str());
     return 0;
 }
 
 int test_nested_groups() {
-    std::string temp_file = StormByte::System::Functions::TempFileName();
+    std::string temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
 
     // Create nested groups
@@ -109,17 +104,17 @@ int test_nested_groups() {
 
     // Lookup and validate items
     auto lookup_int = file.LookUp("Group1/Group2/SubTestInt");
-    ASSERT_EQ(99, lookup_int->AsInteger());
+    ASSERT_EQUAL(99, lookup_int->AsInteger());
 
     auto lookup_str = file.LookUp("Group1/Group2/SubTestStr");
-    ASSERT_EQ("Sub Hello", lookup_str->AsString());
+    ASSERT_EQUAL("Sub Hello", lookup_str->AsString());
 
     std::remove(temp_file.c_str());
     return 0;
 }
 
 int test_add_remove_group() {
-    std::string temp_file = StormByte::System::Functions::TempFileName();
+    std::string temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
 
     // Add group and items
@@ -144,7 +139,7 @@ int test_add_remove_group() {
 }
 
 int test_write_nested_groups() {
-    std::string temp_file = StormByte::System::Functions::TempFileName();
+    std::string temp_file = StormByte::System::TempFileName();
     std::string config_content = 
         "Group1 = {\n"
         "    Group2 = {\n"
@@ -160,10 +155,10 @@ int test_write_nested_groups() {
 
     // Validate items
     auto lookup_int = file.LookUp("Group1/Group2/SubTestInt");
-    ASSERT_EQ(99, lookup_int->AsInteger());
+    ASSERT_EQUAL(99, lookup_int->AsInteger());
 
     auto lookup_str = file.LookUp("Group1/Group2/SubTestStr");
-    ASSERT_EQ("Sub Hello", lookup_str->AsString());
+    ASSERT_EQUAL("Sub Hello", lookup_str->AsString());
 
     // Write to file
     file.Write();
@@ -173,17 +168,17 @@ int test_write_nested_groups() {
     file2.Read();
 
     auto lookup_int2 = file2.LookUp("Group1/Group2/SubTestInt");
-    ASSERT_EQ(99, lookup_int2->AsInteger());
+    ASSERT_EQUAL(99, lookup_int2->AsInteger());
 
     auto lookup_str2 = file2.LookUp("Group1/Group2/SubTestStr");
-    ASSERT_EQ("Sub Hello", lookup_str2->AsString());
+    ASSERT_EQUAL("Sub Hello", lookup_str2->AsString());
 
     std::remove(temp_file.c_str());
     return 0;
 }
 
 int test_complex_config_creation() {
-    std::string temp_file = StormByte::System::Functions::TempFileName();
+    std::string temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
 
     // Create a complex configuration
@@ -218,7 +213,7 @@ int test_complex_config_creation() {
         "\tIntItem2 = 456;\n"
         "};\n";
 
-    ASSERT_EQ(expected_content, buffer.str());
+    ASSERT_EQUAL(expected_content, buffer.str());
 
     std::remove(temp_file.c_str());
     return 0;
@@ -268,7 +263,7 @@ int good_double_conf1() {
 	try {
 		cfg.Read();
 		auto lookup_double = cfg.LookUp("test_double");
-		ASSERT_EQ(666.666, lookup_double->AsDouble());
+		ASSERT_EQUAL(666.666, lookup_double->AsDouble());
 		return 0;
 	}
 	catch(...) {
@@ -283,9 +278,9 @@ int good_double_conf2() {
 	try {
 		cfg.Read();
 		auto lookup_test_double = cfg.LookUp("test_double");
-		ASSERT_EQ(19.89, lookup_test_double->AsDouble());
+		ASSERT_EQUAL(19.89, lookup_test_double->AsDouble());
 		auto lookup_test_exp = cfg.LookUp("test_exp");
-		ASSERT_EQ(1.87e-6, lookup_test_exp->AsDouble());
+		ASSERT_EQUAL(1.87e-6, lookup_test_exp->AsDouble());
 		return 0;
 	}
 	catch(...) {
@@ -296,7 +291,7 @@ int good_double_conf2() {
 }
 
 int commented_config() {
-	const std::string temp_file = StormByte::System::Functions::TempFileName();
+	const std::string temp_file = StormByte::System::TempFileName();
 	ConfigFile file(temp_file);
 	const std::string config_str = "# The following is a test integer\n"
 		"test_integer = 666;\n"
@@ -320,14 +315,14 @@ int commented_config() {
 	file.Write();
 
 	auto test_string = file.LookUp("test_group/test_string");
-	ASSERT_EQ("# But this is not a comment", test_string->AsString());
+	ASSERT_EQUAL("# But this is not a comment", test_string->AsString());
 
 	// Validate the written content
     std::ifstream temp_file_stream(temp_file);
     std::stringstream buffer;
     buffer << temp_file_stream.rdbuf();
 
-	ASSERT_EQ(expected_str, buffer.str());
+	ASSERT_EQUAL(expected_str, buffer.str());
 
     std::remove(temp_file.c_str());
 
@@ -339,13 +334,13 @@ int good_string_conf() {
 	try {
 		cfg.Read();
 		auto lookup_string = cfg.LookUp("test_string");
-		ASSERT_EQ("This is a test string", lookup_string->AsString());
+		ASSERT_EQUAL("This is a test string", lookup_string->AsString());
 
 		auto lookup_quoted = cfg.LookUp("test_quoted");
-		ASSERT_EQ("This \"quote\" allows more things", lookup_quoted->AsString());
+		ASSERT_EQUAL("This \"quote\" allows more things", lookup_quoted->AsString());
 
 		auto lookup_unfinished = cfg.LookUp("test_unfinished");
-		ASSERT_EQ("When you see a \" you might have the start of a string", lookup_unfinished->AsString());
+		ASSERT_EQUAL("When you see a \" you might have the start of a string", lookup_unfinished->AsString());
 
 		return 0;
 	}
@@ -357,14 +352,14 @@ int good_string_conf() {
 }
 
 int test_empty_string() {
-	std::string temp_file = StormByte::System::Functions::TempFileName();
+	std::string temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
 
     auto str_item = file.Add("EmptyString", StormByte::Config::Item::Type::String);
     str_item->SetString("");
 
     auto lookup_str = file.LookUp("EmptyString");
-    ASSERT_EQ("", lookup_str->AsString());
+    ASSERT_EQUAL("", lookup_str->AsString());
 
 	std::remove(temp_file.c_str());
 
@@ -372,7 +367,7 @@ int test_empty_string() {
 }
 
 int test_integer_boundaries() {
-	std::string temp_file = StormByte::System::Functions::TempFileName();
+	std::string temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
 
     auto max_int_item = file.Add("MaxInt", StormByte::Config::Item::Type::Integer);
@@ -382,10 +377,10 @@ int test_integer_boundaries() {
     min_int_item->SetInteger(INT_MIN);
 
     auto lookup_max_int = file.LookUp("MaxInt");
-    ASSERT_EQ(INT_MAX, lookup_max_int->AsInteger());
+    ASSERT_EQUAL(INT_MAX, lookup_max_int->AsInteger());
 
     auto lookup_min_int = file.LookUp("MinInt");
-    ASSERT_EQ(INT_MIN, lookup_min_int->AsInteger());
+    ASSERT_EQUAL(INT_MIN, lookup_min_int->AsInteger());
 
 	std::remove(temp_file.c_str());
 
@@ -393,14 +388,14 @@ int test_integer_boundaries() {
 }
 
 int test_special_characters_in_string() {
-	std::string temp_file = StormByte::System::Functions::TempFileName();
+	std::string temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
 
     auto str_item = file.Add("SpecialChars", StormByte::Config::Item::Type::String);
     str_item->SetString("Line1\nLine2\tTabbed");
 
     auto lookup_str = file.LookUp("SpecialChars");
-    ASSERT_EQ("Line1\nLine2\tTabbed", lookup_str->AsString());
+    ASSERT_EQUAL("Line1\nLine2\tTabbed", lookup_str->AsString());
 
 	std::remove(temp_file.c_str());
 
@@ -408,7 +403,7 @@ int test_special_characters_in_string() {
 }
 
 int test_deeply_nested_groups() {
-	std::string temp_file = StormByte::System::Functions::TempFileName();
+	std::string temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
 
     auto group1 = file.Add("Group1", StormByte::Config::Item::Type::Group);
@@ -420,7 +415,7 @@ int test_deeply_nested_groups() {
     int_item->SetInteger(1234);
 
     auto lookup_int = file.LookUp("Group1/Group2/Group3/Group4/DeepInt");
-    ASSERT_EQ(1234, lookup_int->AsInteger());
+    ASSERT_EQUAL(1234, lookup_int->AsInteger());
 
 	std::remove(temp_file.c_str());
 
@@ -428,7 +423,7 @@ int test_deeply_nested_groups() {
 }
 
 int test_invalid_syntax() {
-	std::string temp_file = StormByte::System::Functions::TempFileName();
+	std::string temp_file = StormByte::System::TempFileName();
     ConfigFile file(temp_file);
     std::string invalid_config = "Invalid = { Unclosed }";
 
@@ -449,7 +444,7 @@ int test_special_characters_string() {
     try {
         cfg.Read();
         auto lookup_special = cfg.LookUp("special_string");
-        ASSERT_EQ("This is a test string with special characters: \n, \t, \\", lookup_special->AsString());
+        ASSERT_EQUAL("This is a test string with special characters: \n, \t, \\", lookup_special->AsString());
         return 0;
     } catch (const StormByte::Config::Exception& ex) {
         std::cerr << "Got exception when we should not: " << ex.what() << std::endl;
@@ -462,7 +457,7 @@ int test_long_string() {
     try {
         cfg.Read();
         auto lookup_long = cfg.LookUp("long_string");
-        ASSERT_EQ(std::string(1000, 'a'), lookup_long->AsString());
+        ASSERT_EQUAL(std::string(1000, 'a'), lookup_long->AsString());
         return 0;
     } catch (...) {
         std::cerr << "Got exception when we should not" << std::endl;
@@ -499,10 +494,10 @@ int good_boolean_config1() {
 	try {
 		cfg.Read();
 		auto lookup_enable_feature = cfg.LookUp("settings/enable_feature");
-        ASSERT_EQ(true, lookup_enable_feature->AsBool());
+        ASSERT_EQUAL(true, lookup_enable_feature->AsBool());
 
 		auto lookup_enable_extra = cfg.LookUp("settings/enable_extra");
-        ASSERT_EQ(false, lookup_enable_extra->AsBool());
+        ASSERT_EQUAL(false, lookup_enable_extra->AsBool());
 		return 0;
 	}
 	catch (...) {
