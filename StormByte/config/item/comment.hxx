@@ -16,11 +16,13 @@ namespace StormByte::Config {
 			const int&					AsInteger() const override;
 			const double&				AsDouble() const override;
 			const std::string&			AsString() const override;
+			bool						AsBool() const override;
 
 			void						SetInteger(const int&) override;
 			void						SetDouble(const double&) override;
 			void						SetString(const std::string&) override;
 			void						SetString(std::string&&) override;
+			void						SetBool(bool) override;
 
 			std::shared_ptr<Item>		Clone() override;
 			std::string					Serialize(const int& indent_level = 0) const noexcept override;

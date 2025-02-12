@@ -6,6 +6,7 @@ set(STORMBYTE_SOURCES
 	${STORMBYTE_DIR}/StormByte/config/item/comment.cxx
 	${STORMBYTE_DIR}/StormByte/config/item/group.cxx
 	${STORMBYTE_DIR}/StormByte/config/item/value.cxx
+	${STORMBYTE_DIR}/StormByte/config/item/value/bool.cxx
 	${STORMBYTE_DIR}/StormByte/config/item/value/double.cxx
 	${STORMBYTE_DIR}/StormByte/config/item/value/integer.cxx
 	${STORMBYTE_DIR}/StormByte/config/item/value/string.cxx

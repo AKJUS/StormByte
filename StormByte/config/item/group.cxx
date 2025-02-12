@@ -1,5 +1,6 @@
 #include <StormByte/config/item/comment.hxx>
 #include <StormByte/config/item/group.hxx>
+#include <StormByte/config/item/value/bool.hxx>
 #include <StormByte/config/item/value/double.hxx>
 #include <StormByte/config/item/value/integer.hxx>
 #include <StormByte/config/item/value/string.hxx>
@@ -47,6 +48,10 @@ const double& Group::AsDouble() const {
 	throw WrongValueTypeConversion(*this, "AsDouble");
 }
 
+bool Group::AsBool() const {
+	throw WrongValueTypeConversion(*this, "AsBool");
+}
+
 std::shared_ptr<Item> Group::Add(const std::string& name, const Type& type) {
 	if (std::find_if(name.begin(), name.end(), 
         [](char c) { return !(isalnum(c) || c == '_'); }) != name.end())
@@ -72,6 +77,9 @@ std::shared_ptr<Item> Group::Add(const std::string& name, const Type& type) {
 
 		case Type::Comment:
 			item = std::make_shared<Comment>();
+			break;
+		case Type::Bool:
+			item = std::make_shared<Bool>(name);
 			break;
 	}
 	m_children.insert({ name, item });
@@ -114,6 +122,10 @@ void Group::SetString(const std::string&) {
 
 void Group::SetString(std::string&&) {
 	throw ValueFailure(*this, Type::String);
+}
+
+void Group::SetBool(bool) {
+	throw ValueFailure(*this, Type::Bool);
 }
 
 bool Group::Exists(const std::string& path) const noexcept {

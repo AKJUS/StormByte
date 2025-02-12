@@ -1,5 +1,6 @@
 #include <StormByte/config/exception.hxx>
 #include <StormByte/config/file.hxx>
+#include <StormByte/config/item/value/bool.hxx>
 #include <StormByte/config/item/value/double.hxx>
 #include <StormByte/config/item/value/integer.hxx>
 #include <StormByte/config/item/value/string.hxx>
@@ -120,6 +121,10 @@ void File::Parse(std::istream& stream, std::shared_ptr<Group>& group) {
 			case Item::Type::Comment:
 				// This should never happen but we make compiler happy
 				break;
+			case Item::Type::Bool:
+				auto item = std::make_shared<Bool>(item_name);
+				item->SetBool(ParseBoolValue(stream));
+				group->Add(item);
 		}
 		while (FindAndParseComment(stream, group)) {}
 	}
@@ -195,8 +200,12 @@ Item::Type File::GuessType(std::istream& stream) {
 			item_type = Item::Type::Comment;
 			break;
 		}
+		else if (c == 't' || c == 'f') {
+			item_type = Item::Type::Bool;
+			break;
+		}
 		else
-			throw ParseError(std::string("Expected number, \" or { but found ") + c);
+			throw ParseError(std::string("Expected number, \", {, t or f but found ") + c);
 	}
 	stream.seekg(current_position);
 	return item_type;
@@ -356,6 +365,38 @@ double File::ParseDoubleValue(std::istream& stream) {
 		throw ParseError("Expected number but got ; without any");
 	
 	return std::stod(accumulator);
+}
+
+bool File::ParseBoolValue(std::istream& stream) {
+	std::string accumulator = "";
+	bool value;
+	char c;
+	stream.get(c);
+	accumulator += c;
+	if (c == 't') {
+		for (auto i = 0; i < 3 && !stream.eof(); i++) {
+			stream.get(c);
+			accumulator += c;
+		}
+	}
+	else if (c == 'f') {
+		for (auto i = 0; i < 4 && !stream.eof(); i++) {
+			stream.get(c);
+			accumulator += c;
+		}
+	}
+	else
+		throw ParseError(std::string("Expected initial t (for true) or f (for false) but got ") + c); // This should not happen but just in case
+
+	if (accumulator == "true")
+		value = true;
+	else if (accumulator == "false")
+		value = false;
+	else
+		throw ParseError("Expected true or false (lowercase) but got " + accumulator);
+
+	ExpectSemicolon(stream);
+	return value;
 }
 
 bool File::FindAndParseComment(std::istream& stream, std::shared_ptr<Group>& group) {

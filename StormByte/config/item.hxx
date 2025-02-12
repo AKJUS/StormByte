@@ -16,7 +16,8 @@ namespace StormByte::Config {
 				String,
 				Integer,
 				Double,
-				Comment
+				Comment,
+				Bool
 			};
 			static constexpr const char* GetTypeAsString(const Type& t) noexcept {
 				switch(t) {
@@ -25,6 +26,7 @@ namespace StormByte::Config {
 					case Type::Integer:	return "Integer";
 					case Type::Double: 	return "Double";
 					case Type::Comment:	return "Comment";
+					case Type::Bool:	return "Bool";
 					default:			return "Unknown";
 				}
 			}
@@ -43,11 +45,13 @@ namespace StormByte::Config {
 			virtual const int&					AsInteger() const 	= 0;
 			virtual const double&				AsDouble() const 	= 0;
 			virtual const std::string&			AsString() const	= 0;
+			virtual bool 						AsBool() const 		= 0;
 
 			virtual void						SetInteger(const int&)			= 0;
 			virtual void						SetDouble(const double&)		= 0;
 			virtual void						SetString(const std::string&)	= 0;
 			virtual void						SetString(std::string&&)		= 0;
+			virtual void 						SetBool(bool)					= 0;
 
 			virtual std::shared_ptr<Item>		Clone() = 0;
 			virtual std::string					Serialize(const int& indent_level = 0) const noexcept = 0;

@@ -24,6 +24,7 @@ namespace StormByte::Config {
 			const int& 					AsInteger() const override;
 			const double&				AsDouble() const override;
 			const std::string& 			AsString() const override;
+			bool						AsBool() const override;
 
 			std::shared_ptr<Item>		Add(const std::string&, const Type&);
 			std::shared_ptr<Item>		Add(std::shared_ptr<Item>);					
@@ -33,6 +34,7 @@ namespace StormByte::Config {
 			void						SetDouble(const double&) override;
 			void						SetString(const std::string&) override;
 			void						SetString(std::string&&) override;
+			void 						SetBool(bool) override;
 
 			std::shared_ptr<Item>		Child(const std::string&) const;
 			bool						Exists(const std::string&) const noexcept;

@@ -22,6 +22,10 @@ const std::string& Comment::AsString() const {
 	return m_value;
 }
 
+bool Comment::AsBool() const {
+	throw WrongValueTypeConversion(*this, "AsBool");
+}
+
 void Comment::SetInteger(const int&) {
 	throw ValueFailure(*this, Type::Integer);
 }
@@ -36,6 +40,10 @@ void Comment::SetString(const std::string& val) {
 
 void Comment::SetString(std::string&& val) {
 	m_value = std::move(val);
+}
+
+void Comment::SetBool(bool) {
+	throw ValueFailure(*this, Type::Bool);
 }
 
 std::string Comment::Serialize(const int& indent_level) const noexcept {

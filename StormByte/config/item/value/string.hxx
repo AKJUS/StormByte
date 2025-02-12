@@ -15,12 +15,8 @@ namespace StormByte::Config {
 			String& operator=(String&&) noexcept	= default;
 			~String() noexcept override				= default;
 
-			const int& 				AsInteger() const override;
-			const double&			AsDouble() const override;
 			const std::string& 		AsString() const override;
 
-			void					SetInteger(const int&) override;
-			void					SetDouble(const double&) override;
 			void					SetString(const std::string&) override;
 			void					SetString(std::string&&) override;
 

@@ -501,6 +501,37 @@ int test_unmatched_braces() {
     return 0;
 }
 
+int good_boolean_config1() {
+	ConfigFile cfg(get_current_path() / "good_boolean_conf1.conf");
+	try {
+		cfg.Read();
+		auto lookup_enable_feature = cfg.LookUp("settings/enable_feature");
+        ASSERT_EQ(true, lookup_enable_feature->AsBool());
+
+		auto lookup_enable_extra = cfg.LookUp("settings/enable_extra");
+        ASSERT_EQ(false, lookup_enable_extra->AsBool());
+		return 0;
+	}
+	catch (...) {
+		std::cerr << "Got exception when not expecting it" << std::endl;
+		return 1;
+	}
+	return 0;
+}
+
+int bad_boolean_config1() {
+	ConfigFile cfg(get_current_path() / "bad_boolean_conf1.conf");
+	try {
+		cfg.Read();
+		std::cerr << "File was read ok but it should have failed" << std::endl;
+		return 1;
+	}
+	catch (...) {
+		return 0;
+	}
+	return 0;
+}
+
 int main() {
     int result = 0;
     try {
@@ -526,6 +557,8 @@ int main() {
         result += test_long_string();
         result += test_missing_semicolon();
         result += test_unmatched_braces();
+		result += good_boolean_config1();
+		result += bad_boolean_config1();
     } catch (const StormByte::Config::Exception& ex) {
         std::cerr << ex.what() << std::endl;
         result++;
