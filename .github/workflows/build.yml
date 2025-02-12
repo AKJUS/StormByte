@@ -57,14 +57,15 @@ jobs:
         fi
 
     - name: Configure CMake
-      run: cmake -B ${{ github.workspace }}/build \
-             -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-             -DCMAKE_C_COMPILER=/usr/bin/${{ matrix.compiler }} \
-             -DCMAKE_CXX_COMPILER=$([[ ${{ matrix.compiler }} == 'gcc' ]] && echo '/usr/bin/g++' || echo '/usr/bin/clang++') \
-             -DCMAKE_CXX_FLAGS="${{ matrix.stdlib == 'libc++' && matrix.compiler == 'clang' && '-stdlib=libc++' || '' }}" \
-             -DENABLE_SQLITE=${{ matrix.sqlite }} \
-             -DWITH_SYSTEM_SQLITE=${{ matrix.system_sqlite }} \
-             -DENABLE_TEST=ON
+      run: |
+        cmake -B ${{ github.workspace }}/build \
+          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+          -DCMAKE_C_COMPILER=/usr/bin/${{ matrix.compiler }} \
+          -DCMAKE_CXX_COMPILER=$([[ ${{ matrix.compiler }} == 'gcc' ]] && echo '/usr/bin/g++' || echo '/usr/bin/clang++') \
+          -DCMAKE_CXX_FLAGS="${{ matrix.stdlib == 'libc++' && matrix.compiler == 'clang' && '-stdlib=libc++' || '' }}" \
+          -DENABLE_SQLITE=${{ matrix.sqlite }} \
+          -DWITH_SYSTEM_SQLITE=${{ matrix.system_sqlite }} \
+          -DENABLE_TEST=ON
     - name: Build
       run: cmake --build ${{ github.workspace }}/build --config ${{ env.BUILD_TYPE }}
 
