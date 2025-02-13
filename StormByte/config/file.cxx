@@ -475,7 +475,7 @@ void File::ExpectSemicolon(std::istream& stream) {
 	std::string error;
 	if (stream.eof()) error = "Expected ; but found EOF";
 	else {
-		char c;
+		char c = '\0'; // Make sure c has always content
 		stream.get(c);
 		if (c != ';') error = (std::string)"Expected ; but found " + c;
 	}
