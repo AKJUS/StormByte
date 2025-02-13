@@ -167,7 +167,7 @@ Item::Type File::GuessType(std::istream& stream) {
 	ConsumeEmptyChars(stream);
 	// We store current position to restore once guessed the type
 	auto current_position = stream.tellg();
-	Item::Type item_type;
+	std::unique_ptr<Item::Type> item_type;
 	if (stream.eof())
 		throw ParseError("Expected number, \" or { but found EOF");
 	// While is to implement in a future Item::Type::Double
@@ -175,12 +175,12 @@ Item::Type File::GuessType(std::istream& stream) {
 		char c;
 		stream.get(c);
 		if (std::isdigit(c)) {
-			item_type = Item::Type::Integer;
+			item_type = std::make_unique<Item::Type>(Item::Type::Integer);
 			// We assumed integer but will keep reading until we find a . for double or a ; which confirms it is an integer
 			while (!stream.eof()) {
 				stream.get(c);
 				if (c == '.') {
-					item_type = Item::Type::Double;
+					item_type = std::make_unique<Item::Type>(Item::Type::Double);
 					break;
 				}
 				else if (c == ';')
@@ -189,26 +189,28 @@ Item::Type File::GuessType(std::istream& stream) {
 			break;
 		}
 		else if (c == '"') {
-			item_type = Item::Type::String;
+			item_type = std::make_unique<Item::Type>(Item::Type::String);
 			break;
 		}
 		else if (c == '{') {
-			item_type = Item::Type::Group;
+			item_type = std::make_unique<Item::Type>(Item::Type::Group);
 			break;
 		}
 		else if (c == '#') {
-			item_type = Item::Type::Comment;
+			item_type = std::make_unique<Item::Type>(Item::Type::Comment);
 			break;
 		}
 		else if (c == 't' || c == 'f') {
-			item_type = Item::Type::Bool;
+			item_type = std::make_unique<Item::Type>(Item::Type::Bool);
 			break;
 		}
 		else
 			throw ParseError(std::string("Expected number, \", {, t or f but found ") + c);
 	}
 	stream.seekg(current_position);
-	return item_type;
+	if (!item_type)
+		throw ParseError("Could not guess Item Type!");
+	return *item_type;
 }
 
 int File::ParseIntValue(std::istream& stream) {
