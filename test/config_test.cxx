@@ -511,7 +511,7 @@ int test_special_characters_string() {
 		file.close();
         auto lookup_special = cfg.LookUp("special_string");
         ASSERT_EQUAL("test_special_characters_string", "This is a test string with special characters: \n, \t, \\", lookup_special->AsString());
-    } catch (const StormByte::Config::Exception& ex) {
+    } catch (...) {
         result = 1;
     }
 
