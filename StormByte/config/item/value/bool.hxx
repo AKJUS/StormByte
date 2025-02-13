@@ -53,13 +53,17 @@ namespace StormByte::Config {
 			 * Value getter
 			 * @return boolean value
 			 */
-			bool 					AsBool() const override;
+			constexpr bool 			AsBool() const override {
+				return m_value;
+			}
 
 			/**
 			 * Sets the boolean item value
 			 * @param value boolean value
 			 */
-			void					SetBool(bool value) override;
+			inline void				SetBool(bool value) override {
+				m_value = value;
+			}
 
 			/**
 			 * Serializes the boolean item

@@ -60,13 +60,17 @@ namespace StormByte::Config {
 			 * Value getter
 			 * @return double value
 			 */
-			const double& 			AsDouble() const override;
+			constexpr const double& AsDouble() const override {
+				return m_value;
+			}
 
 			/**
 			 * Value setter
 			 * @param value double value to set
 			 */
-			void					SetDouble(const double& value) override;
+			inline void				SetDouble(const double& value) override {
+				m_value = value;
+			}
 
 			/**
 			 * Serializes the boolean item

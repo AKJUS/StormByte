@@ -32,15 +32,7 @@ Group& Group::operator=(const Group& gr) {
 	return *this;
 }
 
-Group& Group::AsGroup() {
-	return *this;
-}
-
 std::shared_ptr<Item> Group::Add(const std::string& name, const Type& type) {
-	if (std::find_if(name.begin(), name.end(), 
-        [](char c) { return !(isalnum(c) || c == '_'); }) != name.end())
-		throw InvalidName(name);
-
 	std::shared_ptr<Item> item;
 	switch (type) {
 		case Type::Group:
@@ -66,14 +58,11 @@ std::shared_ptr<Item> Group::Add(const std::string& name, const Type& type) {
 			item = std::make_shared<Bool>(name);
 			break;
 	}
-	m_children.insert({ name, item });
-	m_ordered.push_back(item);
-	return item;
+	return Add(item);
 }
 
 std::shared_ptr<Item> Group::Add(std::shared_ptr<Item> item) {
-	if (std::find_if(item->GetName().begin(), item->GetName().end(), 
-        [](char c) { return !(isalnum(c) || c == '_'); }) != item->GetName().end())
+	if (!Item::IsNameValid(item->GetName()))
 		throw InvalidName(item->GetName());
 		
 	m_children.insert({ item->GetName(), item });

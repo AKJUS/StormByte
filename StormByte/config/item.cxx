@@ -10,10 +10,6 @@ m_name(name), m_type(type) {}
 Item::Item(const Type& type, std::string&& name):
 m_name(std::move(name)), m_type(type) {}
 
-const std::string& Item::GetName() const noexcept { return m_name; }
-
-const Item::Type& Item::GetType() const noexcept { return m_type; }
-
 Group& Item::AsGroup() {
 	throw WrongValueTypeConversion(*this, "AsGroup");
 }
@@ -52,8 +48,4 @@ void Item::SetString(std::string&&) {
 
 void Item::SetBool(bool) {
 	throw ValueFailure(*this, Type::Bool);
-}
-
-std::string Item::Indent(const int& level) const noexcept {
-	return level == 0 ? std::string() : std::string(level, '\t');
 }

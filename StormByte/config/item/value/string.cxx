@@ -9,18 +9,6 @@ Value(Type::String, name) {}
 String::String(std::string&& name):
 Value(Type::String, std::move(name)) {}
 
-const std::string& String::AsString() const {
-	return m_value;
-}
-
-void String::SetString(const std::string& val) {
-	m_value = val;
-}
-
-void String::SetString(std::string&& val) {
-	m_value = std::move(val);
-}
-
 std::string String::Serialize(const int& indent_level) const noexcept {
     std::string escaped_value = m_value;
     // Escape the " characters in the string value

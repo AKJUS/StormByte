@@ -9,14 +9,6 @@ Value(Type::Double, name), m_value(0) {}
 Double::Double(std::string&& name):
 Value(Type::Double, std::move(name)), m_value(0) {}
 
-const double& Double::AsDouble() const {
-	return m_value;
-}
-
-void Double::SetDouble(const double& val) {
-	m_value = val;
-}
-
 std::string Double::Serialize(const int& indent_level) const noexcept {
 	return Indent(indent_level) + m_name + " = " + std::to_string(m_value) + ";";
 }

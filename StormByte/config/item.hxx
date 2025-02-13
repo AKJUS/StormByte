@@ -73,17 +73,21 @@ namespace StormByte::Config {
 			 * Gets item name
 			 * @return item name
 			 */
-			const std::string&					GetName() const noexcept;
+			constexpr const std::string&		GetName() const noexcept {
+				return m_name;
+			}
 			/**
 			 * Gets item type
 			 * @return item Type
 			 */
-			const Type&							GetType() const noexcept;
+			constexpr const Type&				GetType() const noexcept {
+				return m_type;
+			}
 			/**
 			 * Gets item type as string
 			 * @return item type string
 			 */
-			constexpr std::string				GetTypeAsString() const noexcept {
+			constexpr const std::string			GetTypeAsString() const noexcept {
 				return GetTypeAsString(m_type);
 			}
 			
@@ -145,6 +149,11 @@ namespace StormByte::Config {
 			 * @return serialized string
 			 */
 			virtual std::string					Serialize(const int& indent_level) const noexcept = 0;
+
+			static constexpr bool 				IsNameValid(const std::string& name) noexcept {
+				// Find unallowed chars and if not found then name is valid
+				return !(std::find_if(name.begin(), name.end(), [](char c) { return !isalnum(c) && c != '_'; }) != name.end());
+			}
 		
 		protected:
 			/**
@@ -168,7 +177,9 @@ namespace StormByte::Config {
 			 * Indents the output
 			 * @param level
 			 */
-			std::string							Indent(const int& level) const noexcept;
+			constexpr std::string				Indent(const int& level) const noexcept {
+				return level == 0 ? std::string() : std::string(level, '\t');
+			}
 
 			/**
 			 * Item name

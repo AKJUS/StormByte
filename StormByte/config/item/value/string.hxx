@@ -53,18 +53,24 @@ namespace StormByte::Config {
 			 * Value getter
 			 * @return string value
 			 */
-			const std::string& 		AsString() const override;
+			constexpr const std::string&	AsString() const override {
+				return m_value;
+			}
 
 			/**
 			 * Value setter
 			 * @param value value to set
 			 */
-			void					SetString(const std::string& value) override;
+			inline void						SetString(const std::string& value) override {
+				m_value = value;
+			}
 			/**
 			 * Value setter
 			 * @param value value to move to this element
 			 */
-			void					SetString(std::string&& value) override;
+			inline void						SetString(std::string&& value) override {
+				m_value = std::move(value);
+			}
 
 			/**
 			 * Serializes the boolean item

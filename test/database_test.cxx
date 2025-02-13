@@ -7,6 +7,8 @@
 #include <memory>
 #include <iostream>
 
+#include "test_handlers.h"
+
 using namespace StormByte::Database::SQLite;
 
 class TestDatabase : public SQLite3 {
@@ -62,64 +64,81 @@ class TestDatabase : public SQLite3 {
 			return rows;
 		}
 };
-	
+
+// Create an in-memory database for testing (global)
+TestDatabase db;
+
+int verify_inserted_users() {
+	// 1. Verify that users were inserted correctly
+	auto rows = db.get_users();
+	ASSERT_EQUAL("verify_inserted_users", 2, rows[0]->Columns());
+	ASSERT_EQUAL("verify_inserted_users", "Alice", rows[0]->At(0)->Value<std::string>());
+	ASSERT_EQUAL("verify_inserted_users", "alice@example.com", rows[0]->At(1)->Value<std::string>());
+
+	ASSERT_EQUAL("verify_inserted_users", 2, rows[1]->Columns());
+    ASSERT_EQUAL("verify_inserted_users", "Bob", rows[1]->At(0)->Value<std::string>());
+    ASSERT_EQUAL("verify_inserted_users", "bob@example.com", rows[1]->At(1)->Value<std::string>());
+
+	return 0;
+}
+
+int verify_inserted_products() {
+	// 2. Verify that products were inserted correctly
+	auto rows = db.get_products();
+	ASSERT_EQUAL("verify_inserted_products", 2, rows[0]->Columns());
+	ASSERT_EQUAL("verify_inserted_products", "Laptop", rows[0]->At(0)->Value<std::string>());
+	ASSERT_EQUAL("verify_inserted_products", 999.99, rows[0]->At(1)->Value<double>());
+
+	ASSERT_EQUAL("verify_inserted_products", 2, rows[1]->Columns());
+	ASSERT_EQUAL("verify_inserted_products", "Mouse", rows[1]->At(0)->Value<std::string>());
+	ASSERT_EQUAL("verify_inserted_products", 19.99, rows[1]->At(1)->Value<double>());
+
+	return 0;
+}
+
+int verify_inserted_orders() {
+	// 3. Verify that orders were inserted correctly
+	auto rows = db.get_orders();
+	ASSERT_EQUAL("verify_inserted_orders", 3, rows[0]->Columns());
+	ASSERT_EQUAL("verify_inserted_orders", 1, rows[0]->At(0)->Value<int>());
+	ASSERT_EQUAL("verify_inserted_orders", 1, rows[0]->At(1)->Value<int>());
+	ASSERT_EQUAL("verify_inserted_orders", 1, rows[0]->At(2)->Value<int>());
+
+	ASSERT_EQUAL("verify_inserted_orders", 3, rows[1]->Columns());
+	ASSERT_EQUAL("verify_inserted_orders", 2, rows[1]->At(0)->Value<int>());
+	ASSERT_EQUAL("verify_inserted_orders", 2, rows[1]->At(1)->Value<int>());
+	ASSERT_EQUAL("verify_inserted_orders", 2, rows[1]->At(2)->Value<int>());
+
+	return 0;
+}
+
+int verify_relationships() {
+	// 4. Verify that the relationship between tables works correctly
+	auto rows = db.get_joined_data();
+	ASSERT_EQUAL("verify_relationships", 3, rows[0]->Columns());
+	ASSERT_EQUAL("verify_relationships", "Alice", rows[0]->At(0)->Value<std::string>());
+	ASSERT_EQUAL("verify_relationships", "Laptop", rows[0]->At(1)->Value<std::string>());
+	ASSERT_EQUAL("verify_relationships", 1, rows[0]->At(2)->Value<int>());
+
+	ASSERT_EQUAL("verify_relationships", 3, rows[1]->Columns());
+	ASSERT_EQUAL("verify_relationships", "Bob", rows[1]->At(0)->Value<std::string>());
+	ASSERT_EQUAL("verify_relationships", "Mouse", rows[1]->At(1)->Value<std::string>());
+	ASSERT_EQUAL("verify_relationships", 2, rows[1]->At(2)->Value<int>());
+
+	return 0;
+}
+
 int main() {
+    int result = 0;
     try {
-        // Create an in-memory database for testing
-        TestDatabase db;
-
-        // 1. Verify that users were inserted correctly
-        auto rows = db.get_users();
-        ASSERT_EQUAL(2, rows[0]->Columns());
-        ASSERT_EQUAL("Alice", rows[0]->At(0)->Value<std::string>());
-        ASSERT_EQUAL("alice@example.com", rows[0]->At(1)->Value<std::string>());
-
-		ASSERT_EQUAL(2, rows[1]->Columns());
-        ASSERT_EQUAL("Bob", rows[1]->At(0)->Value<std::string>());
-        ASSERT_EQUAL("bob@example.com", rows[1]->At(1)->Value<std::string>());
-
-        // 2. Verify that products were inserted correctly
-        rows = db.get_products();
-        ASSERT_EQUAL(2, rows[0]->Columns());
-        ASSERT_EQUAL("Laptop", rows[0]->At(0)->Value<std::string>());
-        ASSERT_EQUAL(999.99, rows[0]->At(1)->Value<double>());
-
-		ASSERT_EQUAL(2, rows[1]->Columns());
-        ASSERT_EQUAL("Mouse", rows[1]->At(0)->Value<std::string>());
-        ASSERT_EQUAL(19.99, rows[1]->At(1)->Value<double>());
-
-        // 3. Verify that orders were inserted correctly
-        rows = db.get_orders();
-        ASSERT_EQUAL(3, rows[0]->Columns());
-        ASSERT_EQUAL(1, rows[0]->At(0)->Value<int>());
-        ASSERT_EQUAL(1, rows[0]->At(1)->Value<int>());
-        ASSERT_EQUAL(1, rows[0]->At(2)->Value<int>());
-
-		ASSERT_EQUAL(3, rows[1]->Columns());
-        ASSERT_EQUAL(2, rows[1]->At(0)->Value<int>());
-        ASSERT_EQUAL(2, rows[1]->At(1)->Value<int>());
-        ASSERT_EQUAL(2, rows[1]->At(2)->Value<int>());
-
-        // 4. Verify that the relationship between tables works correctly
-        rows = db.get_joined_data();
-        ASSERT_EQUAL(3, rows[0]->Columns());
-        ASSERT_EQUAL("Alice", rows[0]->At(0)->Value<std::string>());
-        ASSERT_EQUAL("Laptop", rows[0]->At(1)->Value<std::string>());
-        ASSERT_EQUAL(1, rows[0]->At(2)->Value<int>());
-
-		ASSERT_EQUAL(3, rows[1]->Columns());
-        ASSERT_EQUAL("Bob", rows[1]->At(0)->Value<std::string>());
-        ASSERT_EQUAL("Mouse", rows[1]->At(1)->Value<std::string>());
-        ASSERT_EQUAL(2, rows[1]->At(2)->Value<int>());
-
+		result += verify_inserted_users();
+		result += verify_inserted_products();
+		result += verify_inserted_orders();
+		result += verify_relationships();
         std::cout << "All tests passed successfully.\n";
-    } catch (const std::exception& e) {
-        std::cerr << "An exception occurred: " << e.what() << '\n';
-		return 1;
-    } catch (const StormByte::Database::SQLite::Exception& e) {
-		std::cerr << "An exception occurred: " << e.what() << '\n';
-		return 1;
+    } catch (...) {
+        result++;
 	}
 
-    return 0;
+    return result;
 }

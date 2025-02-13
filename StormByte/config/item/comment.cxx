@@ -13,15 +13,3 @@ std::string Comment::Serialize(const int& indent_level) const noexcept {
 std::shared_ptr<Item> Comment::Clone() {
 	return std::make_shared<Comment>(*this);
 }
-
-const std::string& Comment::AsString() const {
-	return m_value;
-}
-
-void Comment::SetString(const std::string& val) {
-	m_value = val;
-}
-
-void Comment::SetString(std::string&& val) {
-	m_value = std::move(val);
-}

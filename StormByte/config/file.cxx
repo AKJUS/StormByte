@@ -11,66 +11,77 @@
 
 using namespace StormByte::Config;
 
-File::File(const std::filesystem::path& file):m_file(file) {
+File::File() {
 	m_root = std::make_unique<Group>("root");
 }
 
-File::File(std::filesystem::path&& file):m_file(std::move(file)) {
-	m_root = std::make_unique<Group>("root");
-}
-
-File::File(const File& file):m_file(file.m_file) {
+File::File(const File& file) {
 	m_root = std::make_unique<Group>(*file.m_root);
 }
 
 File& File::operator=(const File& file) {
 	if (this != &file) {
-		m_file = file.m_file;
 		m_root = std::make_unique<Group>(*file.m_root);
 	}
 	return *this;
 }
 
-std::shared_ptr<Item> File::Add(const std::string& name, const Item::Type& type) {
-	return m_root->Add(name, type);
+void File::Clear() noexcept {
+	// For this to be noexcept first we release memory
+	m_root.reset();
+	m_root = std::make_unique<Group>("root");
 }
 
-void File::Clear() noexcept { m_root = std::make_unique<Group>("root"); }
-
-void File::Read() {
-	Clear();
-	std::ifstream file;
-	file.open(m_file, std::ios::in);
-	if (file.fail())
-		throw System::FileIOError(m_file, System::FileIOError::Read);
-
-	file >> std::noskipws;
-	Parse(file, m_root);
-	file.close();
-
-	this->PostRead();
+void File::operator<<(std::istream& istream) { // 1
+	Parse(istream, m_root);
 }
 
-void File::ReadFromString(const std::string& cfg_str) {
-	Clear();
-
-	std::istringstream is(cfg_str);
-	is >> std::noskipws;
-	Parse(is, m_root);
-
-	this->PostRead();
+void File::operator<<(const std::string& str) { // 2
+	std::istringstream istream(str);
+	*this << istream;
 }
 
-void File::Write() {
-	std::ofstream file;
-	file.open(m_file, std::ios::out);
-	if (file.fail())
-		throw System::FileIOError(m_file, System::FileIOError::Write);
-	
+/*
+File& StormByte::Config::operator>>(std::istream& istream, File& file) { // 3
+	file << istream;
+	return file;
+}
+*/
+/*
+File& StormByte::Config::operator>>(const std::string& str, File& file) { // 4
+	file << str;
+	return file;
+}
+*/
+
+std::ostream& File::operator>>(std::ostream& ostream) { // 5
+	ostream << (std::string)*this;
+	return ostream;
+}
+
+std::string& File::operator>>(std::string& str) { // 6
+	str += *this; // Conversion should be done automatically by operator std::string()
+	return str;
+}
+
+/*
+std::ostream& StormByte::Config::operator<<(std::ostream& ostream, const File& file) { // 7
+	ostream << (std::string)file;
+	return ostream;
+}
+*/
+/*
+std::string& operator<<(std::string& str, const File& file) { // 8
+	str += file;
+	return str;
+}
+*/
+
+File::operator std::string() const {
+	std::string serialized = "";
 	for (auto it = m_root->m_ordered.begin(); it != m_root->m_ordered.end(); it++)
-		file << it->get()->Serialize(0) << "\n";
-
-	file.close();
+		serialized += it->get()->Serialize(0) + "\n";
+	return serialized;
 }
 
 std::shared_ptr<Item> File::Child(const std::string& path) const {
@@ -85,7 +96,15 @@ std::shared_ptr<Item> File::LookUp(const std::string& path) const {
 	return m_root->LookUp(path);
 }
 
-void File::Parse(std::istream& stream, std::shared_ptr<Group>& group) {
+void File::Parse(std::istream& stream, std::unique_ptr<Group>& group) {
+	for (auto it = m_before_read_hooks.begin(); it != m_before_read_hooks.end(); it++)
+		(*it)(*this);
+	Parse(stream, *group);
+	for (auto it = m_after_read_hooks.begin(); it != m_after_read_hooks.end(); it++)
+		(*it)(*this);
+}
+
+void File::Parse(std::istream& stream, Group& group) {
 	while (FindAndParseComment(stream, group)) {}
 	while (!stream.eof()) {
 		// The first thing we expect to encounter is the item name
@@ -96,26 +115,26 @@ void File::Parse(std::istream& stream, std::shared_ptr<Group>& group) {
 			case Item::Type::Integer: {
 				auto item = std::make_shared<Integer>(item_name);
 				item->SetInteger(ParseIntValue(stream));
-				group->Add(item);
+				group.Add(item);
 				break;
 			}
 			case Item::Type::String: {
 				auto item = std::make_shared<String>(item_name);
 				item->SetString(ParseStringValue(stream));
-				group->Add(item);
+				group.Add(item);
 				break;
 			}
 			case Item::Type::Group: {
 				auto item = std::make_shared<Group>(item_name);
 				std::istringstream group_stream(ParseGroupContent(stream));
-				Parse(group_stream, item);
-				group->Add(item);
+				Parse(group_stream, *item);
+				group.Add(item);
 				break;
 			}
 			case Item::Type::Double: {
 				auto item = std::make_shared<Double>(item_name);
 				item->SetDouble(ParseDoubleValue(stream));
-				group->Add(item);
+				group.Add(item);
 				break;
 			}
 			case Item::Type::Comment:
@@ -124,7 +143,7 @@ void File::Parse(std::istream& stream, std::shared_ptr<Group>& group) {
 			case Item::Type::Bool:
 				auto item = std::make_shared<Bool>(item_name);
 				item->SetBool(ParseBoolValue(stream));
-				group->Add(item);
+				group.Add(item);
 		}
 		while (FindAndParseComment(stream, group)) {}
 	}
@@ -429,7 +448,7 @@ bool File::ParseBoolValue(std::istream& stream) {
 	return value;
 }
 
-bool File::FindAndParseComment(std::istream& stream, std::shared_ptr<Group>& group) {
+bool File::FindAndParseComment(std::istream& stream, Group& group) {
 	ConsumeEmptyChars(stream);
 	std::string accumulator;
 	if (stream.eof())
@@ -442,7 +461,7 @@ bool File::FindAndParseComment(std::istream& stream, std::shared_ptr<Group>& gro
 			accumulator.pop_back();
 
 		if (!accumulator.empty())
-			group->Add("_comment_", Item::Type::Comment)->SetString(accumulator);
+			group.Add("_comment_", Item::Type::Comment)->SetString(accumulator);
 	}
 	else {
 		// Leave the position before this read

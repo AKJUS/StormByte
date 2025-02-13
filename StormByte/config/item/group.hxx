@@ -61,7 +61,9 @@ namespace StormByte::Config {
 			 * Value getter
 			 * @return current Group
 			 */
-			Group&						AsGroup() override;
+			inline Group&				AsGroup() override {
+				return *this;
+			}
 
 			/**
 			 * Add a named item to this group

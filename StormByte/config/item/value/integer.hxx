@@ -53,13 +53,17 @@ namespace StormByte::Config {
 			 * Value getter
 			 * @return integer value
 			 */
-			const int& 				AsInteger() const override;
+			constexpr const int& 	AsInteger() const override {
+				return m_value;
+			}
 
 			/**
 			 * Value setter
 			 * @param value value to set
 			 */
-			void					SetInteger(const int& value) override;
+			inline void				SetInteger(const int& value) override {
+				m_value = value;
+			}
 
 			/**
 			 * Serializes the boolean item
