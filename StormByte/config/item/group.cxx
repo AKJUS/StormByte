@@ -33,6 +33,16 @@ Group& Group::operator=(const Group& gr) {
 }
 
 std::shared_ptr<Item> Group::Add(const std::string& name, const Type& type) {
+	std::optional<OnNameClashFunctionType> onclash;
+	return Add(name, type, onclash);
+}
+
+std::shared_ptr<Item> Group::Add(std::shared_ptr<Item> item) {
+	std::optional<OnNameClashFunctionType> onclash;
+	return Add(item, onclash);
+}
+
+std::shared_ptr<Item> Group::Add(const std::string& name, const Type& type, std::optional<OnNameClashFunctionType>& on_clash) {
 	std::shared_ptr<Item> item;
 	switch (type) {
 		case Type::Group:
@@ -58,16 +68,26 @@ std::shared_ptr<Item> Group::Add(const std::string& name, const Type& type) {
 			item = std::make_shared<Bool>(name);
 			break;
 	}
-	return Add(item);
+	return Add(item, on_clash);
 }
 
-std::shared_ptr<Item> Group::Add(std::shared_ptr<Item> item) {
+std::shared_ptr<Item> Group::Add(std::shared_ptr<Item> item, std::optional<OnNameClashFunctionType>& on_clash) {
+	std::shared_ptr<Item> item_to_insert = item;
 	if (!Item::IsNameValid(item->GetName()))
 		throw InvalidName(item->GetName());
+	if (item->GetType() != Item::Type::Comment && m_children.contains(item->GetName())) {
+		if (on_clash) {
+			item_to_insert = (*on_clash)(m_children.at(item->GetName()), item);
+			// If it did not throw we proceed
+			Remove(item->GetName());
+		}
+		else
+			throw ItemNameAlreadyExists(item->GetName());
+	}
 		
-	m_children.insert({ item->GetName(), item });
-	m_ordered.push_back(item);
-	return item;
+	m_children.insert({ item->GetName(), item_to_insert });
+	m_ordered.push_back(item_to_insert);
+	return item_to_insert;
 }
 
 void Group::Remove(const std::string& child) {

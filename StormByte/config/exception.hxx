@@ -207,4 +207,37 @@ namespace StormByte::Config {
 			 */
 			~ItemNotFound() noexcept override				= default;
 	};
+
+	/**
+	 * @class ItemNameAlreadyExists
+	 * @brief Exception thrown when adding an item which name already exists
+	 */
+	class STORMBYTE_PUBLIC ItemNameAlreadyExists final: public Exception {
+		public:
+			/**
+			 * Constructor
+			 * @param name item name which was not found
+			 */
+			ItemNameAlreadyExists(const std::string& name);
+			/**
+			 * Copy constructor
+			 */
+			ItemNameAlreadyExists(const ItemNameAlreadyExists&)				= default;
+			/**
+			 * Move constructor
+			 */
+			ItemNameAlreadyExists(ItemNameAlreadyExists&&)					= default;
+			/**
+			 * Assignment operator
+			 */
+			ItemNameAlreadyExists& operator=(const ItemNameAlreadyExists&)	= default;
+			/**
+			 * Move assignment operator
+			 */
+			ItemNameAlreadyExists& operator=(ItemNameAlreadyExists&)		= default;
+			/**
+			 * Destructor
+			 */
+			~ItemNameAlreadyExists() noexcept override						= default;
+	};
 }

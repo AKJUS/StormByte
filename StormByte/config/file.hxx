@@ -61,7 +61,7 @@ namespace StormByte::Config {
 			 * @return a pointer to the added item
 			 */
 			inline std::shared_ptr<Item>	Add(const std::string& name, const Item::Type& type) {
-				return m_root->Add(name, type);
+				return m_root->Add(name, type, m_on_name_clash_action);
 			}
 			/**
 			 * Clears all items
@@ -121,6 +121,14 @@ namespace StormByte::Config {
 											operator std::string() const;
 			
 			/**
+			 * Sets a function to execute on name collission when inserting
+			 * @param on_clash function to select element on collission
+			 * @see Group::OnNameClashFunctionType
+			 */
+			inline void						SetOnNameClashAction(Group::OnNameClashFunctionType on_clash) {
+				m_on_name_clash_action = on_clash;
+			}
+			/**
 			 * Adds a hook which will take File as parameter and will be executed before read start
 			 * Hooks will be executed *in order*
 			 */
@@ -166,6 +174,13 @@ namespace StormByte::Config {
 			 * in their corresponding event
 			 */
 			std::vector<std::function<void(File&)>> m_before_read_hooks, m_after_read_hooks;
+
+			/**
+			 * Function to override the default action when duplicate name is found when inserting
+			 * Takes 3 parameters: current configuration, existing item and new item and will return
+			 * the item to be inserted (or might throw to cancel the insert)
+			 */
+			std::optional<Group::OnNameClashFunctionType> m_on_name_clash_action;
 
 		private:
 			/**

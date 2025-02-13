@@ -18,3 +18,6 @@ Exception("Parse error: " + reason) {}
 
 ItemNotFound::ItemNotFound(const std::string& name):
 Exception("Item " + name + " do not exist") {}
+
+ItemNameAlreadyExists::ItemNameAlreadyExists(const std::string& name):
+Exception("Can not add item: Another item with name " + name + " already exists") {}

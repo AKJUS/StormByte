@@ -25,6 +25,7 @@ namespace StormByte::Config {
 	class STORMBYTE_PUBLIC Group final: public Item {
 		friend class File;
 		using GroupStorage = std::vector<std::shared_ptr<Item>>;
+		using OnNameClashFunctionType = std::function<std::shared_ptr<Item>(std::shared_ptr<Item>,std::shared_ptr<Item>)>;
 		public:
 			/**
 			 * Constructor
@@ -70,6 +71,7 @@ namespace StormByte::Config {
 			 * @param name item name
 			 * @param type item Type
 			 * @throw InvalidName is thrown when item name is not allowed
+			 * @throw ItemNameAlreadyExists is thrown when item name already exists
 			 * @return a pointer to the added item
 			 */
 			std::shared_ptr<Item>		Add(const std::string& name, const Type& type);
@@ -77,9 +79,29 @@ namespace StormByte::Config {
 			 * Add an already created item to this group
 			 * @param item item to add
 			 * @throw InvalidName is thrown when item name is not allowed
+			 * @throw ItemNameAlreadyExists is thrown when item name already exists
 			 * @return a pointer to the added item
 			 */
 			std::shared_ptr<Item>		Add(std::shared_ptr<Item> item);
+			/**
+			 * Add a named item to this group executing provided function on name clash
+			 * @param name item name
+			 * @param type item Type
+			 * @param on_clash function to execute when name already exists
+			 * @throw InvalidName is thrown when item name is not allowed
+			 * @throw ItemNameAlreadyExists is thrown when item name already exists
+			 * @return a pointer to the added item
+			 */
+			std::shared_ptr<Item>		Add(const std::string& name, const Type& type, std::optional<OnNameClashFunctionType>& on_clash);
+			/**
+			 * Add an already created item to this group
+			 * @param item item to add
+			 * @param on_clash function to execute when name already exists
+			 * @throw InvalidName is thrown when item name is not allowed
+			 * @throw ItemNameAlreadyExists is thrown when item name already exists
+			 * @return a pointer to the added item
+			 */
+			std::shared_ptr<Item>		Add(std::shared_ptr<Item> item, std::optional<OnNameClashFunctionType>& on_clash);
 			/**
 			 * Removes an item from this group
 			 * @param name item name to remove

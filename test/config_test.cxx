@@ -665,6 +665,57 @@ int move_configuration() {
 	RETURN_TEST("move_and_copy_operators", result);
 }
 
+int duplicated_insertion() {
+	int result = 0;
+	Config::File cfg;
+	try {
+		cfg.Add("testInt", Config::Item::Type::Integer);
+		cfg.Add("testInt", Config::Item::Type::Integer);
+		result = 1;
+	}
+	catch(...) {
+		// Expected
+	}
+
+	return result;
+}
+
+int on_name_clash_ignore() {
+	int result = 0;
+	Config::File cfg;
+	cfg.SetOnNameClashAction([](std::shared_ptr<Config::Item> existing, std::shared_ptr<Config::Item>){ return existing; });
+	cfg.Add("testItem", Config::Item::Type::Bool);
+	try {
+		cfg.Add("testItem", Config::Item::Type::Integer)->SetInteger(66);
+		// Should throw because action was set to "ignore" and item is bool
+		result = 1;
+		auto item = cfg.LookUp("testItem");
+		ASSERT_EQUAL("on_name_clash_ignore", 66, item->AsInteger());
+	}
+	catch(...) {
+		// Expected
+	}
+
+	RETURN_TEST("on_name_clash_ignore", result);
+}
+
+int on_name_clash_replace() {
+	int result = 0;
+	Config::File cfg;
+	cfg.SetOnNameClashAction([](std::shared_ptr<Config::Item>, std::shared_ptr<Config::Item> new_item){ return new_item; });
+	cfg.Add("testItem", Config::Item::Type::Bool);
+	try {
+		cfg.Add("testItem", Config::Item::Type::Integer)->SetInteger(66);
+		auto item = cfg.LookUp("testItem");
+		ASSERT_EQUAL("on_name_clash_ignore", 66, item->AsInteger());
+	}
+	catch(...) {
+		result = 1;
+	}
+
+	RETURN_TEST("on_name_clash_replace", result);
+}
+
 int main() {
     int result = 0;
     try {
@@ -694,6 +745,9 @@ int main() {
 		result += bad_boolean_config1();
 		result += copy_configuration();
 		result += move_configuration();
+		result += duplicated_insertion();
+		result += on_name_clash_ignore();
+		result += on_name_clash_replace();
     } catch (const StormByte::Config::Exception& ex) {
         std::cerr << ex.what() << std::endl;
         result++;
