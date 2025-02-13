@@ -14,10 +14,6 @@ const std::string& Item::GetName() const noexcept { return m_name; }
 
 const Item::Type& Item::GetType() const noexcept { return m_type; }
 
-const std::string Item::GetTypeAsString() const noexcept {
-	return GetTypeAsString(m_type);
-}
-
 Group& Item::AsGroup() {
 	throw WrongValueTypeConversion(*this, "AsGroup");
 }

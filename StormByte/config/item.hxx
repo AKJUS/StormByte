@@ -83,7 +83,9 @@ namespace StormByte::Config {
 			 * Gets item type as string
 			 * @return item type string
 			 */
-			const std::string					GetTypeAsString() const noexcept;
+			constexpr std::string				GetTypeAsString() const noexcept {
+				return GetTypeAsString(m_type);
+			}
 			
 			/**
 			 * Will throw exception since item is not a group
