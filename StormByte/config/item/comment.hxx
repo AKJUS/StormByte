@@ -51,22 +51,30 @@ namespace StormByte::Config {
 			 * Value setter
 			 * @param value value to set
 			 */
-			void					SetString(const std::string&) override;
+			void					SetString(const std::string& value) override;
 			/**
 			 * Value setter
 			 * @param value value to move to this element
 			 */
-			void					SetString(std::string&&) override;
+			void					SetString(std::string&& value) override;
 
 			/**
-			 * Serializes the string item
+			 * Serializes the boolean item
+			 * @param indent_level intentation level
 			 * @return serialized string
 			 */
-			std::string					Serialize(const int& indent_level = 0) const noexcept override;
+			std::string				Serialize(const int& indent_level) const noexcept override;
 
 		private:
-			std::string m_value;
+			/**
+			 * Clones this object
+			 * @return a shared pointer for this item
+			 */
+			std::shared_ptr<Item>	Clone() override;
 
-			std::shared_ptr<Item>		Clone() override;
+			/**
+			 * Current item's value
+			 */
+			std::string m_value;
 	};
 }

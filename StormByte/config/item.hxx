@@ -137,18 +137,44 @@ namespace StormByte::Config {
 			 */
 			virtual void 						SetBool(bool);
 
-			virtual std::string					Serialize(const int& indent_level = 0) const noexcept = 0;
+			/**
+			 * Serializes the boolean item
+			 * @param indent_level intentation level
+			 * @return serialized string
+			 */
+			virtual std::string					Serialize(const int& indent_level) const noexcept = 0;
 		
 		protected:
-			Item(const Type&, const std::string&);
-			Item(const Type&, std::string&&);
+			/**
+			 * Constructor
+			 * @param type item Type
+			 * @param name item name
+			 */
+			Item(const Type& type, const std::string& name);
+			/**
+			 * Constructor
+			 * @param type item Type
+			 * @param name item name
+			 */
+			Item(const Type& type, std::string&& name);
+			/**
+			 * Clones this object (must be implemented for derived classes)
+			 * @return a shared pointer for the base class
+			 */
 			virtual std::shared_ptr<Item>		Clone() = 0;
-			std::string							Indent(const int&) const noexcept;
+			/**
+			 * Indents the output
+			 * @param level
+			 */
+			std::string							Indent(const int& level) const noexcept;
 
+			/**
+			 * Item name
+			 */
 			std::string m_name;
+			/**
+			 * Item type
+			 */
 			Type m_type;
-
-		private:
-			
 	};
 }

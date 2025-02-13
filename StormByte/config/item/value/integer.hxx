@@ -62,14 +62,22 @@ namespace StormByte::Config {
 			void					SetInteger(const int& value) override;
 
 			/**
-			 * Serializes the integer item
+			 * Serializes the boolean item
+			 * @param indent_level intentation level
 			 * @return serialized string
 			 */
-			std::string				Serialize(const int&) const noexcept override;
+			std::string				Serialize(const int& indent_level) const noexcept override;
 
 		private:
+			/**
+			 * Clones this object
+			 * @return a shared pointer for this item
+			 */
 			std::shared_ptr<Item>	Clone() override;
 
+			/**
+			 * Current item's value
+			 */
 			int m_value;
 	};
 }

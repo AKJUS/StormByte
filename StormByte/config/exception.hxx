@@ -14,11 +14,30 @@ namespace StormByte::Config {
 	 */
 	class STORMBYTE_PUBLIC Exception: public System::Exception {
 		public:
-			Exception(const std::string&);
+			/**
+			 * Constructor
+			 * @param reason
+			 */
+			Exception(const std::string& reason);
+			/**
+			 * Copy constructor
+			 */
 			Exception(const Exception&)					= default;
+			/**
+			 * Move constructor
+			 */
 			Exception(Exception&&) noexcept				= default;
+			/**
+			 * Assignment operator
+			 */
 			Exception& operator=(const Exception&)		= default;
+			/**
+			 * Move assignment operator
+			 */
 			Exception& operator=(Exception&&) noexcept	= default;
+			/**
+			 * Destructor
+			 */
 			~Exception() noexcept						= default;		
 	};
 
@@ -28,9 +47,31 @@ namespace StormByte::Config {
 	 */
 	class STORMBYTE_PUBLIC WrongValueTypeConversion final: public Exception {
 		public:
-			WrongValueTypeConversion(const Item&, const std::string&);
+			/**
+			 * Constructor
+			 * @param item Item trying to be converted
+			 * @param method method tried to use for converting
+			 */
+			WrongValueTypeConversion(const Item& item, const std::string& method);
+			/**
+			 * Copy constructor
+			 */
 			WrongValueTypeConversion(const WrongValueTypeConversion&)				= default;
+			/**
+			 * Move constructor
+			 */
+			WrongValueTypeConversion(WrongValueTypeConversion&&)					= default;
+			/**
+			 * Assignment operator
+			 */
 			WrongValueTypeConversion& operator=(const WrongValueTypeConversion&)	= default;
+			/**
+			 * Move assignment operator
+			 */
+			WrongValueTypeConversion& operator=(WrongValueTypeConversion&&)			= default;
+			/**
+			 * Destructor
+			 */
 			~WrongValueTypeConversion() noexcept override							= default;
 	};
 
@@ -40,9 +81,31 @@ namespace StormByte::Config {
 	 */
 	class STORMBYTE_PUBLIC ValueFailure final: public Exception {
 		public:
-			ValueFailure(const Item&, const Item::Type&);
+			/**
+			 * Constructor
+			 * @param item Item trying to set value
+			 * @param type Type of the value
+			 */
+			ValueFailure(const Item& item, const Item::Type& type);
+			/**
+			 * Copy constructor
+			 */
 			ValueFailure(const ValueFailure&)				= default;
+			/**
+			 * Move constructor
+			 */
+			ValueFailure(ValueFailure&&)					= default;
+			/**
+			 * Assignment operator
+			 */
 			ValueFailure& operator=(const ValueFailure&)	= default;
+			/**
+			 * Move assignment operator
+			 */
+			ValueFailure& operator=(ValueFailure&&)			= default;
+			/**
+			 * Destructor
+			 */
 			~ValueFailure() noexcept override				= default;
 	};
 
@@ -52,21 +115,63 @@ namespace StormByte::Config {
 	 */
 	class STORMBYTE_PUBLIC InvalidName final: public Exception {
 		public:
-			InvalidName(const std::string&);
+			/**
+			 * Constructor
+			 * @param name name which was tried to use
+			 */
+			InvalidName(const std::string& name);
+			/**
+			 * Copy operator
+			 */
 			InvalidName(const InvalidName&)				= default;
+			/**
+			 * Move operator
+			 */
+			InvalidName(InvalidName&&)					= default;
+			/**
+			 * Assignment operator
+			 */
 			InvalidName& operator=(const InvalidName&)	= default;
+			/**
+			 * Move assignment operator
+			 */
+			InvalidName& operator=(InvalidName&&)		= default;
+			/**
+			 * Destructor
+			 */
 			~InvalidName() noexcept override			= default;
 	};
 
 	/**
-	 * @class ParserError
+	 * @class ParseError
 	 * @brief Thrown when a parser error is found when parsing File
 	 */
 	class STORMBYTE_PUBLIC ParseError final: public Exception {
 		public:
-			ParseError(const std::string&);
+			/**
+			 * Constructor
+			 * @param error the error string to show
+			 */
+			ParseError(const std::string& error);
+			/**
+			 * Copy constructor
+			 */
 			ParseError(const ParseError&)				= default;
+			/**
+			 * Move constructor
+			 */
+			ParseError(ParseError&&)					= default;
+			/**
+			 * Assignment operator
+			 */
 			ParseError& operator=(const ParseError&)	= default;
+			/**
+			 * Move assignment operator
+			 */
+			ParseError& operator=(ParseError&&)			= default;
+			/**
+			 * Destructor
+			 */
 			~ParseError() noexcept override				= default;
 	};
 
@@ -76,9 +181,30 @@ namespace StormByte::Config {
 	 */
 	class STORMBYTE_PUBLIC ItemNotFound final: public Exception {
 		public:
-			ItemNotFound(const std::string&);
+			/**
+			 * Constructor
+			 * @param name item name which was not found
+			 */
+			ItemNotFound(const std::string& name);
+			/**
+			 * Copy constructor
+			 */
 			ItemNotFound(const ItemNotFound&)				= default;
+			/**
+			 * Move constructor
+			 */
+			ItemNotFound(ItemNotFound&&)					= default;
+			/**
+			 * Assignment operator
+			 */
 			ItemNotFound& operator=(const ItemNotFound&)	= default;
+			/**
+			 * Move assignment operator
+			 */
+			ItemNotFound& operator=(ItemNotFound&)			= default;
+			/**
+			 * Destructor
+			 */
 			~ItemNotFound() noexcept override				= default;
 	};
 }

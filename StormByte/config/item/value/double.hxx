@@ -14,7 +14,7 @@ namespace StormByte::Config {
 	 * @brief Double configuration item
 	 * @code
 	 * test_double1 = 78.9;
-	 * test_double2 = 6.9e.3;
+	 * test_double2 = 6.9e+3;
 	 * @endcode 
 	 */
 	class STORMBYTE_PUBLIC Double final: public Value {
@@ -69,14 +69,22 @@ namespace StormByte::Config {
 			void					SetDouble(const double& value) override;
 
 			/**
-			 * Serializes the double item
+			 * Serializes the boolean item
+			 * @param indent_level intentation level
 			 * @return serialized string
 			 */
-			std::string				Serialize(const int&) const noexcept override;
+			std::string				Serialize(const int& indent_level) const noexcept override;
 
 		private:
+			/**
+			 * Clones this object
+			 * @return a shared pointer for this item
+			 */
 			std::shared_ptr<Item>	Clone() override;
 
+			/**
+			 * Current item's value
+			 */
 			double m_value;
 	};
 }

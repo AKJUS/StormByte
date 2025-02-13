@@ -11,14 +11,14 @@ StormByte is a comprehensive, cross-platform C++ library aimed at easing system 
 
 ## Table of Contents
 
-- [Installation](#installation)
-- [Modules](#modules)
-  - [System](#system)
-  - [Config](#config)
-  - [Log](#log)
-  - [Database](#database)
-- [Contributing](#contributing)
-- [License](#license)
+- [Installation](#Installation)
+- [Modules](#Modules)
+  - [System](#System)
+  - [Config](#Config)
+  - [Log](#Log)
+  - [Database](#Database)
+- [Contributing](#Contributing)
+- [License](#License)
 
 ## Installation
 
@@ -27,7 +27,7 @@ StormByte is a comprehensive, cross-platform C++ library aimed at easing system 
 Ensure you have the following installed:
 
 - C++20 compatible compiler
-- CMake 3.10 or higher
+- CMake 3.12 or higher
 - SQLite3 (for database support)
 
 ### Building

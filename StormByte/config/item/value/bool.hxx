@@ -17,10 +17,6 @@ namespace StormByte::Config {
 	 * @endcode
 	 */
 	class STORMBYTE_PUBLIC Bool final: public Value {
-		/**
-	 	 * @brief representing a boolean in configuration files (true or false in lowercase)
-	 	 * @example bool_item = false;
-	 	 */
 		public:
 			/**
 			 * Constructor
@@ -67,13 +63,21 @@ namespace StormByte::Config {
 
 			/**
 			 * Serializes the boolean item
+			 * @param indent_level intentation level
 			 * @return serialized string
 			 */
-			std::string				Serialize(const int& indent) const noexcept override;
+			std::string				Serialize(const int& indent_level) const noexcept override;
 
 		private:
+			/**
+			 * Clones this object
+			 * @return a shared pointer for this item
+			 */
 			std::shared_ptr<Item>	Clone() override;
 
+			/**
+			 * Current item's value
+			 */
 			bool m_value;
 	};
 }
