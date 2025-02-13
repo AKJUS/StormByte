@@ -67,7 +67,7 @@ namespace StormByte::Config {
 			/**
 			 * Clears all items
 			 */
-			void 							Clear() noexcept;
+			void 									Clear() noexcept;
 
 			/* INPUT */
 			/**
@@ -75,29 +75,29 @@ namespace StormByte::Config {
 			 * @param source source configuration to import
 			 * @return Reference to configuration
 			 */
-			File& 							operator<<(const File& source);
+			File& 									operator<<(const File& source);
 			/**
 			 * Initialize configuration with an input stream
 			 * @param istream input stream
 			 */
-			void 							operator<<(std::istream& istream); // 1
+			void 									operator<<(std::istream& istream); // 1
 			/**
 			 * Initialize configuration with a string
 			 * @param str input string
 			 */
-			void 							operator<<(const std::string& str); // 2
+			void 									operator<<(const std::string& str); // 2
 			/**
 			 * Initializes configuration with istream (when istream is in the left part)
 			 * @param istream input stream
 			 * @param file File to put data to
 			 */
-			friend File&					operator>>(std::istream& istream, File& file); // 3
+			friend STORMBYTE_PUBLIC File&			operator>>(std::istream& istream, File& file); // 3
 			/**
 			 * Initializes configuration with string (when string is in the left part)
 			 * @param str input string
 			 * @param file File to put data to
 			 */
-			friend File&					operator>>(const std::string& str, File& file); // 4
+			friend STORMBYTE_PUBLIC File&			operator>>(const std::string& str, File& file); // 4
 			
 			/* OUTPUT */
 			/**
@@ -105,47 +105,47 @@ namespace StormByte::Config {
 			 * @param dest configuration destination
 			 * @return a reference to destination conf
 			 */
-			File& 							operator>>(File& dest) const;
+			File& 									operator>>(File& dest) const;
 			/**
 			 * Output configuration serialized to output stream
 			 * @param ostream output stream
 			 */
-			std::ostream&					operator>>(std::ostream& ostream) const; // 5
+			std::ostream&							operator>>(std::ostream& ostream) const; // 5
 			/**
 			 * Output configuration serialized to string
 			 * @param str output string
 			 */
-			std::string&					operator>>(std::string& str) const; // 6
+			std::string&							operator>>(std::string& str) const; // 6
 			/**
 			 * Output configuration serialized to output stream (when output stream is in the left part)
 			 * @param ostream output stream
 			 * @param file File to get data from
 			 */
-			friend std::ostream&			operator<<(std::ostream& ostream, const File& file); // 7
+			friend STORMBYTE_PUBLIC std::ostream&	operator<<(std::ostream& ostream, const File& file); // 7
 			/**
 			 * Output configuration serialized to string (when string is in the left part)
 			 * @param str output string
 			 * @param file File to get data from
 			 */
-			friend std::string& 			operator<<(std::string&, const File&); // 8
+			friend STORMBYTE_PUBLIC std::string& 	operator<<(std::string&, const File&); // 8
 			/**
 			 * Converts current configuration to string
 			 */
-											operator std::string() const;
+													operator std::string() const;
 			
 			/**
 			 * Sets a function to execute on name collission when inserting
 			 * @param on_clash function to select element on collission
 			 * @see Group::OnNameClashFunctionType
 			 */
-			inline void						SetOnNameClashAction(Group::OnNameClashFunctionType on_clash) {
+			inline void								SetOnNameClashAction(Group::OnNameClashFunctionType on_clash) {
 				m_on_name_clash_action = on_clash;
 			}
 			/**
 			 * Adds a hook which will take File as parameter and will be executed before read start
 			 * Hooks will be executed *in order*
 			 */
-			inline void 					AddHookBeforeRead(std::function<void(File&)> hook) {
+			inline void 							AddHookBeforeRead(std::function<void(File&)> hook) {
 				m_before_read_hooks.push_back(hook);
 			}
 			
@@ -153,7 +153,7 @@ namespace StormByte::Config {
 			 * Adds a hook which will take File as parameter and will be executed on successful read
 			 * Hooks will be executed *in order*
 			 */
-			inline void 					AddHookAfterRead(std::function<void(File&)> hook) {
+			inline void 							AddHookAfterRead(std::function<void(File&)> hook) {
 				m_after_read_hooks.push_back(hook);
 			}
 
@@ -162,19 +162,19 @@ namespace StormByte::Config {
 			 * @param path path to child
 			 * @return pointer to found Item or nullptr
 			 */
-			std::shared_ptr<Item>			Child(const std::string& path) const;
+			std::shared_ptr<Item>					Child(const std::string& path) const;
 			/**
 			 * Checks the existence of a child by path
 			 * @param path path to child
 			 * @return bool
 			 */
-			bool							Exists(const std::string& path) const noexcept;
+			bool									Exists(const std::string& path) const noexcept;
 			/**
 			 * Looks up a child by path
 			 * @param path path to child
 			 * @throw ItemNotFound if not found
 			 */
-			std::shared_ptr<Item>			LookUp(const std::string& path) const;
+			std::shared_ptr<Item>					LookUp(const std::string& path) const;
 
 		protected:
 			/**
@@ -202,116 +202,116 @@ namespace StormByte::Config {
 			 * @param group Group to add items
 			 * @throw ParseError will be thrown on error
 			 */
-			void 							Parse(std::istream& stream, std::unique_ptr<Group>& group);
+			void 									Parse(std::istream& stream, std::unique_ptr<Group>& group);
 			/**
 			 * Parses an stream and add found items to Group
 			 * @param stream stream with data
 			 * @param group Group to add items
 			 * @throw ParseError will be thrown on error
 			 */
-			void 							Parse(std::istream& stream, Group& group);
+			void 									Parse(std::istream& stream, Group& group);
 			/**
 			 * Parses config item name from stream
 			 * @param stream stream with data
 			 * @return item name string
 			 */
-			std::string 					ParseItemName(std::istream& stream);
+			std::string 							ParseItemName(std::istream& stream);
 			/**
 			 * Expects equal sign in next read from stream
 			 * @param stream stream with data
 			 * @throw ParseError is thrown if equal sign is not the next read
 			 */
-			void 							ExpectEqualSign(std::istream& stream);
+			void 									ExpectEqualSign(std::istream& stream);
 			/**
 			 * Will parse the stream to guess Type and restore the pointer to where it was
 			 * @param stream
 			 * @return Type guessed Type
 			 * @throw ParseError is thrown if Type can't be guessed
 			 */
-			Item::Type 						GuessType(std::istream& stream);
+			Item::Type 								GuessType(std::istream& stream);
 			/**
 			 * Parses an int value
 			 * @param stream
 			 * @return integer value
 			 * @throw ParseError is thrown if integer is illformed
 			 */
-			int								ParseIntValue(std::istream& stream);
+			int										ParseIntValue(std::istream& stream);
 			/**
 			 * Parses an string value
 			 * @param stream
 			 * @return string value
 			 * @throw ParseError is thrown if string is illformed
 			 */
-			std::string 					ParseStringValue(std::istream& stream);
+			std::string 							ParseStringValue(std::istream& stream);
 			/**
 			 * Will get the whole group inner content as string
 			 * @param stream
 			 * @return string value
 			 * @throw ParseError is thrown if braces are missmatches
 			 */
-			std::string 					ParseGroupContent(std::istream& stream);
+			std::string 							ParseGroupContent(std::istream& stream);
 			/**
 			 * Parses an double value
 			 * @param stream
 			 * @return double value
 			 * @throw ParseError is thrown if double is illformed
 			 */
-			double 							ParseDoubleValue(std::istream& stream);
+			double 									ParseDoubleValue(std::istream& stream);
 			/**
 			 * Parses the exponential part of a double value
 			 * @param stream
 			 * @return string value (containing the exponential part)
 			 * @throw ParseError is thrown if the exponential part is illformed
 			 */
-			std::string 					ParseExpValue(std::istream& stream);
+			std::string 							ParseExpValue(std::istream& stream);
 			/**
 			 * Parses an bool value
 			 * @param stream
 			 * @return bool value
 			 * @throw ParseError is thrown if bool is illformed
 			 */
-			bool 							ParseBoolValue(std::istream& stream);
+			bool 									ParseBoolValue(std::istream& stream);
 			/**
 			 * Parses an comment
 			 * @param stream
 			 * @return bool if it found a commentary
 			 * @throw ParseError is thrown if string is illformed
 			 */
-			bool 							FindAndParseComment(std::istream&, Group& group);
+			bool 									FindAndParseComment(std::istream&, Group& group);
 			/**
 			 * Consumes every empty character from string (spaces, tabs, newlines, etc)
 			 * @param stream stream with data
 			 */
-			void 							ConsumeEmptyChars(std::istream& stream);
+			void 									ConsumeEmptyChars(std::istream& stream);
 			/**
 			 * Expects semicolon in next read from stream
 			 * @param stream stream with data
 			 * @throw ParseError is thrown if semicolon is not the next read
 			 */
-			void 							ExpectSemicolon(std::istream& stream);
+			void 									ExpectSemicolon(std::istream& stream);
 	};
 	/**
 	 * Initializes configuration with istream (when istream is in the left part)
 	 * @param istream input stream
 	 * @param file File to put data to
 	 */
-	STORMBYTE_PUBLIC File&					operator>>(std::istream& istream, File& file);
+	STORMBYTE_PUBLIC File&							operator>>(std::istream& istream, File& file);
 	/**
 	 * Initializes configuration with string (when string is in the left part)
 	 * @param str input string
 	 * @param file File to put data to
 	 */
-	STORMBYTE_PUBLIC File&					operator>>(const std::string& str, File& file);
+	STORMBYTE_PUBLIC File&							operator>>(const std::string& str, File& file);
 	/**
 	 * Output configuration serialized to output stream (when output stream is in the left part)
 	 * @param ostream output stream
 	 * @param file File to get data from
 	 */
-	STORMBYTE_PUBLIC std::ostream&			operator<<(std::ostream& ostream, const File& file);
+	STORMBYTE_PUBLIC std::ostream&					operator<<(std::ostream& ostream, const File& file);
 	/**
 	 * Output configuration serialized to string (when string is in the left part)
 	 * @param str output string
 	 * @param file File to get data from
 	 */
-	STORMBYTE_PUBLIC std::string& 			operator<<(std::string& str, const File& file);
+	STORMBYTE_PUBLIC std::string& 					operator<<(std::string& str, const File& file);
 }
