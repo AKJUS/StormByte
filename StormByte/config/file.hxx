@@ -70,6 +70,12 @@ namespace StormByte::Config {
 
 			/* INPUT */
 			/**
+			 * Take data from another configuration
+			 * @param source source configuration to import
+			 * @return Reference to configuration
+			 */
+			File& 							operator<<(const File& source);
+			/**
 			 * Initialize configuration with an input stream
 			 * @param istream input stream
 			 */
@@ -94,15 +100,21 @@ namespace StormByte::Config {
 			
 			/* OUTPUT */
 			/**
+			 * Outut current configuration to another configuration
+			 * @param dest configuration destination
+			 * @return a reference to destination conf
+			 */
+			File& 							operator>>(File& dest) const;
+			/**
 			 * Output configuration serialized to output stream
 			 * @param ostream output stream
 			 */
-			std::ostream&					operator>>(std::ostream& ostream); // 5
+			std::ostream&					operator>>(std::ostream& ostream) const; // 5
 			/**
 			 * Output configuration serialized to string
 			 * @param str output string
 			 */
-			std::string&					operator>>(std::string& str); // 6
+			std::string&					operator>>(std::string& str) const; // 6
 			/**
 			 * Output configuration serialized to output stream (when output stream is in the left part)
 			 * @param ostream output stream

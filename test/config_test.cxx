@@ -716,6 +716,23 @@ int on_name_clash_replace() {
 	RETURN_TEST("on_name_clash_replace", result);
 }
 
+int config_to_config_output() {
+	int result = 0;
+	Config::File cfg1, cfg2;
+	cfg1.Add("testInt", Config::Item::Type::Integer)->SetInteger(66);
+	cfg2.Add("testString", Config::Item::Type::String)->SetString("Hello!");
+	try {
+		cfg1 << cfg2;
+		auto testString = cfg1.LookUp("testString");
+		ASSERT_EQUAL("config_to_config_output", "Hello!", testString->AsString());
+	}
+	catch(...) {
+		result = 1;
+	}
+
+	RETURN_TEST("config_to_config_output", result);
+}
+
 int main() {
     int result = 0;
     try {
@@ -748,6 +765,7 @@ int main() {
 		result += duplicated_insertion();
 		result += on_name_clash_ignore();
 		result += on_name_clash_replace();
+		result += config_to_config_output();
     } catch (const StormByte::Config::Exception& ex) {
         std::cerr << ex.what() << std::endl;
         result++;

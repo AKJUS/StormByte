@@ -45,6 +45,13 @@ void File::Clear() noexcept {
 	m_root = std::make_unique<Group>("root");
 }
 
+File& File::operator<<(const File& source) {
+	// We will not use serialize for performance reasons
+	for (auto it = source.m_root->Begin(); it != source.m_root->End(); it++)
+		m_root->Add(it->Clone(), m_on_name_clash_action);
+	return *this;
+}
+
 void File::operator<<(std::istream& istream) { // 1
 	Parse(istream, m_root);
 }
@@ -67,12 +74,17 @@ File& StormByte::Config::operator>>(const std::string& str, File& file) { // 4
 }
 */
 
-std::ostream& File::operator>>(std::ostream& ostream) { // 5
+File& File::operator>>(File& dest) const {
+	dest << *this;
+	return dest;
+}
+
+std::ostream& File::operator>>(std::ostream& ostream) const { // 5
 	ostream << (std::string)*this;
 	return ostream;
 }
 
-std::string& File::operator>>(std::string& str) { // 6
+std::string& File::operator>>(std::string& str) const { // 6
 	str += *this; // Conversion should be done automatically by operator std::string()
 	return str;
 }
