@@ -8,6 +8,7 @@
 #include <istream>
 #include <string>
 #include <ostream>
+#include <optional>
 
 /**
  * @namespace StormByte::Config

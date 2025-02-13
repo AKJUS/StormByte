@@ -4,7 +4,9 @@
 
 #include <cstddef>
 #include <iterator>
+#include <functional>
 #include <map>
+#include <optional>
 #include <queue>
 
 /**
