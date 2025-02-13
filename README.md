@@ -91,11 +91,15 @@ The `Config` module provides a flexible and easy-to-use API for configuration ma
 
 ```cpp
 #include <StormByte/config/file.hxx>
+#include <fstream>
 
 // Example usage
 int main() {
-    StormByte::Config::File config("/path/to/config.file");
-    config.Read();
+    StormByte::Config::File config;
+	std::fstream input_file;
+	input_file.open("/path/to/config/file.conf", ios::in);
+    config << input_file;
+	input_file.close();
     if (config.Exists("settings/username")) {
         std::cout << "Username: " << config.LookUp("settings/username")->AsString() << std::endl;
     }
