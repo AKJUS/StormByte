@@ -155,11 +155,8 @@ int main() {
 		result += test_pipeline_find_sort_wc();
 		result += test_pipeline_echo_sort_wc();
 	#else
-		result += test_basic_execution_windows();
 		/*
-		** This test works in local but sometimes it fails on GitHub workspace
-		** So I think it is better to disable it to have the green mark on compile
-		** And better focus on other kind of errors
+		result += test_basic_execution_windows();
 		result += test_complex_command_windows();
 		*/
 	#endif
