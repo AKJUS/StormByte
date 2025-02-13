@@ -61,18 +61,15 @@ void File::operator<<(const std::string& str) { // 2
 	*this << istream;
 }
 
-/*
 File& StormByte::Config::operator>>(std::istream& istream, File& file) { // 3
 	file << istream;
 	return file;
 }
-*/
-/*
+
 File& StormByte::Config::operator>>(const std::string& str, File& file) { // 4
 	file << str;
 	return file;
 }
-*/
 
 File& File::operator>>(File& dest) const {
 	dest << *this;
@@ -89,18 +86,15 @@ std::string& File::operator>>(std::string& str) const { // 6
 	return str;
 }
 
-/*
 std::ostream& StormByte::Config::operator<<(std::ostream& ostream, const File& file) { // 7
 	ostream << (std::string)file;
 	return ostream;
 }
-*/
-/*
+
 std::string& operator<<(std::string& str, const File& file) { // 8
 	str += file;
 	return str;
 }
-*/
 
 File::operator std::string() const {
 	std::string serialized = "";

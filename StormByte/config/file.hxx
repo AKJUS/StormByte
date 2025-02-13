@@ -294,35 +294,23 @@ namespace StormByte::Config {
 	 * @param istream input stream
 	 * @param file File to put data to
 	 */
-	inline File&							operator>>(std::istream& istream, File& file) { // 3
-		file << istream;
-		return file;
-	}
+	STORMBYTE_PUBLIC File&					operator>>(std::istream& istream, File& file);
 	/**
 	 * Initializes configuration with string (when string is in the left part)
 	 * @param str input string
 	 * @param file File to put data to
 	 */
-	inline File&							operator>>(const std::string& str, File& file) { // 4
-		file << str;
-		return file;
-	}
+	STORMBYTE_PUBLIC File&					operator>>(const std::string& str, File& file);
 	/**
 	 * Output configuration serialized to output stream (when output stream is in the left part)
 	 * @param ostream output stream
 	 * @param file File to get data from
 	 */
-	inline std::ostream&					operator<<(std::ostream& ostream, const File& file) { // 7
-		ostream << (std::string)file;
-		return ostream;
-	}
+	STORMBYTE_PUBLIC std::ostream&			operator<<(std::ostream& ostream, const File& file);
 	/**
 	 * Output configuration serialized to string (when string is in the left part)
 	 * @param str output string
 	 * @param file File to get data from
 	 */
-	inline std::string& 					operator<<(std::string& str, const File& file) { // 8
-		str += file;
-		return str;
-	}
+	STORMBYTE_PUBLIC std::string& 			operator<<(std::string& str, const File& file);
 }
