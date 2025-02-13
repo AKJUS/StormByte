@@ -19,9 +19,22 @@ File::File(const File& file) {
 	m_root = std::make_unique<Group>(*file.m_root);
 }
 
+File::File(File&& file) noexcept:m_root(std::move(file.m_root)) {
+	// Now we create an empty root for source file
+	file.m_root = std::make_unique<Group>("root");
+}
+
 File& File::operator=(const File& file) {
 	if (this != &file) {
 		m_root = std::make_unique<Group>(*file.m_root);
+	}
+	return *this;
+}
+
+File& File::operator=(File&& file) noexcept {
+	if (this != &file) {
+		m_root = std::move(file.m_root);
+		file.m_root = std::make_unique<Group>("root");
 	}
 	return *this;
 }

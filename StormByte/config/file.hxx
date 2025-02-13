@@ -39,7 +39,7 @@ namespace StormByte::Config {
 			/**
 			 * Move constructor
 			 */
-			File(File&&) noexcept				= default;
+			File(File&&) noexcept;
 			/**
 			 * Assignment operator
 			 */
@@ -47,7 +47,7 @@ namespace StormByte::Config {
 			/**
 			 * Move assignment operator
 			 */
-			File& operator=(File&&) noexcept	= default;
+			File& operator=(File&&) noexcept;
 			/**
 			 * Destructor
 			 */

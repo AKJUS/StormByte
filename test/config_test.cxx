@@ -605,6 +605,66 @@ int bad_boolean_config1() {
 	RETURN_TEST("bad_boolean_config1", result);
 }
 
+int copy_configuration() {
+	int result = 0;
+	Config::File cfg1, cfg2;
+	try {
+		std::fstream file;
+		file.open(CurrentFileDirectory / "files" / "good_boolean_conf1.conf", std::ios::in);
+		cfg1 << file;
+		file.close();
+		cfg2 = cfg1;
+	}
+	catch(...) {
+		RETURN_TEST("copy_configuration", 1);
+	}
+
+	try {
+		/* Both should be found */
+		auto lookup_enable_feature_1 = cfg1.LookUp("settings/enable_feature");
+		auto lookup_enable_feature_2 = cfg2.LookUp("settings/enable_feature");
+        ASSERT_EQUAL("good_boolean_config1", lookup_enable_feature_1->AsBool(), lookup_enable_feature_2->AsBool());
+	}
+	catch(...) {
+		result = 1;
+	}
+
+	RETURN_TEST("copy_configuration", result);
+}
+
+int move_configuration() {
+	int result = 0;
+	Config::File cfg1, cfg2;
+	try {
+		std::fstream file;
+		file.open(CurrentFileDirectory / "files" / "good_boolean_conf1.conf", std::ios::in);
+		cfg1 << file;
+		file.close();
+		cfg2 = std::move(cfg1);
+	}
+	catch(...) {
+		RETURN_TEST("copy_configuration", 1);
+	}
+
+	/* First should fail, second should be found */
+	try {
+		auto lookup_enable_feature = cfg1.LookUp("settings/enable_feature");
+		RETURN_TEST("move_configuration", 1);
+	}
+	catch(...) {
+		// Expected
+	}
+	try {
+		auto lookup_enable_feature = cfg2.LookUp("settings/enable_feature");
+        ASSERT_EQUAL("move_configuration", true, lookup_enable_feature->AsBool());
+	}
+	catch(...) {
+		RETURN_TEST("move_and_copy_operators", 1);
+	}
+
+	RETURN_TEST("move_and_copy_operators", result);
+}
+
 int main() {
     int result = 0;
     try {
@@ -632,6 +692,8 @@ int main() {
         result += test_unmatched_braces();
 		result += good_boolean_config1();
 		result += bad_boolean_config1();
+		result += copy_configuration();
+		result += move_configuration();
     } catch (const StormByte::Config::Exception& ex) {
         std::cerr << ex.what() << std::endl;
         result++;
