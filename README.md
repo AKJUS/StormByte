@@ -13,10 +13,10 @@ StormByte is a comprehensive, cross-platform C++ library aimed at easing system 
 
 - [Installation](#Installation)
 - [Modules](#Modules)
-  - [System](#System)
-  - [Config](#Config)
-  - [Log](#Log)
-  - [Database](#Database)
+	- [System](#System)
+	- [Config](#Config)
+	- [Log](#Log)
+	- [Database](#Database)
 - [Contributing](#Contributing)
 - [License](#License)
 
@@ -58,15 +58,15 @@ Include the necessary headers in your project and link against the `StormByte` l
 
 // Example usage
 int main() {
-    std::vector<std::string> args = {"-l", "-a"};
-    StormByte::System::Process ls("/bin/ls", args);
-    StormByte::System::Process grep("/bin/grep", {"main.cpp"});
-    ls >> grep;
-    grep.wait();
-    std::string output;
-    grep >> output;
-    std::cout << output << std::endl;
-    return 0;
+	std::vector<std::string> args = {"-l", "-a"};
+	StormByte::System::Process ls("/bin/ls", args);
+	StormByte::System::Process grep("/bin/grep", {"main.cpp"});
+	ls >> grep;
+	grep.wait();
+	std::string output;
+	grep >> output;
+	std::cout << output << std::endl;
+	return 0;
 }
 ```
 
@@ -77,9 +77,9 @@ int main() {
 
 // Example usage
 int main() {
-    std::string path = StormByte::System::Variable::Expand("~");
-    std::cout << "Home path: " << path << std::endl;
-    return 0;
+	std::string path = StormByte::System::Variable::Expand("~");
+	std::cout << "Home path: " << path << std::endl;
+	return 0;
 }
 ```
 
@@ -95,15 +95,15 @@ The `Config` module provides a flexible and easy-to-use API for configuration ma
 
 // Example usage
 int main() {
-    StormByte::Config::File config;
+	StormByte::Config::File config;
 	std::fstream input_file;
-	input_file.open("/path/to/config/file.conf", ios::in);
-    config << input_file;
+	input_file.open("/path/to/config/file.conf", std::ios::in);
+	config << input_file;
 	input_file.close();
-    if (config.Exists("settings/username")) {
-        std::cout << "Username: " << config.LookUp("settings/username")->AsString() << std::endl;
-    }
-    return 0;
+	if (config.Exists("settings/username")) {
+		std::cout << "Username: " << config.LookUp("settings/username")->AsString() << std::endl;
+	}
+	return 0;
 }
 ```
 
@@ -113,9 +113,9 @@ Example `example.cfg`:
 # Configuration file
 
 settings = {
-    username = "example_user";
-    timeout = 30;
-    enable_feature = true;
+	username = "example_user";
+	timeout = 30;
+	enable_feature = true;
 };
 ```
 
@@ -130,9 +130,9 @@ The `Log` module provides a comprehensive logging framework with support for dif
 
 // Example usage
 int main() {
-    StormByte::Log::File logger(StormByte::Log::Level::Debug, "logfile.txt");
-    logger << StormByte::Log::Level::Info << "This is an info message" << StormByte::Log::endl;
-    return 0;
+	StormByte::Log::File logger(StormByte::Log::Level::Debug, "logfile.txt");
+	logger << StormByte::Log::Level::Info << "This is an info message" << StormByte::Log::endl;
+	return 0;
 }
 ```
 
@@ -149,36 +149,36 @@ The `Database` module provides support for SQLite, an embedded SQL database engi
 
 class MyDatabase : public StormByte::Database::SQLite::SQLite3 {
 public:
-    MyDatabase(const std::filesystem::path& dbfile) : SQLite3(dbfile) {
-        init_database();
-    }
+	MyDatabase(const std::filesystem::path& dbfile) : SQLite3(dbfile) {
+		init_database();
+	}
 
-    void print_all_users() {
-        auto stmt = prepare_select_all_users();
-        while (auto row = stmt->Step()) {
-            std::cout << "ID: " << row->At(0)->Value<int>() << " Name: " << row->At(1)->Value<std::string>() << std::endl;
-        }
-    }
+	void print_all_users() {
+		auto stmt = prepare_select_all_users();
+		while (auto row = stmt->Step()) {
+			std::cout << "ID: " << row->At(0)->Value<int>() << " Name: " << row->At(1)->Value<std::string>() << std::endl;
+		}
+	}
 
 protected:
-    void post_init_action() noexcept override {
-        try {
-            silent_query("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT NOT NULL)");
-        } catch (const StormByte::Database::SQLite::Exception& e) {
-            std::cerr << "Database initialization error: " << e.what() << std::endl;
-        }
-    }
+	void post_init_action() noexcept override {
+		try {
+			silent_query("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT NOT NULL)");
+		} catch (const StormByte::Database::SQLite::Exception& e) {
+			std::cerr << "Database initialization error: " << e.what() << std::endl;
+		}
+	}
 
-    std::shared_ptr<StormByte::Database::SQLite::PreparedSTMT> prepare_select_all_users() {
-        return prepare_sentence("select_all_users", "SELECT * FROM users");
-    }
+	std::shared_ptr<StormByte::Database::SQLite::PreparedSTMT> prepare_select_all_users() {
+		return prepare_sentence("select_all_users", "SELECT * FROM users");
+	}
 };
 
 // Example usage
 int main() {
-    MyDatabase db("/path/to/database.db");
-    db.print_all_users();
-    return 0;
+	MyDatabase db("/path/to/database.db");
+	db.print_all_users();
+	return 0;
 }
 ```
 
