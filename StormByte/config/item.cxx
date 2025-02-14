@@ -1,51 +1,116 @@
 #include <StormByte/config/item.hxx>
-#include <StormByte/config/item/group.hxx>
+#include <StormByte/config/group.hxx>
 #include <StormByte/config/exception.hxx>
 
 using namespace StormByte::Config;
 
-Item::Item(const Type& type, const std::string& name):
-m_name(name), m_type(type) {}
+Item::Item(const std::string& name, const Group& value):m_name(name), m_type(Type::Group), m_value(value) {}
 
-Item::Item(const Type& type, std::string&& name):
-m_name(std::move(name)), m_type(type) {}
+Item::Item(const std::string& name, Group&& value):m_name(name), m_type(Type::Group), m_value(std::move(value)) {}
 
-Group& Item::AsGroup() {
-	throw WrongValueTypeConversion(*this, "AsGroup");
+Item::Item(const std::string& name, const std::string& value):m_name(name), m_type(Type::String), m_value(value) {}
+
+Item::Item(const char* name, const char* value):m_name(name), m_type(Type::String), m_value(value) {}
+
+Item::Item(const std::string& name, const int& value):m_name(name), m_type(Type::Integer), m_value(value) {}
+
+Item::Item(const std::string& name, const double& value):m_name(name), m_type(Type::Double), m_value(value) {}
+
+Item::Item(const std::string& value):m_name(""), m_type(Type::Comment), m_value(value) {}
+
+Item::Item(const std::string& name, bool value):m_name(name), m_type(Type::Bool), m_value(value) {}
+
+template<> Group& Item::Value<Group>() {
+	if (m_type != Type::Group)
+		throw WrongValueTypeConversion(*this, "Group");
+	return std::get<Group>(m_value);
 }
 
-const int& Item::AsInteger() const {
-	throw WrongValueTypeConversion(*this, "AsInteger");
+template<> int& Item::Value<int>() {
+	if (m_type != Type::Integer)
+		throw WrongValueTypeConversion(*this, "Integer");
+	else
+		return std::get<int>(m_value);
 }
 
-const double& Item::AsDouble() const {
-	throw WrongValueTypeConversion(*this, "AsDouble");
+template<> double& Item::Value<double>() {
+	if (m_type != Type::Double)
+		throw WrongValueTypeConversion(*this, "Double");
+	else
+		return std::get<double>(m_value);
 }
 
-const std::string& Item::AsString() const {
-	throw WrongValueTypeConversion(*this, "AsString");
+template<> std::string& Item::Value<std::string>() {
+	if (m_type != Type::String && m_type != Type::Comment)
+		throw WrongValueTypeConversion(*this, "String");
+	else
+		return std::get<std::string>(m_value);
 }
 
-bool Item::AsBool() const {
-	throw WrongValueTypeConversion(*this, "AsBool");
+template<> bool& Item::Value<bool>() {
+	if (m_type != Type::Bool)
+		throw WrongValueTypeConversion(*this, "Bool");
+	else
+		return std::get<bool>(m_value);
 }
 
-void Item::SetInteger(const int&) {
-	throw ValueFailure(*this, Type::Integer);
+template<> const Group& Item::Value<Group>() const {
+	if (m_type != Type::Group)
+		throw WrongValueTypeConversion(*this, "Group");
+	return std::get<Group>(m_value);
 }
 
-void Item::SetDouble(const double&) {
-	throw ValueFailure(*this, Type::Double);
+template<> const int& Item::Value<int>() const {
+	if (m_type != Type::Integer)
+		throw WrongValueTypeConversion(*this, "Integer");
+	else
+		return std::get<int>(m_value);
 }
 
-void Item::SetString(const std::string&) {
-	throw ValueFailure(*this, Type::String);
+template<> const double& Item::Value<double>() const {
+	if (m_type != Type::Double)
+		throw WrongValueTypeConversion(*this, "Double");
+	else
+		return std::get<double>(m_value);
 }
 
-void Item::SetString(std::string&&) {
-	throw ValueFailure(*this, Type::String);
+template<> const std::string& Item::Value<std::string>() const {
+	if (m_type != Type::String && m_type != Type::Comment)
+		throw WrongValueTypeConversion(*this, "String");
+	else
+		return std::get<std::string>(m_value);
 }
 
-void Item::SetBool(bool) {
-	throw ValueFailure(*this, Type::Bool);
+template<> const bool& Item::Value<bool>() const {
+	if (m_type != Type::Bool)
+		throw WrongValueTypeConversion(*this, "Bool");
+	else
+		return std::get<bool>(m_value);
+}
+
+std::string Item::Serialize(const int& indent_level) const noexcept {
+	std::string serial = Indent(indent_level) + m_name + " = ";
+	switch (m_type) {
+		case Type::Integer:
+			serial += std::to_string(Value<int>()) + ";\n";
+			break;
+		case Type::String:
+			serial += "\"" + Value<std::string>() + "\";\n";
+			break;
+		case Type::Double:
+			serial += std::to_string(Value<double>()) + ";\n";
+			break;
+		case Type::Bool:
+			serial += std::string(Value<bool>() ? "true" : "false") + ";\n";
+			break;
+		case Type::Group:
+			serial += "{\n";
+			serial += Value<Group>().Serialize(indent_level + 1);
+			serial += Indent(indent_level) + "};\n";
+			break;
+		case Type::Comment:
+			serial = Indent(indent_level) + "#" + Value<std::string>() + "\n";
+			break;
+	}
+	return serial;
 }

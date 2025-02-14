@@ -1,19 +1,23 @@
 #pragma once
 
-#include <StormByte/config/item.hxx>
+#include <StormByte/visibility.h>
 
 #include <cstddef>
 #include <iterator>
 #include <functional>
+#include <list>
 #include <map>
+#include <memory>
 #include <optional>
 #include <queue>
+#include <string>
 
 /**
  * @namespace StormByte::Config
  * @brief All the classes for handling configuration files and items
  */
 namespace StormByte::Config {
+	class Item; // Forward
 	/**
 	 * @class Group
 	 * @brief Group in configuration item which can hold other items and also subgroups recursivelly
@@ -24,25 +28,16 @@ namespace StormByte::Config {
 	 * };
 	 * @endcode
 	 */
-	class STORMBYTE_PUBLIC Group final: public Item {
-		friend class File;
-		using GroupStorage = std::vector<std::shared_ptr<Item>>;
-		using OnNameClashFunctionType = std::function<std::shared_ptr<Item>(std::shared_ptr<Item>,std::shared_ptr<Item>)>;
+	class STORMBYTE_PUBLIC Group final {
 		public:
 			/**
 			 * Constructor
-			 * @param name item name
 			 */
-			Group(const std::string& name);
-			/**
-			 * Constructor
-			 * @param name item name
-			 */
-			Group(std::string&& name);
+			Group()								= default;
 			/**
 			 * Copy constructor
 			 */
-			Group(const Group&);
+			Group(const Group&)					= default;
 			/**
 			 * Move constructor
 			 */
@@ -50,7 +45,7 @@ namespace StormByte::Config {
 			/**
 			 * Assignment operator
 			 */
-			Group& operator=(const Group&);
+			Group& operator=(const Group&)		= default;
 			/**
 			 * Move assignment operator
 			 */
@@ -58,84 +53,70 @@ namespace StormByte::Config {
 			/**
 			 * Destructor
 			 */
-			~Group() noexcept override			= default;
+			~Group() noexcept					= default;
 
 			/**
-			 * Value getter
-			 * @return current Group
+			 * @enum OnNameClashAction
+			 * @brief Action to take when a name is already in use
 			 */
-			inline Group&				AsGroup() override {
-				return *this;
-			}
+			enum class OnNameClashAction {
+				KeepExistingItem,
+				OverwriteExistingItem,
+				ThrowException
+			};
 
 			/**
-			 * Add a named item to this group
-			 * @param name item name
-			 * @param type item Type
-			 * @throw InvalidName is thrown when item name is not allowed
-			 * @throw ItemNameAlreadyExists is thrown when item name already exists
-			 * @return a pointer to the added item
+			 * Gets item reference by path
+			 * @param path path to item
+			 * @return item
+			 * @throw ItemNotFound if item is not found
 			 */
-			std::shared_ptr<Item>		Add(const std::string& name, const Type& type);
+			Item&						operator[](const std::string& path);
 			/**
-			 * Add an already created item to this group
-			 * @param item item to add
-			 * @throw InvalidName is thrown when item name is not allowed
-			 * @throw ItemNameAlreadyExists is thrown when item name already exists
-			 * @return a pointer to the added item
+			 * Gets item const reference by path
+			 * @param path path to item
+			 * @return item
+			 * @throw ItemNotFound if item is not found
 			 */
-			std::shared_ptr<Item>		Add(std::shared_ptr<Item> item);
+			const Item&					operator[](const std::string& path) const;
+
 			/**
-			 * Add a named item to this group executing provided function on name clash
-			 * @param name item name
-			 * @param type item Type
-			 * @param on_clash function to execute when name already exists
-			 * @throw InvalidName is thrown when item name is not allowed
-			 * @throw ItemNameAlreadyExists is thrown when item name already exists
-			 * @return a pointer to the added item
-			 */
-			std::shared_ptr<Item>		Add(const std::string& name, const Type& type, std::optional<OnNameClashFunctionType>& on_clash);
-			/**
-			 * Add an already created item to this group
+			 * Add a copy of an already created item to this group
 			 * @param item item to add
 			 * @param on_clash function to execute when name already exists
 			 * @throw InvalidName is thrown when item name is not allowed
 			 * @throw ItemNameAlreadyExists is thrown when item name already exists
 			 * @return a pointer to the added item
 			 */
-			std::shared_ptr<Item>		Add(std::shared_ptr<Item> item, std::optional<OnNameClashFunctionType>& on_clash);
+			Item&						Add(const Item& item, const OnNameClashAction& on_clash = OnNameClashAction::ThrowException);
+			/**
+			 * Move an already created item to this group
+			 * @param item item to add
+			 * @param on_clash function to execute when name already exists
+			 * @throw InvalidName is thrown when item name is not allowed
+			 * @throw ItemNameAlreadyExists is thrown when item name already exists
+			 * @return a pointer to the added item
+			 */
+			Item&						Add(Item&& item, const OnNameClashAction& on_clash = OnNameClashAction::ThrowException);
 			/**
 			 * Removes an item from this group
-			 * @param name item name to remove
+			 * @param name item name to remove which can be a full path
 			 * @throw ItemNotFound might be thrown if item name is not found
 			 */
 			void						Remove(const std::string& name);
-			/**
-			 * Gets the child by path
-			 * @param path path to child
-			 * @return pointer to found Item or nullptr
-			 */
-			std::shared_ptr<Item>		Child(const std::string& path) const;
 			/**
 			 * Checks the existence of a child by path
 			 * @param path path to child
 			 * @return bool
 			 */
 			bool						Exists(const std::string& path) const noexcept;
-			/**
-			 * Looks up a child by path
-			 * @param path path to child
-			 * @throw ItemNotFound if not found
-			 * @return pointer to found Item
-			 */
-			std::shared_ptr<Item>		LookUp(const std::string& path) const;
 
 			/**
 			 * Serializes the boolean item
 			 * @param indent_level intentation level
 			 * @return serialized string
 			 */
-			std::string					Serialize(const int& indent_level) const noexcept override;
+			std::string					Serialize(const int& indent_level) const noexcept;
 
 			/**
 			 * @class Iterator
@@ -196,7 +177,7 @@ namespace StormByte::Config {
 					/**
 					 * Access operator
 					 */
-					Item operator*() noexcept = delete;
+					Item& operator*() noexcept;
 
 				private:
 					/**
@@ -207,7 +188,7 @@ namespace StormByte::Config {
 					/**
 					 * Internal iterator to original data
 					 */
-					GroupStorage::iterator m_it;
+					std::list<Item>::iterator m_it;
 			};
 
 			/**
@@ -269,7 +250,7 @@ namespace StormByte::Config {
 					/**
 					 * Access operator
 					 */
-					const Item operator*() const noexcept = delete;
+					const Item& operator*() const noexcept;
 
 				private:
 					/**
@@ -280,7 +261,7 @@ namespace StormByte::Config {
 					/**
 					 * Internal iterator to original data
 					 */
-					GroupStorage::const_iterator m_it;
+					std::list<Item>::const_iterator m_it;
 			};
 
 			/**
@@ -302,29 +283,34 @@ namespace StormByte::Config {
 			 * Gets a Const_Iterator pointing past last element
 			 */
 			Const_Iterator 				End() const noexcept;
-			/**
-			 * Gets a Const_Iterator pointing to first element
-			 * @return Const_Iterator
-			 */
-			Const_Iterator 				CBegin() const noexcept;
-			/**
-			 * Gets a Const_Iterator pointing past last element
-			 */
-			Const_Iterator 				CEnd() const noexcept;
 
 		private:
 			/**
-			 * Clones this object
-			 * @return a shared pointer for this item
+			 * Ordered items vector
 			 */
-			std::shared_ptr<Item>		Clone() override;
+			std::list<Item> 			m_ordered;
+
+			/**
+			 * Looks up a child by path
+			 * @param path path to child
+			 * @throw ItemNotFound if not found
+			 * @return reference to found Item
+			 */
+			Item&						LookUp(const std::string& path);
+			/**
+			 * Looks up a child by path
+			 * @param path path to child
+			 * @throw ItemNotFound if not found
+			 * @return const reference to found Item
+			 */
+			const Item&					LookUp(const std::string& path) const;
 			/**
 			 * Internal version for Lookup
 			 * @param queue queue for path representation
-			 * @return shared pointer to Item base class with found instance
+			 * @return const reference to found Item
 			 * @throw runtime_error
 			 */
-			std::shared_ptr<Item>		LookUp(std::queue<std::string>& queue) const;
+			const Item&					LookUp(std::queue<std::string>& queue) const;
 			/**
 			 * Internal version for checking if item exists
 			 * @param queue search path represented as a queue
@@ -336,14 +322,11 @@ namespace StormByte::Config {
 			 * @return queue from path
 			 */
 			std::queue<std::string> 	ExplodePath(const std::string& path) const noexcept;
-
 			/**
-			 * Internal map with children so name accesses are fast
+			 * Internal function for removing an item by a queue of its path
+			 * @param path path to item
+			 * @throw std::runtime_error if item is not found
 			 */
-			std::map<std::string, std::shared_ptr<Item>>	m_children;
-			/**
-			 * Ordered items vector
-			 */
-			std::vector<std::shared_ptr<Item>> 				m_ordered;
+			void						Remove(std::queue<std::string>& path);
 	};
 }

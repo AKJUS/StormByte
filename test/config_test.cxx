@@ -1,8 +1,6 @@
-#include <StormByte/config/file.hxx>
+#include <StormByte/config/config.hxx>
 #include <StormByte/config/item.hxx>
-#include <StormByte/config/item/value/integer.hxx>
-#include <StormByte/config/item/value/string.hxx>
-#include <StormByte/config/item/group.hxx>
+#include <StormByte/config/group.hxx>
 #include <StormByte/system/system.hxx>
 
 #include <iostream>
@@ -13,27 +11,26 @@
 #include <climits>
 #include "test_handlers.h"
 
-using namespace StormByte;
+using namespace StormByte::Config;
 
 int test_add_and_lookup() {
 	int result = 0;
-    Config::File config;
+    Config config;
 
     // Add Integer and String items
-    auto int_item = config.Add("TestInt", StormByte::Config::Item::Type::Integer);
-    int_item->SetInteger(42);
-    auto str_item = config.Add("TestStr", StormByte::Config::Item::Type::String);
-    str_item->SetString("Hello, World!");
+    config.Add(Item("TestInt", 42));
+    config.Add(Item("TestStr", "Hello, World!"));
 
 	try {
 		// Lookup and validate items
-		auto lookup_int = config.LookUp("TestInt");
-		ASSERT_EQUAL("test_add_and_lookup", 42, lookup_int->AsInteger());
+		const Item& lookup_int = config["TestInt"];
+		ASSERT_EQUAL("test_add_and_lookup", 42, lookup_int.Value<int>());
 
-		auto lookup_str = config.LookUp("TestStr");
-		ASSERT_EQUAL("test_add_and_lookup", "Hello, World!", lookup_str->AsString());
+		const Item& lookup_str = config["TestStr"];
+		ASSERT_EQUAL("test_add_and_lookup", "Hello, World!", lookup_str.Value<std::string>());
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& ex) {
+		std::cerr << ex.what() << std::endl;
 		result = 1;
 	}
 
@@ -47,18 +44,18 @@ int test_write_and_read() {
         "TestInt = 42;\n"
         "TestStr = \"Hello, World!\";\n";
 
-    Config::File config;
+    Config config;
 
 	try {
 		// Read from string
 		config << config_content;
 
 		// Validate items
-		auto int_item = config.LookUp("TestInt");
-		ASSERT_EQUAL("test_write_and_read", 42, int_item->AsInteger());
+		const Item& int_item = config["TestInt"];
+		ASSERT_EQUAL("test_write_and_read", 42, int_item.Value<int>());
 
-		auto str_item = config.LookUp("TestStr");
-		ASSERT_EQUAL("test_write_and_read", "Hello, World!", str_item->AsString());
+		const Item& str_item = config["TestStr"];
+		ASSERT_EQUAL("test_write_and_read", "Hello, World!", str_item.Value<std::string>());
 
 		// Write to file
 		std::fstream file;
@@ -68,15 +65,15 @@ int test_write_and_read() {
 
 		// Read again from file to ensure correctness
 		file.open(temp_file, std::ios::in);
-		Config::File config2;
+		Config config2;
 		file >> config2;
 		file.close();
 
-		auto int_item2 = config2.LookUp("TestInt");
-		ASSERT_EQUAL("test_write_and_read", 42, int_item2->AsInteger());
+		const Item& int_item2 = config["TestInt"];
+		ASSERT_EQUAL("test_write_and_read", 42, int_item2.Value<int>());
 
-		auto str_item2 = config2.LookUp("TestStr");
-		ASSERT_EQUAL("test_write_and_read", "Hello, World!", str_item2->AsString());
+		const Item& str_item2 = config["TestStr"];
+		ASSERT_EQUAL("test_write_and_read", "Hello, World!", str_item2.Value<std::string>());
 	}
 	catch(...) {
 		result = 1;
@@ -88,27 +85,26 @@ int test_write_and_read() {
 
 int test_nested_groups() {
 	int result = 0;
-    Config::File config;
+    Config config;
 
 	try {
 		// Create nested groups
-		auto group1 = config.Add("Group1", StormByte::Config::Item::Type::Group);
-		auto group2 = group1->AsGroup().Add("Group2", StormByte::Config::Item::Type::Group);
+		Item& group1 = config.Add(Item("Group1", Group()));
+		Item& group2 = group1.Value<Group>().Add(Item("Group2", Group()));
 
 		// Add items to sub-group
-		auto int_item = group2->AsGroup().Add("SubTestInt", StormByte::Config::Item::Type::Integer);
-		int_item->SetInteger(99);
-		auto str_item = group2->AsGroup().Add("SubTestStr", StormByte::Config::Item::Type::String);
-		str_item->SetString("Sub Hello");
+		group2.Value<Group>().Add(Item("SubTestInt", 99));
+		group2.Value<Group>().Add(Item("SubTestStr", "Sub Hello"));
 
 		// Lookup and validate items
-		auto lookup_int = config.LookUp("Group1/Group2/SubTestInt");
-		ASSERT_EQUAL("test_nested_groups", 99, lookup_int->AsInteger());
+		const Item& lookup_int = config["Group1/Group2/SubTestInt"];
+		ASSERT_EQUAL("test_nested_groups", 99, lookup_int.Value<int>());
 
-		auto lookup_str = config.LookUp("Group1/Group2/SubTestStr");
-		ASSERT_EQUAL("test_nested_groups", "Sub Hello", lookup_str->AsString());
+		const Item& lookup_str = config["Group1/Group2/SubTestStr"];
+		ASSERT_EQUAL("test_nested_groups", "Sub Hello", lookup_str.Value<std::string>());
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& e) {
+		std::cerr << e.what() << std::endl;
 		result = 1;
 	}
 
@@ -117,19 +113,19 @@ int test_nested_groups() {
 
 int test_add_remove_group() {
 	int result = 0;
-    Config::File config;
+    Config config;
 
 	try {
 		// Add group and items
-		auto group = config.Add("TestGroup", StormByte::Config::Item::Type::Group);
-		auto int_item = group->AsGroup().Add("GroupInt", StormByte::Config::Item::Type::Integer);
-		int_item->SetInteger(55);
+		Group group;
+		group.Add(Item("GroupInt", 55));
+		Item& group_item = config.Add(Item("TestGroup", group));
 
 		// Remove the item from the group
-		group->AsGroup().Remove("GroupInt");
+		group_item.Value<Group>().Remove("GroupInt");
 
 		// Validate removal
-		config.LookUp("TestGroup/GroupInt");
+		config["TestGroup/GroupInt"];
 		// Item not removed properly
 		result = 1;
 	}
@@ -151,18 +147,18 @@ int test_write_nested_groups() {
         "    };\n"
         "};\n";
 
-    Config::File config;
+    Config config;
 
 	try {
 		// Read from string
 		config_content >> config;
 
 		// Validate items
-		auto lookup_int = config.LookUp("Group1/Group2/SubTestInt");
-		ASSERT_EQUAL("test_write_nested_groups", 99, lookup_int->AsInteger());
+		const Item& lookup_int = config["Group1/Group2/SubTestInt"];
+		ASSERT_EQUAL("test_write_nested_groups", 99, lookup_int.Value<int>());
 
-		auto lookup_str = config.LookUp("Group1/Group2/SubTestStr");
-		ASSERT_EQUAL("test_write_nested_groups", "Sub Hello", lookup_str->AsString());
+		const Item& lookup_str = config["Group1/Group2/SubTestStr"];
+		ASSERT_EQUAL("test_write_nested_groups", "Sub Hello", lookup_str.Value<std::string>());
 
 		// Write to file
 		std::fstream file;
@@ -172,15 +168,15 @@ int test_write_nested_groups() {
 
 		// Read again from file to ensure correctness
 		file.open(temp_file, std::ios::in);
-		Config::File config2;
+		Config config2;
 		config2 << file;
 		file.close();
 
-		auto lookup_int2 = config2.LookUp("Group1/Group2/SubTestInt");
-		ASSERT_EQUAL("test_write_nested_groups", 99, lookup_int2->AsInteger());
+		const Item& lookup_int2 = config2["Group1/Group2/SubTestInt"];
+		ASSERT_EQUAL("test_write_nested_groups", 99, lookup_int2.Value<int>());
 
-		auto lookup_str2 = config2.LookUp("Group1/Group2/SubTestStr");
-		ASSERT_EQUAL("test_write_nested_groups", "Sub Hello", lookup_str2->AsString());
+		const Item& lookup_str2 = config2["Group1/Group2/SubTestStr"];
+		ASSERT_EQUAL("test_write_nested_groups", "Sub Hello", lookup_str2.Value<std::string>());
 	}
 	catch(...) {
 		result = 1;
@@ -193,21 +189,18 @@ int test_write_nested_groups() {
 int test_complex_config_creation() {
 	int result = 0;
     std::filesystem::path temp_file = StormByte::System::TempFileName();
-    Config::File config;
+    Config config;
 
 	try {
 		// Create a complex configuration
-		auto group1 = config.Add("Group1", StormByte::Config::Item::Type::Group);
-		auto group2 = group1->AsGroup().Add("Group2", StormByte::Config::Item::Type::Group);
+		Item& group1 = config.Add(Item("Group1", Group()));
+		Item& group2 = group1.Value<Group>().Add(Item("Group2", Group()));
 
-		auto int_item1 = group2->AsGroup().Add("IntItem1", StormByte::Config::Item::Type::Integer);
-		int_item1->SetInteger(123);
-		auto str_item1 = group2->AsGroup().Add("StrItem1", StormByte::Config::Item::Type::String);
-		str_item1->SetString("Nested String");
+		group2.Value<Group>().Add(Item("IntItem1", 123));
+		group2.Value<Group>().Add(Item("StrItem1", "Nested String"));
 
-		auto group3 = config.Add("Group3", StormByte::Config::Item::Type::Group);
-		auto int_item2 = group3->AsGroup().Add("IntItem2", StormByte::Config::Item::Type::Integer);
-		int_item2->SetInteger(456);
+		Item& group3 = config.Add(Item("Group3", Group()));
+		group3.Value<Group>().Add(Item("IntItem2", 456));
 
 		// Write to a temporary file
 		std::fstream file;
@@ -243,7 +236,7 @@ int test_complex_config_creation() {
 
 int bad_config1() {
 	int result = 0;
-	Config::File cfg;
+	Config cfg;
 	try {
 		std::fstream file;
 		file.open(CurrentFileDirectory / "files" / "bad_config1.conf", std::ios::in);
@@ -260,7 +253,7 @@ int bad_config1() {
 
 int bad_config2() {
 	int result = 0;
-	Config::File cfg;
+	Config cfg;
 	try {
 		std::fstream file;
 		file.open(CurrentFileDirectory / "files" / "bad_config2.conf", std::ios::in);
@@ -277,7 +270,7 @@ int bad_config2() {
 
 int bad_config3() {
 	int result = 0;
-	Config::File cfg;
+	Config cfg;
 	try {
 		std::fstream file;
 		file.open(CurrentFileDirectory / "files" / "bad_config3.conf", std::ios::in);
@@ -294,14 +287,14 @@ int bad_config3() {
 
 int good_double_conf1() {
 	int result = 0;
-	Config::File cfg;
+	Config cfg;
 	try {
 		std::fstream file;
 		file.open(CurrentFileDirectory / "files" / "good_double_conf1.conf", std::ios::in);
 		cfg << file;
 		file.close();
-		auto lookup_double = cfg.LookUp("test_double");
-		ASSERT_EQUAL("good_double_conf1", 666.666, lookup_double->AsDouble());
+		Item& lookup_double = cfg["test_double"];
+		ASSERT_EQUAL("good_double_conf1", 666.666, lookup_double.Value<double>());
 	}
 	catch(...) {
 		result = 1;
@@ -312,16 +305,16 @@ int good_double_conf1() {
 
 int good_double_conf2() {
 	int result = 0;
-	Config::File cfg;
+	Config cfg;
 	try {
 		std::fstream file;
 		file.open(CurrentFileDirectory / "files" / "good_double_conf2.conf", std::ios::in);
 		cfg << file;
 		file.close();
-		auto lookup_test_double = cfg.LookUp("test_double");
-		ASSERT_EQUAL("good_double_conf2", 19.89, lookup_test_double->AsDouble());
-		auto lookup_test_exp = cfg.LookUp("test_exp");
-		ASSERT_EQUAL("good_double_conf2", 1.87e-6, lookup_test_exp->AsDouble());
+		Item& lookup_test_double = cfg["test_double"];
+		ASSERT_EQUAL("good_double_conf2", 19.89, lookup_test_double.Value<double>());
+		Item& lookup_test_exp = cfg["test_exp"];
+		ASSERT_EQUAL("good_double_conf2", 1.87e-6, lookup_test_exp.Value<double>());
 	}
 	catch(...) {
 		result = 1;
@@ -333,7 +326,7 @@ int good_double_conf2() {
 int commented_config() {
 	int result = 0;
 	const std::filesystem::path temp_file = StormByte::System::TempFileName();
-	Config::File config;
+	Config config;
 	const std::string config_str = "# The following is a test integer\n"
 		"test_integer = 666;\n"
 		"\n"
@@ -342,7 +335,7 @@ int commented_config() {
 		"\t# And also here\n"
 		"\ttest_string = \"# But this is not a comment\";\n"
 		"};\n"
-		"# Ending comment no newline";
+		"# Ending comment";
 	const std::string expected_str = "# The following is a test integer\n"
 		"test_integer = 666;\n"
 		"# Now a group\n"
@@ -351,7 +344,7 @@ int commented_config() {
 		"\t# And also here\n"
 		"\ttest_string = \"# But this is not a comment\";\n"
 		"};\n"
-		"# Ending comment no newline\n";
+		"# Ending comment\n";
 
 	try {
 		config << config_str;
@@ -360,8 +353,8 @@ int commented_config() {
 		config >> file;
 		file.close();
 
-		auto test_string = config.LookUp("test_group/test_string");
-		ASSERT_EQUAL("commented_config", "# But this is not a comment", test_string->AsString());
+		const Item& test_string = config["test_group/test_string"];
+		ASSERT_EQUAL("commented_config", "# But this is not a comment", test_string.Value<std::string>());
 
 		// Validate the written content
 		std::ifstream temp_file_stream(temp_file);
@@ -381,20 +374,20 @@ int commented_config() {
 
 int good_string_conf() {
 	int result = 0;
-	Config::File cfg;
+	Config cfg;
 	try {
 		std::fstream file;
 		file.open(CurrentFileDirectory / "files" / "good_string_conf.conf", std::ios::in);
 		cfg << file;
 		file.close();
-		auto lookup_string = cfg.LookUp("test_string");
-		ASSERT_EQUAL("good_string_conf", "This is a test string", lookup_string->AsString());
+		const Item& lookup_string = cfg["test_string"];
+		ASSERT_EQUAL("good_string_conf", "This is a test string", lookup_string.Value<std::string>());
 
-		auto lookup_quoted = cfg.LookUp("test_quoted");
-		ASSERT_EQUAL("good_string_conf", "This \"quote\" allows more things", lookup_quoted->AsString());
+		const Item& lookup_quoted = cfg["test_quoted"];
+		ASSERT_EQUAL("good_string_conf", "This \"quote\" allows more things", lookup_quoted.Value<std::string>());
 
-		auto lookup_unfinished = cfg.LookUp("test_unfinished");
-		ASSERT_EQUAL("good_string_conf", "When you see a \" you might have the start of a string", lookup_unfinished->AsString());
+		const Item& lookup_unfinished = cfg["test_unfinished"];
+		ASSERT_EQUAL("good_string_conf", "When you see a \" you might have the start of a string", lookup_unfinished.Value<std::string>());
 	}
 	catch(...) {
 		result = 1;
@@ -405,14 +398,13 @@ int good_string_conf() {
 
 int test_empty_string() {
 	int result = 0;
-    Config::File config;
+    Config config;
 
-    auto str_item = config.Add("EmptyString", StormByte::Config::Item::Type::String);
-    str_item->SetString("");
+    config.Add(Item("EmptyString", ""));
 
 	try {
-    	auto lookup_str = config.LookUp("EmptyString");
-    	ASSERT_EQUAL("test_empty_string", "", lookup_str->AsString());
+    	const Item& lookup_str = config["EmptyString"];
+    	ASSERT_EQUAL("test_empty_string", "", lookup_str.Value<std::string>());
 	}
 	catch(...) {
 		result = 1;
@@ -423,20 +415,18 @@ int test_empty_string() {
 
 int test_integer_boundaries() {
 	int result = 0;
-    Config::File config;
+    Config config;
 
-    auto max_int_item = config.Add("MaxInt", StormByte::Config::Item::Type::Integer);
-    max_int_item->SetInteger(INT_MAX);
+    config.Add(Item("MaxInt", INT_MAX));
 
-    auto min_int_item = config.Add("MinInt", StormByte::Config::Item::Type::Integer);
-    min_int_item->SetInteger(INT_MIN);
+    config.Add(Item("MinInt", INT_MIN));
 
 	try {
-		auto lookup_max_int = config.LookUp("MaxInt");
-		ASSERT_EQUAL("test_integer_boundaries", INT_MAX, lookup_max_int->AsInteger());
+		const Item& lookup_max_int = config["MaxInt"];
+		ASSERT_EQUAL("test_integer_boundaries", INT_MAX, lookup_max_int.Value<int>());
 
-		auto lookup_min_int = config.LookUp("MinInt");
-		ASSERT_EQUAL("test_integer_boundaries", INT_MIN, lookup_min_int->AsInteger());
+		const Item& lookup_min_int = config["MinInt"];
+		ASSERT_EQUAL("test_integer_boundaries", INT_MIN, lookup_min_int.Value<int>());
 	}
 	catch(...) {
 		result = 1;
@@ -447,14 +437,13 @@ int test_integer_boundaries() {
 
 int test_special_characters_in_string() {
 	int result = 0;
-    Config::File config;
+    Config config;
 
-    auto str_item = config.Add("SpecialChars", StormByte::Config::Item::Type::String);
-    str_item->SetString("Line1\nLine2\tTabbed");
+    config.Add(Item("SpecialChars", "Line1\nLine2\tTabbed"));
 
 	try {
-    	auto lookup_str = config.LookUp("SpecialChars");
-    	ASSERT_EQUAL("test_special_characters_in_string", "Line1\nLine2\tTabbed", lookup_str->AsString());
+    	const Item& lookup_str = config["SpecialChars"];
+    	ASSERT_EQUAL("test_special_characters_in_string", "Line1\nLine2\tTabbed", lookup_str.Value<std::string>());
 	}
 	catch(...) {
 		result = 1;
@@ -465,19 +454,18 @@ int test_special_characters_in_string() {
 
 int test_deeply_nested_groups() {
 	int result = 0;
-    Config::File config;
+    Config config;
 
 	try {
-		auto group1 = config.Add("Group1", StormByte::Config::Item::Type::Group);
-		auto group2 = group1->AsGroup().Add("Group2", StormByte::Config::Item::Type::Group);
-		auto group3 = group2->AsGroup().Add("Group3", StormByte::Config::Item::Type::Group);
-		auto group4 = group3->AsGroup().Add("Group4", StormByte::Config::Item::Type::Group);
+		Item& group1 = config.Add(Item("Group1", Group()));
+		Item& group2 = group1.Value<Group>().Add(Item("Group2", Group()));
+		Item& group3 = group2.Value<Group>().Add(Item("Group3", Group()));
+		Item& group4 = group3.Value<Group>().Add(Item("Group4", Group()));
 
-		auto int_item = group4->AsGroup().Add("DeepInt", StormByte::Config::Item::Type::Integer);
-		int_item->SetInteger(1234);
+		group4.Value<Group>().Add(Item("DeepInt", 1234));
 
-		auto lookup_int = config.LookUp("Group1/Group2/Group3/Group4/DeepInt");
-		ASSERT_EQUAL("test_deeply_nested_groups", 1234, lookup_int->AsInteger());
+		const Item& lookup_int = config["Group1/Group2/Group3/Group4/DeepInt"];
+		ASSERT_EQUAL("test_deeply_nested_groups", 1234, lookup_int.Value<int>());
 	}
 	catch(...) {
 		result = 1;
@@ -488,7 +476,7 @@ int test_deeply_nested_groups() {
 
 int test_invalid_syntax() {
 	int result = 0;
-    Config::File config;
+    Config config;
     std::string invalid_config = "Invalid = { Unclosed }";
 
     try {
@@ -503,14 +491,14 @@ int test_invalid_syntax() {
 
 int test_special_characters_string() {
 	int result = 0;
-    Config::File cfg;
+    Config cfg;
     try {
         std::fstream file;
 		file.open(CurrentFileDirectory / "files" / "special_characters_conf.conf", std::ios::in);
 		cfg << file;
 		file.close();
-        auto lookup_special = cfg.LookUp("special_string");
-        ASSERT_EQUAL("test_special_characters_string", "This is a test string with special characters: \n, \t, \\", lookup_special->AsString());
+        const Item& lookup_special = cfg["special_string"];
+        ASSERT_EQUAL("test_special_characters_string", "This is a test string with special characters: \n, \t, \\", lookup_special.Value<std::string>());
     } catch (...) {
         result = 1;
     }
@@ -520,14 +508,14 @@ int test_special_characters_string() {
 
 int test_long_string() {
 	int result = 0;
-    Config::File cfg;
+    Config cfg;
     try {
         std::fstream file;
 		file.open(CurrentFileDirectory / "files" / "long_string_conf.conf", std::ios::in);
 		cfg << file;
 		file.close();
-        auto lookup_long = cfg.LookUp("long_string");
-        ASSERT_EQUAL("test_long_string", std::string(1000, 'a'), lookup_long->AsString());
+        const Item& lookup_long = cfg["long_string"];
+        ASSERT_EQUAL("test_long_string", std::string(1000, 'a'), lookup_long.Value<std::string>());
     } catch (...) {
         result = 1;
     }
@@ -537,7 +525,7 @@ int test_long_string() {
 
 int test_missing_semicolon() {
 	int result = 0;
-    Config::File cfg;
+    Config cfg;
     try {
         std::fstream file;
 		file.open(CurrentFileDirectory / "files" / "missing_semicolon.conf", std::ios::in);
@@ -553,7 +541,7 @@ int test_missing_semicolon() {
 
 int test_unmatched_braces() {
 	int result = 0;
-    Config::File cfg;
+    Config cfg;
     try {
         std::fstream file;
 		file.open(CurrentFileDirectory / "files" / "unmatched_braces.conf", std::ios::in);
@@ -569,17 +557,17 @@ int test_unmatched_braces() {
 
 int good_boolean_config1() {
 	int result = 0;
-	Config::File cfg;
+	Config cfg;
 	try {
 		std::fstream file;
 		file.open(CurrentFileDirectory / "files" / "good_boolean_conf1.conf", std::ios::in);
 		cfg << file;
 		file.close();
-		auto lookup_enable_feature = cfg.LookUp("settings/enable_feature");
-        ASSERT_EQUAL("good_boolean_config1", true, lookup_enable_feature->AsBool());
+		const Item& lookup_enable_feature = cfg["settings/enable_feature"];
+        ASSERT_EQUAL("good_boolean_config1", true, lookup_enable_feature.Value<bool>());
 
-		auto lookup_enable_extra = cfg.LookUp("settings/enable_extra");
-        ASSERT_EQUAL("good_boolean_config1", false, lookup_enable_extra->AsBool());
+		const Item& lookup_enable_extra = cfg["settings/enable_extra"];
+        ASSERT_EQUAL("good_boolean_config1", false, lookup_enable_extra.Value<bool>());
 	}
 	catch (...) {
 		result = 1;
@@ -590,7 +578,7 @@ int good_boolean_config1() {
 
 int bad_boolean_config1() {
 	int result = 0;
-	Config::File cfg;
+	Config cfg;
 	try {
 		std::fstream file;
 		file.open(CurrentFileDirectory / "files" / "bad_boolean_conf1.conf", std::ios::in);
@@ -607,7 +595,7 @@ int bad_boolean_config1() {
 
 int copy_configuration() {
 	int result = 0;
-	Config::File cfg1, cfg2;
+	Config cfg1, cfg2;
 	try {
 		std::fstream file;
 		file.open(CurrentFileDirectory / "files" / "good_boolean_conf1.conf", std::ios::in);
@@ -620,10 +608,10 @@ int copy_configuration() {
 	}
 
 	try {
-		/* Both should be found */
-		auto lookup_enable_feature_1 = cfg1.LookUp("settings/enable_feature");
-		auto lookup_enable_feature_2 = cfg2.LookUp("settings/enable_feature");
-        ASSERT_EQUAL("good_boolean_config1", lookup_enable_feature_1->AsBool(), lookup_enable_feature_2->AsBool());
+		// Both should be found
+		const Item& lookup_enable_feature_1 = cfg1["settings/enable_feature"];
+		const Item& lookup_enable_feature_2 = cfg2["settings/enable_feature"];
+        ASSERT_EQUAL("good_boolean_config1", lookup_enable_feature_1.Value<bool>(), lookup_enable_feature_2.Value<bool>());
 	}
 	catch(...) {
 		result = 1;
@@ -634,7 +622,7 @@ int copy_configuration() {
 
 int move_configuration() {
 	int result = 0;
-	Config::File cfg1, cfg2;
+	Config cfg1, cfg2;
 	try {
 		std::fstream file;
 		file.open(CurrentFileDirectory / "files" / "good_boolean_conf1.conf", std::ios::in);
@@ -646,17 +634,17 @@ int move_configuration() {
 		RETURN_TEST("copy_configuration", 1);
 	}
 
-	/* First should fail, second should be found */
+	// First should fail, second should be found
 	try {
-		auto lookup_enable_feature = cfg1.LookUp("settings/enable_feature");
+		cfg1["settings/enable_feature"];
 		RETURN_TEST("move_configuration", 1);
 	}
 	catch(...) {
 		// Expected
 	}
 	try {
-		auto lookup_enable_feature = cfg2.LookUp("settings/enable_feature");
-        ASSERT_EQUAL("move_configuration", true, lookup_enable_feature->AsBool());
+		const Item& lookup_enable_feature = cfg2["settings/enable_feature"];
+        ASSERT_EQUAL("move_configuration", true, lookup_enable_feature.Value<bool>());
 	}
 	catch(...) {
 		RETURN_TEST("move_and_copy_operators", 1);
@@ -667,10 +655,10 @@ int move_configuration() {
 
 int duplicated_insertion() {
 	int result = 0;
-	Config::File cfg;
+	Config cfg;
 	try {
-		cfg.Add("testInt", Config::Item::Type::Integer);
-		cfg.Add("testInt", Config::Item::Type::Integer);
+		cfg.Add(Item("testInt", 66));
+		cfg.Add(Item("testInt", 66));
 		result = 1;
 	}
 	catch(...) {
@@ -680,34 +668,33 @@ int duplicated_insertion() {
 	return result;
 }
 
-int on_name_clash_ignore() {
+int on_name_clash_keep_existing() {
 	int result = 0;
-	Config::File cfg;
-	cfg.SetOnNameClashAction([](std::shared_ptr<Config::Item> existing, std::shared_ptr<Config::Item>){ return existing; });
-	cfg.Add("testItem", Config::Item::Type::Bool);
+	Config cfg;
+	cfg.SetOnNameClashAction(Group::OnNameClashAction::KeepExistingItem);
+	cfg.Add(Item("testItem", true));
 	try {
-		cfg.Add("testItem", Config::Item::Type::Integer)->SetInteger(66);
-		// Should throw because action was set to "ignore" and item is bool
-		result = 1;
-		auto item = cfg.LookUp("testItem");
-		ASSERT_EQUAL("on_name_clash_ignore", 66, item->AsInteger());
+		cfg.Add(Item("testItem", 666));
+		// Should not throw because action was set to keep existing
+		const Item& item = cfg["testItem"];
+		ASSERT_EQUAL("on_name_clash_keep_existing", true, item.Value<bool>());
 	}
 	catch(...) {
-		// Expected
+		result = 1;
 	}
 
-	RETURN_TEST("on_name_clash_ignore", result);
+	RETURN_TEST("on_name_clash_keep_existing", result);
 }
 
 int on_name_clash_replace() {
 	int result = 0;
-	Config::File cfg;
-	cfg.SetOnNameClashAction([](std::shared_ptr<Config::Item>, std::shared_ptr<Config::Item> new_item){ return new_item; });
-	cfg.Add("testItem", Config::Item::Type::Bool);
+	Config cfg;
+	cfg.SetOnNameClashAction(Group::OnNameClashAction::OverwriteExistingItem);
+	cfg.Add(Item("testItem", true));
 	try {
-		cfg.Add("testItem", Config::Item::Type::Integer)->SetInteger(66);
-		auto item = cfg.LookUp("testItem");
-		ASSERT_EQUAL("on_name_clash_ignore", 66, item->AsInteger());
+		cfg.Add(Item("testItem", 66));
+		const Item& item = cfg["testItem"];
+		ASSERT_EQUAL("on_name_clash_ignore", 66, item.Value<int>());
 	}
 	catch(...) {
 		result = 1;
@@ -718,19 +705,66 @@ int on_name_clash_replace() {
 
 int config_to_config_output() {
 	int result = 0;
-	Config::File cfg1, cfg2;
-	cfg1.Add("testInt", Config::Item::Type::Integer)->SetInteger(66);
-	cfg2.Add("testString", Config::Item::Type::String)->SetString("Hello!");
+	Config cfg1, cfg2;
+	int value = 0;
+	cfg1.Add(Item("testInt", value));
+	cfg2.Add(Item("testString", "Hello!"));
 	try {
 		cfg1 << cfg2;
-		auto testString = cfg1.LookUp("testString");
-		ASSERT_EQUAL("config_to_config_output", "Hello!", testString->AsString());
+		const Item& testInt = cfg1["testInt"];
+		ASSERT_EQUAL("config_to_config_output", 0, testInt.Value<int>());
+		const Item& testString = cfg1["testString"];
+		ASSERT_EQUAL("config_to_config_output", "Hello!", testString.Value<std::string>());
 	}
 	catch(...) {
 		result = 1;
 	}
 
 	RETURN_TEST("config_to_config_output", result);
+}
+
+int config_value_reference_change() {
+	int result = 0;
+	Config cfg;
+	cfg.Add(Item("testInt", 66));
+
+	try {
+		cfg["testInt"].Value<int>() = 99;
+		const Item& testInt = cfg["testInt"];
+		ASSERT_EQUAL("config_value_reference_change", 99, testInt.Value<int>());
+	}
+	catch(...) {
+		result = 1;
+	}
+	return result;
+}
+
+int config_remove_full_path() {
+	int result = 0;
+	Config cfg;
+	Item& group = cfg.Add(Item("testGroup", Group()));
+	group.Value<Group>().Add(Item("testInt", 99));
+	group.Value<Group>().Add(Item("testString", "Group String"));
+
+	try {
+		cfg.Remove("testGroup/testInt");
+		auto testString = cfg["testGroup/testString"];
+		ASSERT_EQUAL("config_remove_full_path", "Group String", testString.Value<std::string>());
+	}
+	catch(...) {
+		result = 1;
+	}
+
+	// Now testGroup/testInt should not exist
+	try {
+		cfg["testGroup/testInt"];
+		result = 1;
+	}
+	catch(...) {
+		// Expected
+	}
+
+	return result;
 }
 
 int main() {
@@ -763,9 +797,11 @@ int main() {
 		result += copy_configuration();
 		result += move_configuration();
 		result += duplicated_insertion();
-		result += on_name_clash_ignore();
+		result += on_name_clash_keep_existing();
 		result += on_name_clash_replace();
 		result += config_to_config_output();
+		result += config_value_reference_change();
+		result += config_remove_full_path();
     } catch (const StormByte::Config::Exception& ex) {
         std::cerr << ex.what() << std::endl;
         result++;

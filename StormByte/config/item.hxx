@@ -1,10 +1,11 @@
 #pragma once
 
-#include <StormByte/visibility.h>
+#include <StormByte/config/group.hxx>
 
 #include <algorithm>
 #include <memory>
 #include <string>
+#include <variant>
 #include <vector>
 
 /**
@@ -12,14 +13,11 @@
  * @brief All the classes for handling configuration files and items
  */
 namespace StormByte::Config {
-	class Group; // Forward decl
 	/**
 	 * @class Item
-	 * @brief Abstract class for a generic configuration item
+	 * @brief Class for a configuration item
 	 */
-	class STORMBYTE_PUBLIC Item {
-		friend class File;
-		friend class Group;
+	class STORMBYTE_PUBLIC Item final {
 		public:
 			/**
 			 * @enum Type
@@ -48,7 +46,63 @@ namespace StormByte::Config {
 					default:			return "Unknown";
 				}
 			}
+			/**
+			 * Static function to check if a name is valid (only contains numbers, letters and underscore)
+			 * @param name name to check
+			 * @return bool valid?
+			 */
+			static constexpr bool 				IsNameValid(const std::string& name) noexcept {
+				// Find unallowed chars and if not found then name is valid
+				return !(std::find_if(name.begin(), name.end(), [](char c) { return !isalnum(c) && c != '_'; }) != name.end());
+			}
 
+			/**
+			 * Creates an item with a group value
+			 * @param name item name
+			 * @param value item value
+			 */
+			Item(const std::string& name, const Group& value);
+			/**
+			 * Creates an item moving the group value
+			 * @param name item name
+			 * @param value item value
+			 */
+			Item(const std::string& name, Group&& value);
+			/**
+			 * Creates an item with a string value
+			 * @param name item name
+			 * @param value item value
+			 */
+			Item(const std::string& name, const std::string& value);
+			/**
+			 * Creates an item with a string value
+			 * @param name item name
+			 * @param value item value
+			 */
+			Item(const char* name, const char* value);
+			/**
+			 * Creates an item with a int value
+			 * @param name item name
+			 * @param value item value
+			 */
+			Item(const std::string& name, const int& value);
+			/**
+			 * Creates an item with a double value
+			 * @param name item name
+			 * @param value item value
+			 */
+			explicit Item(const std::string& name, const double& value);
+			/**
+			 * Creates an item with a comment value
+			 * @param value item value
+			 */
+			Item(const std::string& value);
+			/**
+			 * Creates an item with a bool value
+			 * @param name item name
+			 * @param value item value
+			 */
+			explicit Item(const std::string& name, bool value);
 			/**
 			 * Copy constructor
 			 */
@@ -93,95 +147,35 @@ namespace StormByte::Config {
 			}
 			
 			/**
-			 * Will throw exception since item is not a group
-			 * @throw WrongValueTypeConversion
+			 * Value getter as reference
 			 */
-			virtual Group&						AsGroup();
+			template<typename T> T&				Value();
 			/**
-			 * Will throw exception since item is not an integer
-			 * @throw WrongValueTypeConversion
+			 * Value getter as const reference
 			 */
-			virtual const int&					AsInteger() const;
-			/**
-			 * Will throw exception since item is not a double
-			 * @throw WrongValueTypeConversion
-			 */
-			virtual const double&				AsDouble() const;
-			/**
-			 * Will throw exception since item is not a string
-			 * @throw WrongValueTypeConversion
-			 */
-			virtual const std::string&			AsString() const;
-			/**
-			 * Will throw exception since item is not a bool
-			 * @throw WrongValueTypeConversion
-			 */
-			virtual bool 						AsBool() const;
+			template<typename T> const T&		Value() const;
 
-			/**
-			 * Will throw exception since item is not an integer
-			 * @throw ValueFailure
-			 */
-			virtual void						SetInteger(const int&);
-			/**
-			 * Will throw exception since item is not a double
-			 * @throw ValueFailure
-			 */
-			virtual void						SetDouble(const double&);
-			/**
-			 * Will throw exception since item is not a string
-			 * @throw ValueFailure
-			 */
-			virtual void						SetString(const std::string&);
-			/**
-			 * Will throw exception since item is not a string
-			 * @throw ValueFailure
-			 */
-			virtual void						SetString(std::string&&);
-			/**
-			 * Will throw exception since item is not a bool
-			 * @throw ValueFailure
-			 */
-			virtual void 						SetBool(bool);
+			#ifdef MSVC
+			template<> Group&					Value<Group>();
+			template<> const Group&				Value<Group>() const;
+			template<> std::string&				Value<std::string>();
+			template<> const std::string&		Value<std::string>() const;
+			template<> int&						Value<int>();
+			template<> const int&				Value<int>() const;
+			template<> double&					Value<double>();
+			template<> const double&			Value<double>() const;
+			template<> bool&					Value<bool>();
+			template<> const bool&				Value<bool>() const;
+			#endif
 
 			/**
 			 * Serializes the boolean item
 			 * @param indent_level intentation level
 			 * @return serialized string
 			 */
-			virtual std::string					Serialize(const int& indent_level) const noexcept = 0;
-
-			static constexpr bool 				IsNameValid(const std::string& name) noexcept {
-				// Find unallowed chars and if not found then name is valid
-				return !(std::find_if(name.begin(), name.end(), [](char c) { return !isalnum(c) && c != '_'; }) != name.end());
-			}
+			virtual std::string					Serialize(const int& indent_level) const noexcept;
 		
-		protected:
-			/**
-			 * Constructor
-			 * @param type item Type
-			 * @param name item name
-			 */
-			Item(const Type& type, const std::string& name);
-			/**
-			 * Constructor
-			 * @param type item Type
-			 * @param name item name
-			 */
-			Item(const Type& type, std::string&& name);
-			/**
-			 * Clones this object (must be implemented for derived classes)
-			 * @return a shared pointer for the base class
-			 */
-			virtual std::shared_ptr<Item>		Clone() = 0;
-			/**
-			 * Indents the output
-			 * @param level
-			 */
-			constexpr std::string				Indent(const int& level) const noexcept {
-				return level == 0 ? std::string() : std::string(level, '\t');
-			}
-
+		private:
 			/**
 			 * Item name
 			 */
@@ -190,5 +184,17 @@ namespace StormByte::Config {
 			 * Item type
 			 */
 			Type m_type;
+			/**
+			 * Internal value
+			 */
+			std::variant<std::string, int, double, bool, Group> m_value;
+
+			/**
+			 * Add indentation
+			 * @param level
+			 */
+			constexpr std::string					Indent(const int& level) const noexcept {
+				return level == 0 ? std::string() : std::string(level, '\t');
+			}
 	};
 }
