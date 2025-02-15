@@ -9,34 +9,8 @@ Exception::Exception(const std::string& msg):System::Exception(msg) {}
 Exception::Exception(std::string&& msg) noexcept:System::Exception(std::move(msg)) {}
 
 WrongResultType::WrongResultType(const Type& source_type, const Type& asked_type):
-Exception("Wrong value type: Requested " + type_to_string(asked_type)
-	+ " whereas contained type is " + type_to_string(source_type)) {}
-
-std::string WrongResultType::type_to_string(const Type& type) const {
-	std::string t = "";
-	switch (type) {
-		case Type::Integer:
-			t = "integer";
-			break;
-
-		case Type::Bool:
-			t = "bool";
-			break;
-
-		case Type::Null:
-			t = "NULL";
-			break;
-
-		case Type::String:
-			t = "string";
-			break;
-
-		case Type::Double:
-			t = "double";
-			break;
-	}
-	return t;
-}
+Exception("Wrong value type: Requested " + std::string(GetTypeAsString(asked_type))
+	+ " whereas contained type is " + GetTypeAsString(source_type)) {}
 
 Overflow::Overflow(const int64_t& source):
 Exception("Value " + std::to_string(source) + " exceeds int max (" +

@@ -26,9 +26,6 @@
 				WrongResultType& operator=(const WrongResultType&)		= default;
 				WrongResultType& operator=(WrongResultType&&) noexcept 	= default;
 				~WrongResultType() noexcept override					= default;
-
-			private:
-				std::string type_to_string(const Type&) const;
 		};
 
 		class STORMBYTE_PUBLIC Overflow: public Exception {
@@ -39,9 +36,6 @@
 				Overflow& operator=(const Overflow&)		= default;
 				Overflow& operator=(Overflow&&) noexcept 	= default;
 				~Overflow() noexcept override				= default;
-
-			private:
-				std::string type_to_string(const Type&) const;
 		};
 
 		class STORMBYTE_PUBLIC OutOfBounds: public Exception {
