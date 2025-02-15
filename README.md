@@ -55,12 +55,15 @@ Include the necessary headers in your project and link against the `StormByte` l
 
 ```cpp
 #include <StormByte/system/process.hxx>
+#include <iostream>
+
+using namespace StormByte::System;
 
 // Example usage
 int main() {
 	std::vector<std::string> args = {"-l", "-a"};
-	StormByte::System::Process ls("/bin/ls", args);
-	StormByte::System::Process grep("/bin/grep", {"main.cpp"});
+	Process ls("/bin/ls", args);
+	Process grep("/bin/grep", {"main.cpp"});
 	ls >> grep;
 	grep.wait();
 	std::string output;
@@ -74,6 +77,7 @@ int main() {
 
 ```cpp
 #include <StormByte/system/variable.hxx>
+#include <iostream>
 
 // Example usage
 int main() {
@@ -88,25 +92,6 @@ int main() {
 The `Config` module provides a flexible and easy-to-use API for configuration management. It supports reading and writing configuration files with various types including groups, strings, integers, and doubles.
 
 #### Example: Config
-
-```cpp
-#include <StormByte/config/config.hxx>
-#include <fstream>
-
-// Example usage
-int main() {
-	StormByte::Config::Config config;
-	std::fstream input_file;
-	input_file.open("/path/to/config/file.conf", std::ios::in);
-	config << input_file;
-	input_file.close();
-	if (config.Exists("settings/username")) {
-		std::cout << "Username: " << config["settings/username"].Value<std::string>() << std::endl;
-	}
-	return 0;
-}
-```
-
 Example `example.cfg`:
 
 ```plaintext
@@ -119,6 +104,27 @@ settings = {
 };
 ```
 
+```cpp
+#include <StormByte/config/config.hxx>
+#include <fstream>
+#include <iostream>
+
+using namespace StormByte::Config;
+
+// Example usage
+int main() {
+	Config config;
+	std::fstream input_file;
+	input_file.open("example.cfg", std::ios::in);
+	config << input_file;
+	input_file.close();
+	if (config.Exists("settings/username")) {
+		std::cout << "Username: " << config["settings/username"].Value<std::string>() << std::endl;
+	}
+	return 0;
+}
+```
+
 ### Log
 
 The `Log` module provides a comprehensive logging framework with support for different logging levels and outputs.
@@ -126,12 +132,17 @@ The `Log` module provides a comprehensive logging framework with support for dif
 #### Example: Log
 
 ```cpp
-#include <StormByte/log/file.hxx>
+#include <StormByte/log/logger.hxx>
+#include <iostream>
+
+using namespace StormByte::Log;
 
 // Example usage
 int main() {
-	StormByte::Log::File logger(StormByte::Log::Level::Debug, "logfile.txt");
-	logger << StormByte::Log::Level::Info << "This is an info message" << StormByte::Log::endl;
+	// Simple logger outputing only errors to stdout
+	Logger logger(std::cout, StormByte::Log::Level::Error);
+	logger << Level::Info << "This is an info message"; // Will not be displayed
+	logger << Level::Error << "This is an error message"; // Will be displayed
 	return 0;
 }
 ```
