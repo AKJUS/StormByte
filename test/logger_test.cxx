@@ -50,12 +50,23 @@ int test_log_data() {
 	RETURN_TEST("test_log_data", 0);
 }
 
+// Test log to stdout
+int log_to_stdout() {
+	Logger logger(std::cout, Level::Info, "%L: ");
+	logger << Level::Info << "Info message";
+	logger << Level::Debug << "Debug message";
+	logger << Level::Error << "Error message";
+	logger << "\n";
+	RETURN_TEST("log_to_stdout", 0);
+}
+
 int main() {
     int result = 0;
     try {
 		result += test_basic_logging();
 		result += test_log_level_filtering();
 		result += test_log_data();
+		result += log_to_stdout();
         std::cout << "All tests passed successfully.\n";
     } catch (...) {
         result++;
