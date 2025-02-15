@@ -25,5 +25,5 @@ if(ENABLE_TEST)
 	# Exception Tests
 	add_executable(ExtencionTests exception_test.cxx)
 	target_link_libraries(ExtencionTests StormByte)
-	add_test(NAME ExtencionTests COMMAND ExtenciopnTests)
+	add_test(NAME ExtencionTests COMMAND ExtencionTests)
 endif()
