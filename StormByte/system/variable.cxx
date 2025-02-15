@@ -28,7 +28,7 @@ std::string Variable::ExpandEnvironmentVariable(const std::string& var) {
 	#ifdef WINDOWS
 	return ExpandEnvironmentVariable(UTF8Decode(var));
 	#else
-	return std::regex_replace(var, std::regex("~"), HomePath());
+	return std::regex_replace(var, std::regex("~"), HomePath().string());
 	#endif
 }
 #ifdef WINDOWS
@@ -39,7 +39,7 @@ std::string Variable::ExpandEnvironmentVariable(const std::wstring& var) {
 	return UTF8Encode(infoBuf);
 }
 #else
-std::string Variable::HomePath() {
+std::filesystem::path Variable::HomePath() {
 	const struct passwd *pw = getpwuid(getuid());
 	return pw->pw_dir;
 }

@@ -25,7 +25,7 @@ Process& Process::operator>>(Process& exe) {
 	return exe;
 }
 
-std::string& Process::operator>>(std::string& data) {
+std::string& Process::operator>>(std::string& data) const {
 	m_pstdout >> data;
 	return data;
 }

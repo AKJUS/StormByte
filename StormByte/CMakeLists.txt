@@ -1,5 +1,6 @@
 include(GNUInstallDirs)
 set(STORMBYTE_SOURCES
+	${STORMBYTE_DIR}/StormByte/exception.cxx
 	${STORMBYTE_DIR}/StormByte/config/config.cxx
 	${STORMBYTE_DIR}/StormByte/config/exception.cxx
 	${STORMBYTE_DIR}/StormByte/config/item.cxx
@@ -15,7 +16,6 @@ set(STORMBYTE_SOURCES
 	${STORMBYTE_DIR}/StormByte/system/process.cxx
 	${STORMBYTE_DIR}/StormByte/system/variable.cxx
 	${STORMBYTE_DIR}/StormByte/system/system.cxx
-	${STORMBYTE_DIR}/StormByte/system/worker.cxx
 )
 
 if (NOT STORMBYTE_AS_SUBPROJECT OR WIN32)

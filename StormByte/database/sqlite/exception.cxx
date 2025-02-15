@@ -4,9 +4,7 @@
 
 using namespace StormByte::Database::SQLite;
 
-Exception::Exception(const std::string& msg):System::Exception(msg) {}
-
-Exception::Exception(std::string&& msg) noexcept:System::Exception(std::move(msg)) {}
+Exception::Exception(const std::string& msg):StormByte::Exception(msg) {}
 
 WrongResultType::WrongResultType(const Type& source_type, const Type& asked_type):
 Exception("Wrong value type: Requested " + std::string(GetTypeAsString(asked_type))

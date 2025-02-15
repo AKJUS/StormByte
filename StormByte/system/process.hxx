@@ -12,57 +12,175 @@
 #endif
 #include <vector>
 
+/**
+ * @namespace StormByte::System
+ * @brief All the classes for handling system exceptions
+ */
 namespace StormByte::System {
+	/**
+	 * @struct _EoF
+	 * @brief End of file struct
+	 */
 	struct {} typedef _EoF;
-	static constexpr _EoF EoF = {};
+	/**
+	 * End of file constant
+	 */
+	static constexpr const _EoF EoF = {};
+	/**
+	 * @class Process
+	 * @brief Process class for running external programs
+	 * They will run immediately after creation
+	 */
 	class STORMBYTE_PUBLIC Process {
 		public:
+			/**
+			 * Constructor
+			 * @param prog program
+			 * @param args arguments
+			 */
 			Process(const std::filesystem::path& prog, const std::vector<std::string>& args = std::vector<std::string>());
-			Process(std::filesystem::path&&, std::vector<std::string>&&);
+			/**
+			 * Constructor
+			 * @param prog program
+			 * @param args arguments
+			 */
+			Process(std::filesystem::path&& prog, std::vector<std::string>&& args = std::vector<std::string>());
+			/**
+			 * Copy constructor
+			 */
 			Process(const Process&)				= delete;
+			/**
+			 * Move constructor
+			 */
 			Process(Process&&)					= default;
+			/**
+			 * Assignment operator
+			 */
 			Process& operator=(const Process&)	= delete;
+			/**
+			 * Move assignment operator
+			 */
 			Process& operator=(Process&&)		= default;
+			/**
+			 * Destructor
+			 */
 			virtual ~Process() noexcept;
 			#ifdef LINUX
+			/**
+			 * Waits for the process to finish
+			 * @return exit code
+			 */
 			int wait() noexcept;
+			/**
+			 * Gets the process id
+			 * @return process id
+			 */
 			pid_t get_pid() noexcept;
 			#else
 			DWORD wait() noexcept;
 			PROCESS_INFORMATION get_pid();
 			#endif
+			/**
+			 * Suspends the process
+			 */
 			void suspend();
+			/**
+			 * Resumes the process
+			 */
 			void resume();
 
-			Process& operator>>(Process&);
-			std::string& operator>>(std::string&);
-			friend std::ostream& operator<<(std::ostream&, const Process&);
-			Process& operator<<(const std::string&);
+			/**
+			 * Binds current process stdout to a process stdin
+			 * @param proc target Process
+			 * @return Process reference
+			 */
+			Process& operator>>(Process& proc);
+			/**
+			 * Outputs the process stdout to a string
+			 * @param str string
+			 * @return string reference
+			 */
+			std::string& operator>>(std::string& str) const;
+			/**
+			 * Outputs the process stdout to an ostream
+			 * @param ostream ostream
+			 * @param proc Process
+			 * @return ostream reference
+			 */
+			friend std::ostream& operator<<(std::ostream& ostream, const Process& proc);
+			/**
+			 * Writes to the process stdin
+			 * @param str string
+			 * @return Process reference
+			 */
+			Process& operator<<(const std::string& str);
+			/**
+			 * Writes EOF to the process stdin
+			 * @param eof EoF
+			 */
 			void operator<<(const System::_EoF&);
 
+			/**
+			 * Process status
+			 */
 			enum class Status { RUNNING, SUSPENDED, TERMINATED };
 
 		protected:
+			/**
+			 * Process status
+			 */
 			Status m_status;
 			#ifdef LINUX
+			/**
+			 * Process id
+			 */
 			pid_t m_pid;
 			#else
 			STARTUPINFO m_siStartInfo;
 			PROCESS_INFORMATION m_piProcInfo;
 			#endif
+			/**
+			 * Process pipes
+			 */
 			System::Pipe m_pstdout, m_pstdin, m_pstderr;
 			
 		private:
-			void send(const std::string&);
+			/**
+			 * Sends a string to the process stdin
+			 * @param str string
+			 */
+			void send(const std::string& str);
+			/**
+			 * Runs the process
+			 */
 			void run();
+			/**
+			 * Consumes current process stdout and forwards it to another process stdin until it finishes
+			 * @param exec Process
+			 */
 			void consume_and_forward(Process&);
 			#ifdef WINDOWS
 			std::wstring full_command() const;
 			#endif
 
+			/**
+			 * Program path
+			 */
 			std::filesystem::path m_program;
+			/**
+			 * Program arguments
+			 */
 			std::vector<std::string> m_arguments;
+			/**
+			 * stdin to stdout forwarder thread
+			 */
 			std::unique_ptr<std::thread> m_forwarder;
 	};
-	std::ostream& operator<<(std::ostream&, const Process&);
+	/**
+	 * Outputs the process to an ostream
+	 * @param ostream ostream
+	 * @param proc Process
+	 * @return ostream reference
+	 */
+	STORMBYTE_PUBLIC std::ostream& operator<<(std::ostream&, const Process&);
 }

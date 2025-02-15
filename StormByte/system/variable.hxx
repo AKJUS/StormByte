@@ -2,22 +2,41 @@
 
 #include <StormByte/visibility.h>
 
+#include <filesystem>
 #include <string>
 
+/**
+ * @namespace StormByte::System
+ * @brief All the classes for handling system exceptions
+ */
 namespace StormByte::System {
 	struct STORMBYTE_PUBLIC Variable {
 		public:
-			static std::string 		Expand(const std::string&);
+			/**
+			 * Expands environment variables in a string
+			 * @param str string
+			 * @return expanded string
+			 */
+			static std::string 				Expand(const std::string& str);
 			#ifdef WINDOWS
-			static std::string 		Expand(const std::wstring&);
+			static std::string 				Expand(const std::wstring&);
 			#endif
 
 		private:
-			static std::string		ExpandEnvironmentVariable(const std::string&);
+			/**
+			 * Expands environment variables in a string
+			 * @param str string
+			 * @return expanded string
+			 */
+			static std::string				ExpandEnvironmentVariable(const std::string& str);
 			#ifdef WINDOWS
-			static std::string		ExpandEnvironmentVariable(const std::wstring&);
+			static std::string				ExpandEnvironmentVariable(const std::wstring&);
 			#else
-			static std::string		HomePath();
+			/**
+			 * Gets the home path
+			 * @return home path
+			 */
+			static std::filesystem::path	HomePath();
 			#endif
 	};
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <StormByte/config/item.hxx>
-#include <StormByte/system/exception.hxx>
+#include <StormByte/exception.hxx>
 
 /**
  * @namespace StormByte::Config
@@ -12,7 +12,7 @@ namespace StormByte::Config {
 	 * @class Exception
 	 * @brief Base class for Config exceptions
 	 */
-	class STORMBYTE_PUBLIC Exception: public System::Exception {
+	class STORMBYTE_PUBLIC Exception: public StormByte::Exception {
 		public:
 			/**
 			 * Constructor

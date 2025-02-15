@@ -21,4 +21,9 @@ if(ENABLE_TEST)
 	add_executable(LoggerTests logger_test.cxx)
 	target_link_libraries(LoggerTests StormByte)
 	add_test(NAME LoggerTests COMMAND LoggerTests)
+
+	# Exception Tests
+	add_executable(ExtencionTests exception_test.cxx)
+	target_link_libraries(ExtencionTests StormByte)
+	add_test(NAME ExtencionTests COMMAND ExtenciopnTests)
 endif()

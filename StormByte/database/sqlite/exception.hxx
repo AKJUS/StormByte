@@ -1,7 +1,7 @@
 #pragma once
 
 #include <StormByte/database/sqlite/type.hxx>
-#include <StormByte/system/exception.hxx>
+#include <StormByte/exception.hxx>
 
 #include <cstdint>
 
@@ -14,18 +14,13 @@ namespace StormByte::Database::SQLite {
 	 * @class Exception
 	 * @brief Exception base class for SQLite
 	 */
-	class STORMBYTE_PUBLIC Exception: public System::Exception {
+	class STORMBYTE_PUBLIC Exception: public StormByte::Exception {
 		public:
 			/**
 			 * Constructor
 			 * @param msg message
 			 */
 			Exception(const std::string& message);
-			/**
-			 * Constructor
-			 * @param msg message
-			 */
-			Exception(std::string&& message) noexcept;
 			/**
 			 * Copy constructor
 			 */

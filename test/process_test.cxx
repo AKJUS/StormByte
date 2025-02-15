@@ -112,6 +112,20 @@ int test_pipeline_echo_sort_wc() {
     return 0;
 }
 
+int process_to_ostream() {
+	// Test that a process can be sent to an ostream.
+	std::vector<std::string> args = { "Hello, World!" };
+	StormByte::System::Process proc("/bin/echo", args);
+
+	std::ostringstream oss;
+	oss << proc;
+
+	std::string output = oss.str();
+	ASSERT_EQUAL("process_to_ostream", "Hello, World!\n", output);
+
+	return 0;
+}
+
 #else
 int test_basic_execution_windows() {
     // Test a simple command that prints "Hello, World!".
@@ -154,6 +168,7 @@ int main() {
 		result += test_pipeline_sort();
 		result += test_pipeline_find_sort_wc();
 		result += test_pipeline_echo_sort_wc();
+		result += process_to_ostream();
 	#else
 		/*
 		result += test_basic_execution_windows();
