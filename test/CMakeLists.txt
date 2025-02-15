@@ -16,4 +16,9 @@ if(ENABLE_TEST)
 	add_executable(DatabaseTests database_test.cxx)
 	target_link_libraries(DatabaseTests StormByte)
 	add_test(NAME DatabaseTests COMMAND DatabaseTests)
+
+	# Logger Tests
+	add_executable(LoggerTests logger_test.cxx)
+	target_link_libraries(LoggerTests StormByte)
+	add_test(NAME LoggerTests COMMAND LoggerTests)
 endif()

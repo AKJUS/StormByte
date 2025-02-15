@@ -65,7 +65,7 @@ jobs:
       run: cmake --build ${{ github.workspace }}/build --config ${{ env.BUILD_TYPE }}
 
     - name: Run unit tests
-      run: ctest --output-on-failure --test-dir ${{ github.workspace }}/build
+      run: ctest --output-on-failure --test-dir ${{ github.workspace }}/build/test
 
   build-windows:
     runs-on: windows-latest
@@ -92,4 +92,4 @@ jobs:
           copy ${{ github.workspace }}\build\thirdparty\sqlite3\sqlite3.dll ${{ github.workspace }}\build\test
 
       - name: Run unit tests
-        run: ctest --output-on-failure --test-dir ${{ github.workspace }}\build
+        run: ctest --output-on-failure --test-dir ${{ github.workspace }}\build\test

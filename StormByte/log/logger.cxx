@@ -1,78 +1,89 @@
 #include <StormByte/log/logger.hxx>
 
-#include <iostream>
+#include <ostream>
+#include <chrono>
 #include <iomanip>
-#include <ctime>
 
 using namespace StormByte::Log;
 
-const Logger Logger::endl { Level::Debug }; // Level will just be ignored
-
-Logger::Logger(const Level& level) noexcept:m_print_level(level),
-m_current_level(level), m_out(nullptr) {}
+Logger::Logger(std::ostream& out, const Level& level, const std::string& format) noexcept:m_out(out),
+m_print_level(level), m_current_level(level), m_line_started(false), m_format(format) {}
 
 Logger& Logger::operator<<(const Level& level) noexcept {
+	if (m_current_level >= m_print_level && m_line_started)
+		m_out << std::endl;
+
 	m_current_level = level;
-	if (m_out && m_current_level >= m_print_level)
-		print_header();
+	m_line_started = false;
 	return *this;
 }
 
 Logger& Logger::operator<<(const std::string& str) noexcept {
-	if (m_out && m_current_level >= m_print_level)
-		*m_out << str;
+	print_message(str);
 	return *this;
 }
 
-Logger& Logger::operator<<(const Logger&) noexcept {
-	if (m_out && m_current_level >= m_print_level)
-		*m_out << std::endl;
+Logger& Logger::operator<<(const char* str) noexcept {
+	print_message(str);
+	return *this;
+}
+
+Logger& Logger::operator<<(const int& value) noexcept {
+	print_message(std::to_string(value));
+	return *this;
+}
+
+Logger& Logger::operator<<(const double& value) noexcept {
+	print_message(std::to_string(value));
+	return *this;
+}
+
+Logger& Logger::operator<<(const bool& value) noexcept {
+	print_message(value ? "true" : "false");
 	return *this;
 }
 
 void Logger::print_time() const noexcept {
-	auto rawtime = std::time(nullptr);
+	auto now = std::chrono::system_clock::now();
+    std::time_t rawtime = std::chrono::system_clock::to_time_t(now);
     struct tm timeinfo;
 	#ifdef LINUX
-	timeinfo = *std::localtime(&rawtime);
+    timeinfo = *std::localtime(&rawtime);
 	#else
-	// Windows warns about CRT_INSECURE_BLABLABLA
-	localtime_s(&timeinfo, &rawtime);
+    localtime_s(&timeinfo, &rawtime);
 	#endif
-	*m_out << std::put_time(&timeinfo, "%d/%m/%Y %H:%M:%S");
+    m_out << std::put_time(&timeinfo, "%d/%m/%Y %H:%M:%S");
 }
 
 void Logger::print_level() const noexcept {
-	switch(m_current_level) {
-		case Level::Debug:
-			*m_out << "[DEBUG  ]";
-			break;
-
-		case Level::Warning:
-			*m_out << "[WARNING]";
-			break;
-
-		case Level::Notice:
-			*m_out << "[NOTICE ]";
-			break;
-
-		case Level::Info:
-			*m_out << "[INFO   ]";
-			break;
-
-		case Level::Error:
-			*m_out << "[ERROR  ]";
-			break;
-
-		case Level::Fatal:
-			*m_out << "[FATAL  ]";
-			break;
-	}
+	m_out << GetLevelAsString(m_current_level);
 }
 
 void Logger::print_header() const noexcept {
-	print_time();
-	*m_out << " ";
-	print_level();
-	*m_out << ": ";
+	for (char c : m_format) {
+        if (c == '%') {
+            continue;
+        }
+        switch (c) {
+            case 'L':
+                print_level();
+                break;
+            case 'T':
+                print_time();
+                break;
+            default:
+                m_out << c;
+                break;
+        }
+    }
+}
+
+void Logger::print_message(const std::string& message) noexcept {
+	if (m_current_level >= m_print_level) {
+		if (!m_line_started) {
+			print_header();
+			m_line_started = true;
+		}
+		m_out << message;
+	}
 }

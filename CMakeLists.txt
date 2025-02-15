@@ -24,4 +24,3 @@ endif()
 add_subdirectory(thirdparty)
 add_subdirectory(StormByte)
 add_subdirectory(test)
-
