@@ -4,6 +4,11 @@ set(STORMBYTE_SOURCES
 	${STORMBYTE_DIR}/StormByte/config/exception.cxx
 	${STORMBYTE_DIR}/StormByte/config/item.cxx
 	${STORMBYTE_DIR}/StormByte/config/group.cxx
+	${STORMBYTE_DIR}/StormByte/database/sqlite/exception.cxx
+	${STORMBYTE_DIR}/StormByte/database/sqlite/prepared_stmt.cxx
+	${STORMBYTE_DIR}/StormByte/database/sqlite/result.cxx
+	${STORMBYTE_DIR}/StormByte/database/sqlite/row.cxx
+	${STORMBYTE_DIR}/StormByte/database/sqlite/sqlite3.cxx
 	${STORMBYTE_DIR}/StormByte/log/file.cxx
 	${STORMBYTE_DIR}/StormByte/log/logger.cxx
 	${STORMBYTE_DIR}/StormByte/system/exception.cxx
@@ -12,15 +17,6 @@ set(STORMBYTE_SOURCES
 	${STORMBYTE_DIR}/StormByte/system/variable.cxx
 	${STORMBYTE_DIR}/StormByte/system/system.cxx
 	${STORMBYTE_DIR}/StormByte/system/worker.cxx
-)
-
-# SQLite support
-set(STORMBYTE_SQLITE_SOURCES
-	${STORMBYTE_DIR}/StormByte/database/sqlite/exception.cxx
-	${STORMBYTE_DIR}/StormByte/database/sqlite/prepared_stmt.cxx
-	${STORMBYTE_DIR}/StormByte/database/sqlite/result.cxx
-	${STORMBYTE_DIR}/StormByte/database/sqlite/row.cxx
-	${STORMBYTE_DIR}/StormByte/database/sqlite/sqlite3.cxx
 )
 
 if (NOT STORMBYTE_AS_SUBPROJECT OR WIN32)
@@ -54,12 +50,8 @@ target_include_directories(StormByte SYSTEM BEFORE
 	PUBLIC ${STORMBYTE_DIR}
 )
 
-# Enable features
-if (ENABLE_SQLITE)
-	target_sources(StormByte PRIVATE ${STORMBYTE_SQLITE_SOURCES})
-	target_compile_definitions(StormByte PUBLIC STORMBYTE_ENABLE_SQLITE)
-	target_link_libraries(StormByte PUBLIC sqlite3)
-endif()
+target_sources(StormByte PRIVATE ${STORMBYTE_SQLITE_SOURCES})
+target_link_libraries(StormByte PUBLIC sqlite3)
 
 # Install
 if (WIN32 OR NOT STORMBYTE_AS_SUBPROJECT)
@@ -76,7 +68,6 @@ if (WIN32 OR NOT STORMBYTE_AS_SUBPROJECT)
 			PATTERN "*.hxx"
 		)
 		install(FILES ${CMAKE_BINARY_DIR}/generated/StormByte.h 			DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/StormByte")
-		install(FILES ${CMAKE_BINARY_DIR}/generated/StormByte/Features.h 	DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/StormByte")
 		install(FILES ${STORMBYTE_CMAKE_DIR}/FindStormByte.cmake 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/cmake/Modules")
 	endif()
 endif()

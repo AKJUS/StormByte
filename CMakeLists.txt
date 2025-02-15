@@ -21,7 +21,6 @@ else()
 	set(CMAKE_CXX_FLAGS_DEBUG "-pipe -g -ggdb -Wall -Wextra -Wnon-virtual-dtor -pedantic -pedantic-errors -O0")
 endif()
 
-file(CONFIGURE OUTPUT ${CMAKE_BINARY_DIR}/generated/StormByte/Features.h CONTENT "#pragma once\n")
 add_subdirectory(thirdparty)
 add_subdirectory(StormByte)
 

@@ -14,19 +14,9 @@ if(StormByte_INCLUDE_DIR)
     string(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+"
            StormByte_VERSION "${_ver_line}")
 	unset(_ver_line)
-	file(STRINGS ${StormByte_INCLUDE_DIR}/StormByte/Features.h _sqlite_feature
-		   REGEX "^#define STORMBYTE_SQLITE *ON|OFF"
-		   LIMIT_COUNT 1)
-	string(REGEX MATCH "ON|OFF"  StormByte_SQLITE3_FEATURE "${_sqlite_feature}")
-	unset(_sqlite_feature)
 	set(StormByte_FOUND TRUE)
 	set(StormByte_INCLUDE_DIRS ${StormByte_INCLUDE_DIR})
-	set(StormByte_LIBRARIES ${StormByte_LIBRARY})
-	if (StormByte_SQLITE3_FEATURE)
-		# In order not to force changing rpath for linking we say only "sqlite3"
-		# instead of the full library path
-		list(APPEND StormByte_LIBRARIES sqlite3)
-	endif()
+	set(StormByte_LIBRARIES ${StormByte_LIBRARY} sqlite3)
 endif()
 
 include(FindPackageHandleStandardArgs)
@@ -45,8 +35,5 @@ if(StormByte_FOUND)
 			INTERFACE_INCLUDE_DIRECTORIES 	"${StormByte_INCLUDE_DIRS}"
 			INTERFACE_LINK_LIBRARIES      	"${StormByte_LIBRARIES}"
 		)
-		if (StormByte_SQLITE3_FEATURE)
-			target_compile_definitions(StormByte INTERFACE STORMBYTE_ENABLE_SQLITE)
-		endif()
     endif()
 endif()
