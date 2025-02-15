@@ -23,7 +23,7 @@ if(ENABLE_TEST)
 	add_test(NAME LoggerTests COMMAND LoggerTests)
 
 	# Exception Tests
-	add_executable(ExtencionTests exception_test.cxx)
-	target_link_libraries(ExtencionTests StormByte)
-	add_test(NAME ExtencionTests COMMAND ExtencionTests)
+	add_executable(ExceptionTests exception_test.cxx)
+	target_link_libraries(ExceptionTests StormByte)
+	add_test(NAME ExceptionTests COMMAND ExceptionTests)
 endif()
