@@ -107,7 +107,7 @@ namespace StormByte::System {
 			 * @param proc Process
 			 * @return ostream reference
 			 */
-			friend std::ostream& operator<<(std::ostream& ostream, const Process& proc);
+			friend STORMBYTE_PUBLIC std::ostream& operator<<(std::ostream& ostream, const Process& proc);
 			/**
 			 * Writes to the process stdin
 			 * @param str string
