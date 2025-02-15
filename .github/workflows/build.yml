@@ -21,6 +21,7 @@ jobs:
         exclude:
         - compiler: gcc
           stdlib: libc++
+    name: ${{ matrix.compiler }}-${{ matrix.stdlib }}-system_sqlite(${{ matrix.system_sqlite }})
 
     steps:
     - name: Checkout repository and submodules
