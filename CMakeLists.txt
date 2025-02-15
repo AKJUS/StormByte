@@ -23,9 +23,5 @@ endif()
 
 add_subdirectory(thirdparty)
 add_subdirectory(StormByte)
+add_subdirectory(test)
 
-option(ENABLE_TEST "Enable Unit Tests" OFF)
-if(ENABLE_TEST) # This is internal
-	enable_testing()
-	add_subdirectory(test)
-endif()
