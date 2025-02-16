@@ -38,12 +38,7 @@ NamedItem& Group::Add(NamedItem&& item, const OnNameClashAction& on_clash) {
 	// We store the item name since we are going to move it and will not be available
 	std::string inserted_name = item.GetName();
 	m_ordered.push_back(std::move(item));
-	// For returning the item we need to find it (it will be 100% present)
-	return *std::find_if(
-		m_ordered.begin(),
-		m_ordered.end(),
-		[&inserted_name](const NamedItem& i) { return i.GetType() != Item::Type::Comment && i.GetName() == inserted_name; }
-	);
+	return m_ordered.back();
 }
 
 void Group::AddComment(const std::string& value) {
