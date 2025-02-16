@@ -60,7 +60,7 @@ namespace StormByte::Config {
 			 * @throw InvalidName thrown when item name is not allowed
 			 * @return a reference to the added item
 			 */
-			inline Item&							Add(const Item& item) {
+			inline NamedItem&							Add(const NamedItem& item) {
 				return m_root.Add(item, m_on_name_clash_action);
 			}
 			/**
@@ -69,13 +69,13 @@ namespace StormByte::Config {
 			 * @throw InvalidName thrown when item name is not allowed
 			 * @return a reference to the added item
 			 */
-			inline Item&							Add(Item&& item) {
+			inline NamedItem&							Add(NamedItem&& item) {
 				return m_root.Add(std::move(item), m_on_name_clash_action);
 			}
 			/**
 			 * Removes an item from configuration
 			 * @param name item name to remove
-			 * @throw ItemNotFound if item is not found
+			 * @throw NamedItemNotFound if item is not found
 			 */
 			inline void 							Remove(const std::string& name) {
 				m_root.Remove(name);
@@ -89,16 +89,16 @@ namespace StormByte::Config {
 			 * Gets item reference by path
 			 * @param path path to item
 			 * @return item
-			 * @throw ItemNotFound if item is not found
+			 * @throw NamedItemNotFound if item is not found
 			 */
-			Item&									operator[](const std::string& path);
+			NamedItem&								operator[](const std::string& path);
 			/**
 			 * Gets item const reference by path
 			 * @param path path to item
 			 * @return item
-			 * @throw ItemNotFound if item is not found
+			 * @throw NamedItemNotFound if item is not found
 			 */
-			const Item&								operator[](const std::string& path) const;
+			const NamedItem&						operator[](const std::string& path) const;
 
 			/* INPUT */
 			/**
@@ -246,7 +246,7 @@ namespace StormByte::Config {
 			 * @param stream stream with data
 			 * @return item name string
 			 */
-			std::string 							ParseItemName(std::istream& stream);
+			std::string 							ParseNamedItemName(std::istream& stream);
 			/**
 			 * Expects equal sign in next read from stream
 			 * @param stream stream with data
@@ -259,7 +259,7 @@ namespace StormByte::Config {
 			 * @return Type guessed Type
 			 * @throw ParseError is thrown if Type can't be guessed
 			 */
-			Item::Type 								GuessType(std::istream& stream);
+			Item::Type 						GuessType(std::istream& stream);
 			/**
 			 * Parses an string value
 			 * @param stream

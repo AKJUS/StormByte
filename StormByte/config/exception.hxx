@@ -49,7 +49,7 @@ namespace StormByte::Config {
 		public:
 			/**
 			 * Constructor
-			 * @param item Item trying to be converted
+			 * @param item NamedItem trying to be converted
 			 * @param method method tried to use for converting
 			 */
 			WrongValueTypeConversion(const Item& item, const std::string& method);
@@ -83,7 +83,7 @@ namespace StormByte::Config {
 		public:
 			/**
 			 * Constructor
-			 * @param item Item trying to set value
+			 * @param item NamedItem trying to set value
 			 * @param type Type of the value
 			 */
 			ValueFailure(const Item& item, const Item::Type& type);
@@ -176,68 +176,68 @@ namespace StormByte::Config {
 	};
 
 	/**
-	 * @class ItemNotFound
+	 * @class NamedItemNotFound
 	 * @brief Exception thrown lookup path fails
 	 */
-	class STORMBYTE_PUBLIC ItemNotFound final: public Exception {
+	class STORMBYTE_PUBLIC NamedItemNotFound final: public Exception {
 		public:
 			/**
 			 * Constructor
 			 * @param name item name which was not found
 			 */
-			ItemNotFound(const std::string& name);
+			NamedItemNotFound(const std::string& name);
 			/**
 			 * Copy constructor
 			 */
-			ItemNotFound(const ItemNotFound&)				= default;
+			NamedItemNotFound(const NamedItemNotFound&)				= default;
 			/**
 			 * Move constructor
 			 */
-			ItemNotFound(ItemNotFound&&)					= default;
+			NamedItemNotFound(NamedItemNotFound&&)					= default;
 			/**
 			 * Assignment operator
 			 */
-			ItemNotFound& operator=(const ItemNotFound&)	= default;
+			NamedItemNotFound& operator=(const NamedItemNotFound&)	= default;
 			/**
 			 * Move assignment operator
 			 */
-			ItemNotFound& operator=(ItemNotFound&)			= default;
+			NamedItemNotFound& operator=(NamedItemNotFound&)			= default;
 			/**
 			 * Destructor
 			 */
-			~ItemNotFound() noexcept override				= default;
+			~NamedItemNotFound() noexcept override				= default;
 	};
 
 	/**
-	 * @class ItemNameAlreadyExists
+	 * @class NamedItemNameAlreadyExists
 	 * @brief Exception thrown when adding an item which name already exists
 	 */
-	class STORMBYTE_PUBLIC ItemNameAlreadyExists final: public Exception {
+	class STORMBYTE_PUBLIC NamedItemNameAlreadyExists final: public Exception {
 		public:
 			/**
 			 * Constructor
 			 * @param name item name which was not found
 			 */
-			ItemNameAlreadyExists(const std::string& name);
+			NamedItemNameAlreadyExists(const std::string& name);
 			/**
 			 * Copy constructor
 			 */
-			ItemNameAlreadyExists(const ItemNameAlreadyExists&)				= default;
+			NamedItemNameAlreadyExists(const NamedItemNameAlreadyExists&)				= default;
 			/**
 			 * Move constructor
 			 */
-			ItemNameAlreadyExists(ItemNameAlreadyExists&&)					= default;
+			NamedItemNameAlreadyExists(NamedItemNameAlreadyExists&&)					= default;
 			/**
 			 * Assignment operator
 			 */
-			ItemNameAlreadyExists& operator=(const ItemNameAlreadyExists&)	= default;
+			NamedItemNameAlreadyExists& operator=(const NamedItemNameAlreadyExists&)	= default;
 			/**
 			 * Move assignment operator
 			 */
-			ItemNameAlreadyExists& operator=(ItemNameAlreadyExists&)		= default;
+			NamedItemNameAlreadyExists& operator=(NamedItemNameAlreadyExists&)		= default;
 			/**
 			 * Destructor
 			 */
-			~ItemNameAlreadyExists() noexcept override						= default;
+			~NamedItemNameAlreadyExists() noexcept override						= default;
 	};
 }

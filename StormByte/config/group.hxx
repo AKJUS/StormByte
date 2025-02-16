@@ -1,6 +1,6 @@
 #pragma once
 
-#include <StormByte/visibility.h>
+#include <StormByte/config/named_item.hxx>
 
 #include <cstddef>
 #include <iterator>
@@ -17,7 +17,8 @@
  * @brief All the classes for handling configuration files and items
  */
 namespace StormByte::Config {
-	class Item; // Forward
+	class Item;
+	class NamedItem; // Forward declaration
 	/**
 	 * @class Group
 	 * @brief Group in configuration item which can hold other items and also subgroups recursivelly
@@ -60,8 +61,8 @@ namespace StormByte::Config {
 			 * @brief Action to take when a name is already in use
 			 */
 			enum class OnNameClashAction {
-				KeepExistingItem,
-				OverwriteExistingItem,
+				KeepExistingNamedItem,
+				OverwriteExistingNamedItem,
 				ThrowException
 			};
 
@@ -69,54 +70,59 @@ namespace StormByte::Config {
 			 * Gets item reference by path
 			 * @param path path to item
 			 * @return item
-			 * @throw ItemNotFound if item is not found
+			 * @throw NamedItemNotFound if item is not found
 			 */
-			Item&						operator[](const std::string& path);
+			NamedItem&						operator[](const std::string& path);
 			/**
 			 * Gets item const reference by path
 			 * @param path path to item
 			 * @return item
-			 * @throw ItemNotFound if item is not found
+			 * @throw NamedItemNotFound if item is not found
 			 */
-			const Item&					operator[](const std::string& path) const;
+			const NamedItem&				operator[](const std::string& path) const;
 
 			/**
 			 * Add a copy of an already created item to this group
 			 * @param item item to add
 			 * @param on_clash function to execute when name already exists
 			 * @throw InvalidName is thrown when item name is not allowed
-			 * @throw ItemNameAlreadyExists is thrown when item name already exists
+			 * @throw NamedItemNameAlreadyExists is thrown when item name already exists
 			 * @return a pointer to the added item
 			 */
-			Item&						Add(const Item& item, const OnNameClashAction& on_clash = OnNameClashAction::ThrowException);
+			NamedItem&						Add(const NamedItem& item, const OnNameClashAction& on_clash = OnNameClashAction::ThrowException);
 			/**
 			 * Move an already created item to this group
 			 * @param item item to add
 			 * @param on_clash function to execute when name already exists
 			 * @throw InvalidName is thrown when item name is not allowed
-			 * @throw ItemNameAlreadyExists is thrown when item name already exists
+			 * @throw NamedItemNameAlreadyExists is thrown when item name already exists
 			 * @return a pointer to the added item
 			 */
-			Item&						Add(Item&& item, const OnNameClashAction& on_clash = OnNameClashAction::ThrowException);
+			NamedItem&						Add(NamedItem&& item, const OnNameClashAction& on_clash = OnNameClashAction::ThrowException);
+			/**
+			 * Adds a new comment to this group
+			 * @param value comment value
+			 */
+			void							AddComment(const std::string& value);
 			/**
 			 * Removes an item from this group
 			 * @param name item name to remove which can be a full path
-			 * @throw ItemNotFound might be thrown if item name is not found
+			 * @throw NamedItemNotFound might be thrown if item name is not found
 			 */
-			void						Remove(const std::string& name);
+			void							Remove(const std::string& name);
 			/**
 			 * Checks the existence of a child by path
 			 * @param path path to child
 			 * @return bool
 			 */
-			bool						Exists(const std::string& path) const noexcept;
+			bool							Exists(const std::string& path) const noexcept;
 
 			/**
 			 * Serializes the boolean item
 			 * @param indent_level intentation level
 			 * @return serialized string
 			 */
-			std::string					Serialize(const int& indent_level) const noexcept;
+			std::string						Serialize(const int& indent_level) const noexcept;
 
 			/**
 			 * @class Iterator
@@ -173,11 +179,11 @@ namespace StormByte::Config {
 					/**
 					 * Indirect operator
 					 */
-					Item* operator->() noexcept;
+					NamedItem* operator->() noexcept;
 					/**
 					 * Access operator
 					 */
-					Item& operator*() noexcept;
+					NamedItem& operator*() noexcept;
 
 				private:
 					/**
@@ -188,7 +194,7 @@ namespace StormByte::Config {
 					/**
 					 * Internal iterator to original data
 					 */
-					std::list<Item>::iterator m_it;
+					std::list<NamedItem>::iterator m_it;
 			};
 
 			/**
@@ -246,11 +252,11 @@ namespace StormByte::Config {
 					/**
 					 * Indirect operator
 					 */
-					const Item* operator->() const noexcept;
+					const NamedItem* operator->() const noexcept;
 					/**
 					 * Access operator
 					 */
-					const Item& operator*() const noexcept;
+					const NamedItem& operator*() const noexcept;
 
 				private:
 					/**
@@ -261,72 +267,72 @@ namespace StormByte::Config {
 					/**
 					 * Internal iterator to original data
 					 */
-					std::list<Item>::const_iterator m_it;
+					std::list<NamedItem>::const_iterator m_it;
 			};
 
 			/**
 			 * Gets an Iterator pointing to first element
 			 * @return Iterator
 			 */
-			Iterator 					Begin() noexcept;
+			Iterator 						Begin() noexcept;
 			/**
 			 * Gets a Const_Iterator pointing to first element
 			 * @return Const_Iterator
 			 */
-			Const_Iterator				Begin() const noexcept;
+			Const_Iterator					Begin() const noexcept;
 			/**
 			 * Gets an Iterator pointing past last element
 			 * @return Iterator
 			 */
-			Iterator 					End() noexcept;
+			Iterator 						End() noexcept;
 			/**
 			 * Gets a Const_Iterator pointing past last element
 			 */
-			Const_Iterator 				End() const noexcept;
+			Const_Iterator 					End() const noexcept;
 
 		private:
 			/**
 			 * Ordered items vector
 			 */
-			std::list<Item> 			m_ordered;
+			std::list<NamedItem> 			m_ordered;
 
 			/**
 			 * Looks up a child by path
 			 * @param path path to child
-			 * @throw ItemNotFound if not found
-			 * @return reference to found Item
+			 * @throw NamedItemNotFound if not found
+			 * @return reference to found NamedItem
 			 */
-			Item&						LookUp(const std::string& path);
+			NamedItem&						LookUp(const std::string& path);
 			/**
 			 * Looks up a child by path
 			 * @param path path to child
-			 * @throw ItemNotFound if not found
-			 * @return const reference to found Item
+			 * @throw NamedItemNotFound if not found
+			 * @return const reference to found NamedItem
 			 */
-			const Item&					LookUp(const std::string& path) const;
+			const NamedItem&				LookUp(const std::string& path) const;
 			/**
 			 * Internal version for Lookup
 			 * @param queue queue for path representation
-			 * @return const reference to found Item
+			 * @return const reference to found NamedItem
 			 * @throw runtime_error
 			 */
-			const Item&					LookUp(std::queue<std::string>& queue) const;
+			const NamedItem&				LookUp(std::queue<std::string>& queue) const;
 			/**
 			 * Internal version for checking if item exists
 			 * @param queue search path represented as a queue
 			 */
-			bool						Exists(std::queue<std::string>& queue) const noexcept;
+			bool							Exists(std::queue<std::string>& queue) const noexcept;
 			/**
 			 * Internal function for exploding a path to a queue
 			 * @param path path as string
 			 * @return queue from path
 			 */
-			std::queue<std::string> 	ExplodePath(const std::string& path) const noexcept;
+			std::queue<std::string> 		ExplodePath(const std::string& path) const noexcept;
 			/**
 			 * Internal function for removing an item by a queue of its path
 			 * @param path path to item
 			 * @throw std::runtime_error if item is not found
 			 */
-			void						Remove(std::queue<std::string>& path);
+			void							Remove(std::queue<std::string>& path);
 	};
 }

@@ -1,4 +1,5 @@
 #include <StormByte/config/config.hxx>
+#include <StormByte/config/named_item.hxx>
 
 #include <fstream>
 #include <sstream>
@@ -39,11 +40,11 @@ void Config::Clear() noexcept {
 	m_root = Group();
 }
 
-Item& Config::operator[](const std::string& path) {
+NamedItem& Config::operator[](const std::string& path) {
 	return m_root[path];
 }
 
-const Item& Config::operator[](const std::string& path) const {
+const NamedItem& Config::operator[](const std::string& path) const {
 	return m_root[path];
 }
 
@@ -280,17 +281,17 @@ void Config::Parse(std::istream& stream, Group& group) {
 	while (FindAndParseComment(stream, group)) {}
 	while (!stream.eof()) {
 		// The first thing we expect to encounter is the item name
-		std::string item_name = ParseItemName(stream);
+		std::string item_name = ParseNamedItemName(stream);
 		ExpectEqualSign(stream);
 		Item::Type item_type = GuessType(stream);
 		switch (item_type) {
 			case Item::Type::Integer: {
-				auto item = Item(item_name, ParseValue<int>(stream));
+				auto item = NamedItem(item_name, ParseValue<int>(stream));
 				group.Add(std::move(item), m_on_name_clash_action);
 				break;
 			}
 			case Item::Type::String: {
-				auto item = Item(item_name, ParseValue<std::string>(stream));
+				auto item = NamedItem(item_name, ParseValue<std::string>(stream));
 				group.Add(std::move(item), m_on_name_clash_action);
 				break;
 			}
@@ -298,12 +299,12 @@ void Config::Parse(std::istream& stream, Group& group) {
 				auto new_group = Group();
 				std::istringstream group_stream(ParseGroupContent(stream));
 				Parse(group_stream, new_group);
-				auto item = Item(item_name, new_group);
+				auto item = NamedItem(item_name, new_group);
 				group.Add(std::move(item), m_on_name_clash_action);
 				break;
 			}
 			case Item::Type::Double: {
-				auto item = Item(item_name, ParseValue<double>(stream));
+				auto item = NamedItem(item_name, ParseValue<double>(stream));
 				group.Add(std::move(item), m_on_name_clash_action);
 				break;
 			}
@@ -311,14 +312,14 @@ void Config::Parse(std::istream& stream, Group& group) {
 				// This should never happen but we make compiler happy
 				break;
 			case Item::Type::Bool:
-				auto item = Item(item_name, ParseValue<bool>(stream));
+				auto item = NamedItem(item_name, ParseValue<bool>(stream));
 				group.Add(std::move(item), m_on_name_clash_action);
 		}
 		while (FindAndParseComment(stream, group)) {}
 	}
 }
 
-std::string Config::ParseItemName(std::istream& stream) {
+std::string Config::ParseNamedItemName(std::istream& stream) {
 	ConsumeEmptyChars(stream);
 	char c;
 	std::string item_name = "";
@@ -397,7 +398,7 @@ Item::Type Config::GuessType(std::istream& stream) {
 	}
 	stream.seekg(current_position);
 	if (!item_type)
-		throw ParseError("Could not guess Item Type!");
+		throw ParseError("Could not guess NamedItem Type!");
 	return *item_type;
 }
 
@@ -487,7 +488,7 @@ bool Config::FindAndParseComment(std::istream& stream, Group& group) {
 			accumulator.pop_back();
 
 		if (!accumulator.empty())
-			group.Add(Item(accumulator));
+			group.AddComment(accumulator);
 	}
 	else {
 		// Leave the position before this read

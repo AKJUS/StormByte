@@ -6,33 +6,33 @@
 
 using namespace StormByte::Config;
 
-Item& Group::operator[](const std::string& path) {
+NamedItem& Group::operator[](const std::string& path) {
 	return LookUp(path);
 }
 
-const Item& Group::operator[](const std::string& path) const {
+const NamedItem& Group::operator[](const std::string& path) const {
 	return LookUp(path);
 }
 
-Item& Group::Add(const Item& item, const OnNameClashAction& on_clash) {
-	Item item_copy(item);
+NamedItem& Group::Add(const NamedItem& item, const OnNameClashAction& on_clash) {
+	NamedItem item_copy(item);
 	return Add(std::move(item_copy), on_clash);
 }
 
-Item& Group::Add(Item&& item, const OnNameClashAction& on_clash) {
-	if (!Item::IsNameValid(item.GetName()))
+NamedItem& Group::Add(NamedItem&& item, const OnNameClashAction& on_clash) {
+	if (!NamedItem::IsNameValid(item.GetName()))
 		throw InvalidName(item.GetName());
 	if (item.GetType() != Item::Type::Comment && Exists(item.GetName())) {
 		switch (on_clash) {
-			case OnNameClashAction::KeepExistingItem:
+			case OnNameClashAction::KeepExistingNamedItem:
 				return LookUp(item.GetName());
 				break;
-			case OnNameClashAction::OverwriteExistingItem: {
+			case OnNameClashAction::OverwriteExistingNamedItem: {
 				Remove(item.GetName());
 				break;
 			}
 			case OnNameClashAction::ThrowException:
-				throw ItemNameAlreadyExists(item.GetName());
+				throw NamedItemNameAlreadyExists(item.GetName());
 				break;
 		}
 	}
@@ -43,8 +43,14 @@ Item& Group::Add(Item&& item, const OnNameClashAction& on_clash) {
 	return *std::find_if(
 		m_ordered.begin(),
 		m_ordered.end(),
-		[&inserted_name](const Item& i) { return i.GetType() != Item::Type::Comment && i.GetName() == inserted_name; }
+		[&inserted_name](const NamedItem& i) { return i.GetType() != Item::Type::Comment && i.GetName() == inserted_name; }
 	);
+}
+
+void Group::AddComment(const std::string& value) {
+	NamedItem item("", value);
+	item.m_type = Item::Type::Comment;
+	m_ordered.push_back(std::move(item));
 }
 
 void Group::Remove(const std::string& name) {
@@ -53,7 +59,7 @@ void Group::Remove(const std::string& name) {
 		Remove(path);
 	}
 	catch(const std::runtime_error&) {
-		throw ItemNotFound(name);
+		throw NamedItemNotFound(name);
 	}
 }
 
@@ -65,30 +71,30 @@ bool Group::Exists(const std::string& path) const noexcept {
 std::string Group::Serialize(const int& indent_level) const noexcept {
 	std::string serial = "";
 	for (auto it = m_ordered.begin(); it != m_ordered.end(); it++) {
-		serial += it->Serialize(indent_level);
+		serial += it->Serialize(indent_level + 1);
 	}
 	return serial;
 }
 
-Item& Group::LookUp(const std::string& path) {
+NamedItem& Group::LookUp(const std::string& path) {
 	std::queue<std::string> exploded_path = ExplodePath(path);
 	try {
-		return const_cast<Item&>(LookUp(exploded_path));
+		return const_cast<NamedItem&>(LookUp(exploded_path));
 	} catch(const std::runtime_error&) {
-		throw ItemNotFound(path);
+		throw NamedItemNotFound(path);
 	}
 }
 
-const Item& Group::LookUp(const std::string& path) const {
+const NamedItem& Group::LookUp(const std::string& path) const {
 	std::queue<std::string> exploded_path = ExplodePath(path);
 	try {
 		return LookUp(exploded_path);
 	} catch(const std::runtime_error&) {
-		throw ItemNotFound(path);
+		throw NamedItemNotFound(path);
 	}
 }
 
-const Item& Group::LookUp(std::queue<std::string>& path) const {
+const NamedItem& Group::LookUp(std::queue<std::string>& path) const {
 	if (path.size() > 0) {
 		std::string item_path = path.front();
 		path.pop();
@@ -96,7 +102,7 @@ const Item& Group::LookUp(std::queue<std::string>& path) const {
 		auto it = std::find_if(
 			m_ordered.begin(),
 			m_ordered.end(),
-			[&item_path](const Item& i) { return i.GetType() != Item::Type::Comment && i.GetName() == item_path; }
+			[&item_path](const NamedItem& i) { return i.GetType() != Item::Type::Comment && i.GetName() == item_path; }
 		);
 
 		if (it != m_ordered.end()) {
@@ -163,11 +169,11 @@ bool Group::Iterator::operator!=(const Iterator& it) const noexcept {
 	return m_it != it.m_it;
 }
 
-Item* Group::Iterator::operator->() noexcept {
+NamedItem* Group::Iterator::operator->() noexcept {
 	return &*m_it;
 }
 
-Item& Group::Iterator::operator*() noexcept {
+NamedItem& Group::Iterator::operator*() noexcept {
 	return *m_it;
 }
 
@@ -201,11 +207,11 @@ bool Group::Const_Iterator::operator!=(const Const_Iterator& it) const noexcept 
 	return m_it != it.m_it;
 }
 
-const Item* Group::Const_Iterator::operator->() const noexcept {
+const NamedItem* Group::Const_Iterator::operator->() const noexcept {
 	return &*m_it;
 }
 
-const Item& Group::Const_Iterator::operator*() const noexcept {
+const NamedItem& Group::Const_Iterator::operator*() const noexcept {
 	return *m_it;
 }
 
@@ -241,7 +247,7 @@ void Group::Remove(std::queue<std::string>& path) {
 		auto it = std::find_if(
 			m_ordered.begin(),
 			m_ordered.end(),
-			[&item_path](const Item& i) { return i.GetType() != Item::Type::Comment && i.GetName() == item_path; }
+			[&item_path](const NamedItem& i) { return i.GetType() != Item::Type::Comment && i.GetName() == item_path; }
 		);
 
 		if (it != m_ordered.end()) {

@@ -1,5 +1,5 @@
 #include <StormByte/config/config.hxx>
-#include <StormByte/config/item.hxx>
+#include <StormByte/config/named_item.hxx>
 #include <StormByte/config/group.hxx>
 #include <StormByte/system/system.hxx>
 
@@ -18,15 +18,15 @@ int test_add_and_lookup() {
     Config config;
 
     // Add Integer and String items
-    config.Add(Item("TestInt", 42));
-    config.Add(Item("TestStr", "Hello, World!"));
+    config.Add(NamedItem("TestInt", 42));
+    config.Add(NamedItem("TestStr", "Hello, World!"));
 
 	try {
 		// Lookup and validate items
-		const Item& lookup_int = config["TestInt"];
+		const NamedItem& lookup_int = config["TestInt"];
 		ASSERT_EQUAL("test_add_and_lookup", 42, lookup_int.Value<int>());
 
-		const Item& lookup_str = config["TestStr"];
+		const NamedItem& lookup_str = config["TestStr"];
 		ASSERT_EQUAL("test_add_and_lookup", "Hello, World!", lookup_str.Value<std::string>());
 	}
 	catch(const StormByte::Config::Exception& ex) {
@@ -51,10 +51,10 @@ int test_write_and_read() {
 		config << config_content;
 
 		// Validate items
-		const Item& int_item = config["TestInt"];
+		const NamedItem& int_item = config["TestInt"];
 		ASSERT_EQUAL("test_write_and_read", 42, int_item.Value<int>());
 
-		const Item& str_item = config["TestStr"];
+		const NamedItem& str_item = config["TestStr"];
 		ASSERT_EQUAL("test_write_and_read", "Hello, World!", str_item.Value<std::string>());
 
 		// Write to file
@@ -69,10 +69,10 @@ int test_write_and_read() {
 		file >> config2;
 		file.close();
 
-		const Item& int_item2 = config["TestInt"];
+		const NamedItem& int_item2 = config["TestInt"];
 		ASSERT_EQUAL("test_write_and_read", 42, int_item2.Value<int>());
 
-		const Item& str_item2 = config["TestStr"];
+		const NamedItem& str_item2 = config["TestStr"];
 		ASSERT_EQUAL("test_write_and_read", "Hello, World!", str_item2.Value<std::string>());
 	}
 	catch(...) {
@@ -89,18 +89,18 @@ int test_nested_groups() {
 
 	try {
 		// Create nested groups
-		Item& group1 = config.Add(Item("Group1", Group()));
-		Item& group2 = group1.Value<Group>().Add(Item("Group2", Group()));
+		NamedItem& group1 = config.Add(NamedItem("Group1", Group()));
+		NamedItem& group2 = group1.Value<Group>().Add(NamedItem("Group2", Group()));
 
 		// Add items to sub-group
-		group2.Value<Group>().Add(Item("SubTestInt", 99));
-		group2.Value<Group>().Add(Item("SubTestStr", "Sub Hello"));
+		group2.Value<Group>().Add(NamedItem("SubTestInt", 99));
+		group2.Value<Group>().Add(NamedItem("SubTestStr", "Sub Hello"));
 
 		// Lookup and validate items
-		const Item& lookup_int = config["Group1/Group2/SubTestInt"];
+		const NamedItem& lookup_int = config["Group1/Group2/SubTestInt"];
 		ASSERT_EQUAL("test_nested_groups", 99, lookup_int.Value<int>());
 
-		const Item& lookup_str = config["Group1/Group2/SubTestStr"];
+		const NamedItem& lookup_str = config["Group1/Group2/SubTestStr"];
 		ASSERT_EQUAL("test_nested_groups", "Sub Hello", lookup_str.Value<std::string>());
 	}
 	catch(const StormByte::Config::Exception& e) {
@@ -118,15 +118,15 @@ int test_add_remove_group() {
 	try {
 		// Add group and items
 		Group group;
-		group.Add(Item("GroupInt", 55));
-		Item& group_item = config.Add(Item("TestGroup", group));
+		group.Add(NamedItem("GroupInt", 55));
+		NamedItem& group_item = config.Add(NamedItem("TestGroup", group));
 
 		// Remove the item from the group
 		group_item.Value<Group>().Remove("GroupInt");
 
 		// Validate removal
 		config["TestGroup/GroupInt"];
-		// Item not removed properly
+		// NamedItem not removed properly
 		result = 1;
 	}
 	catch(...) {
@@ -154,10 +154,10 @@ int test_write_nested_groups() {
 		config_content >> config;
 
 		// Validate items
-		const Item& lookup_int = config["Group1/Group2/SubTestInt"];
+		const NamedItem& lookup_int = config["Group1/Group2/SubTestInt"];
 		ASSERT_EQUAL("test_write_nested_groups", 99, lookup_int.Value<int>());
 
-		const Item& lookup_str = config["Group1/Group2/SubTestStr"];
+		const NamedItem& lookup_str = config["Group1/Group2/SubTestStr"];
 		ASSERT_EQUAL("test_write_nested_groups", "Sub Hello", lookup_str.Value<std::string>());
 
 		// Write to file
@@ -172,10 +172,10 @@ int test_write_nested_groups() {
 		config2 << file;
 		file.close();
 
-		const Item& lookup_int2 = config2["Group1/Group2/SubTestInt"];
+		const NamedItem& lookup_int2 = config2["Group1/Group2/SubTestInt"];
 		ASSERT_EQUAL("test_write_nested_groups", 99, lookup_int2.Value<int>());
 
-		const Item& lookup_str2 = config2["Group1/Group2/SubTestStr"];
+		const NamedItem& lookup_str2 = config2["Group1/Group2/SubTestStr"];
 		ASSERT_EQUAL("test_write_nested_groups", "Sub Hello", lookup_str2.Value<std::string>());
 	}
 	catch(...) {
@@ -193,14 +193,14 @@ int test_complex_config_creation() {
 
 	try {
 		// Create a complex configuration
-		Item& group1 = config.Add(Item("Group1", Group()));
-		Item& group2 = group1.Value<Group>().Add(Item("Group2", Group()));
+		NamedItem& group1 = config.Add(NamedItem("Group1", Group()));
+		NamedItem& group2 = group1.Value<Group>().Add(NamedItem("Group2", Group()));
 
-		group2.Value<Group>().Add(Item("IntItem1", 123));
-		group2.Value<Group>().Add(Item("StrItem1", "Nested String"));
+		group2.Value<Group>().Add(NamedItem("IntNamedItem1", 123));
+		group2.Value<Group>().Add(NamedItem("StrNamedItem1", "Nested String"));
 
-		Item& group3 = config.Add(Item("Group3", Group()));
-		group3.Value<Group>().Add(Item("IntItem2", 456));
+		NamedItem& group3 = config.Add(NamedItem("Group3", Group()));
+		group3.Value<Group>().Add(NamedItem("IntNamedItem2", 456));
 
 		// Write to a temporary file
 		std::fstream file;
@@ -216,12 +216,12 @@ int test_complex_config_creation() {
 		std::string expected_content = 
 			"Group1 = {\n"
 			"\tGroup2 = {\n"
-			"\t\tIntItem1 = 123;\n"
-			"\t\tStrItem1 = \"Nested String\";\n"
+			"\t\tIntNamedItem1 = 123;\n"
+			"\t\tStrNamedItem1 = \"Nested String\";\n"
 			"\t};\n"
 			"};\n"
 			"Group3 = {\n"
-			"\tIntItem2 = 456;\n"
+			"\tIntNamedItem2 = 456;\n"
 			"};\n";
 
 		ASSERT_EQUAL("test_complex_config_creation", expected_content, buffer.str());
@@ -293,7 +293,7 @@ int good_double_conf1() {
 		file.open(CurrentFileDirectory / "files" / "good_double_conf1.conf", std::ios::in);
 		cfg << file;
 		file.close();
-		Item& lookup_double = cfg["test_double"];
+		NamedItem& lookup_double = cfg["test_double"];
 		ASSERT_EQUAL("good_double_conf1", 666.666, lookup_double.Value<double>());
 	}
 	catch(...) {
@@ -311,9 +311,9 @@ int good_double_conf2() {
 		file.open(CurrentFileDirectory / "files" / "good_double_conf2.conf", std::ios::in);
 		cfg << file;
 		file.close();
-		Item& lookup_test_double = cfg["test_double"];
+		NamedItem& lookup_test_double = cfg["test_double"];
 		ASSERT_EQUAL("good_double_conf2", 19.89, lookup_test_double.Value<double>());
-		Item& lookup_test_exp = cfg["test_exp"];
+		NamedItem& lookup_test_exp = cfg["test_exp"];
 		ASSERT_EQUAL("good_double_conf2", 1.87e-6, lookup_test_exp.Value<double>());
 	}
 	catch(...) {
@@ -353,7 +353,7 @@ int commented_config() {
 		config >> file;
 		file.close();
 
-		const Item& test_string = config["test_group/test_string"];
+		const NamedItem& test_string = config["test_group/test_string"];
 		ASSERT_EQUAL("commented_config", "# But this is not a comment", test_string.Value<std::string>());
 
 		// Validate the written content
@@ -380,13 +380,13 @@ int good_string_conf() {
 		file.open(CurrentFileDirectory / "files" / "good_string_conf.conf", std::ios::in);
 		cfg << file;
 		file.close();
-		const Item& lookup_string = cfg["test_string"];
+		const NamedItem& lookup_string = cfg["test_string"];
 		ASSERT_EQUAL("good_string_conf", "This is a test string", lookup_string.Value<std::string>());
 
-		const Item& lookup_quoted = cfg["test_quoted"];
+		const NamedItem& lookup_quoted = cfg["test_quoted"];
 		ASSERT_EQUAL("good_string_conf", "This \"quote\" allows more things", lookup_quoted.Value<std::string>());
 
-		const Item& lookup_unfinished = cfg["test_unfinished"];
+		const NamedItem& lookup_unfinished = cfg["test_unfinished"];
 		ASSERT_EQUAL("good_string_conf", "When you see a \" you might have the start of a string", lookup_unfinished.Value<std::string>());
 	}
 	catch(...) {
@@ -400,10 +400,10 @@ int test_empty_string() {
 	int result = 0;
     Config config;
 
-    config.Add(Item("EmptyString", ""));
+    config.Add(NamedItem("EmptyString", ""));
 
 	try {
-    	const Item& lookup_str = config["EmptyString"];
+    	const NamedItem& lookup_str = config["EmptyString"];
     	ASSERT_EQUAL("test_empty_string", "", lookup_str.Value<std::string>());
 	}
 	catch(...) {
@@ -417,15 +417,15 @@ int test_integer_boundaries() {
 	int result = 0;
     Config config;
 
-    config.Add(Item("MaxInt", INT_MAX));
+    config.Add(NamedItem("MaxInt", INT_MAX));
 
-    config.Add(Item("MinInt", INT_MIN));
+    config.Add(NamedItem("MinInt", INT_MIN));
 
 	try {
-		const Item& lookup_max_int = config["MaxInt"];
+		const NamedItem& lookup_max_int = config["MaxInt"];
 		ASSERT_EQUAL("test_integer_boundaries", INT_MAX, lookup_max_int.Value<int>());
 
-		const Item& lookup_min_int = config["MinInt"];
+		const NamedItem& lookup_min_int = config["MinInt"];
 		ASSERT_EQUAL("test_integer_boundaries", INT_MIN, lookup_min_int.Value<int>());
 	}
 	catch(...) {
@@ -439,10 +439,10 @@ int test_special_characters_in_string() {
 	int result = 0;
     Config config;
 
-    config.Add(Item("SpecialChars", "Line1\nLine2\tTabbed"));
+    config.Add(NamedItem("SpecialChars", "Line1\nLine2\tTabbed"));
 
 	try {
-    	const Item& lookup_str = config["SpecialChars"];
+    	const NamedItem& lookup_str = config["SpecialChars"];
     	ASSERT_EQUAL("test_special_characters_in_string", "Line1\nLine2\tTabbed", lookup_str.Value<std::string>());
 	}
 	catch(...) {
@@ -457,14 +457,14 @@ int test_deeply_nested_groups() {
     Config config;
 
 	try {
-		Item& group1 = config.Add(Item("Group1", Group()));
-		Item& group2 = group1.Value<Group>().Add(Item("Group2", Group()));
-		Item& group3 = group2.Value<Group>().Add(Item("Group3", Group()));
-		Item& group4 = group3.Value<Group>().Add(Item("Group4", Group()));
+		NamedItem& group1 = config.Add(NamedItem("Group1", Group()));
+		NamedItem& group2 = group1.Value<Group>().Add(NamedItem("Group2", Group()));
+		NamedItem& group3 = group2.Value<Group>().Add(NamedItem("Group3", Group()));
+		NamedItem& group4 = group3.Value<Group>().Add(NamedItem("Group4", Group()));
 
-		group4.Value<Group>().Add(Item("DeepInt", 1234));
+		group4.Value<Group>().Add(NamedItem("DeepInt", 1234));
 
-		const Item& lookup_int = config["Group1/Group2/Group3/Group4/DeepInt"];
+		const NamedItem& lookup_int = config["Group1/Group2/Group3/Group4/DeepInt"];
 		ASSERT_EQUAL("test_deeply_nested_groups", 1234, lookup_int.Value<int>());
 	}
 	catch(...) {
@@ -497,7 +497,7 @@ int test_special_characters_string() {
 		file.open(CurrentFileDirectory / "files" / "special_characters_conf.conf", std::ios::in);
 		cfg << file;
 		file.close();
-        const Item& lookup_special = cfg["special_string"];
+        const NamedItem& lookup_special = cfg["special_string"];
         ASSERT_EQUAL("test_special_characters_string", "This is a test string with special characters: \n, \t, \\", lookup_special.Value<std::string>());
     } catch (...) {
         result = 1;
@@ -514,7 +514,7 @@ int test_long_string() {
 		file.open(CurrentFileDirectory / "files" / "long_string_conf.conf", std::ios::in);
 		cfg << file;
 		file.close();
-        const Item& lookup_long = cfg["long_string"];
+        const NamedItem& lookup_long = cfg["long_string"];
         ASSERT_EQUAL("test_long_string", std::string(1000, 'a'), lookup_long.Value<std::string>());
     } catch (...) {
         result = 1;
@@ -563,10 +563,10 @@ int good_boolean_config1() {
 		file.open(CurrentFileDirectory / "files" / "good_boolean_conf1.conf", std::ios::in);
 		cfg << file;
 		file.close();
-		const Item& lookup_enable_feature = cfg["settings/enable_feature"];
+		const NamedItem& lookup_enable_feature = cfg["settings/enable_feature"];
         ASSERT_EQUAL("good_boolean_config1", true, lookup_enable_feature.Value<bool>());
 
-		const Item& lookup_enable_extra = cfg["settings/enable_extra"];
+		const NamedItem& lookup_enable_extra = cfg["settings/enable_extra"];
         ASSERT_EQUAL("good_boolean_config1", false, lookup_enable_extra.Value<bool>());
 	}
 	catch (...) {
@@ -609,8 +609,8 @@ int copy_configuration() {
 
 	try {
 		// Both should be found
-		const Item& lookup_enable_feature_1 = cfg1["settings/enable_feature"];
-		const Item& lookup_enable_feature_2 = cfg2["settings/enable_feature"];
+		const NamedItem& lookup_enable_feature_1 = cfg1["settings/enable_feature"];
+		const NamedItem& lookup_enable_feature_2 = cfg2["settings/enable_feature"];
         ASSERT_EQUAL("good_boolean_config1", lookup_enable_feature_1.Value<bool>(), lookup_enable_feature_2.Value<bool>());
 	}
 	catch(...) {
@@ -643,7 +643,7 @@ int move_configuration() {
 		// Expected
 	}
 	try {
-		const Item& lookup_enable_feature = cfg2["settings/enable_feature"];
+		const NamedItem& lookup_enable_feature = cfg2["settings/enable_feature"];
         ASSERT_EQUAL("move_configuration", true, lookup_enable_feature.Value<bool>());
 	}
 	catch(...) {
@@ -657,8 +657,8 @@ int duplicated_insertion() {
 	int result = 0;
 	Config cfg;
 	try {
-		cfg.Add(Item("testInt", 66));
-		cfg.Add(Item("testInt", 66));
+		cfg.Add(NamedItem("testInt", 66));
+		cfg.Add(NamedItem("testInt", 66));
 		result = 1;
 	}
 	catch(...) {
@@ -671,12 +671,12 @@ int duplicated_insertion() {
 int on_name_clash_keep_existing() {
 	int result = 0;
 	Config cfg;
-	cfg.SetOnNameClashAction(Group::OnNameClashAction::KeepExistingItem);
-	cfg.Add(Item("testItem", true));
+	cfg.SetOnNameClashAction(Group::OnNameClashAction::KeepExistingNamedItem);
+	cfg.Add(NamedItem("testNamedItem", true));
 	try {
-		cfg.Add(Item("testItem", 666));
+		cfg.Add(NamedItem("testNamedItem", 666));
 		// Should not throw because action was set to keep existing
-		const Item& item = cfg["testItem"];
+		const NamedItem& item = cfg["testNamedItem"];
 		ASSERT_EQUAL("on_name_clash_keep_existing", true, item.Value<bool>());
 	}
 	catch(...) {
@@ -689,11 +689,11 @@ int on_name_clash_keep_existing() {
 int on_name_clash_replace() {
 	int result = 0;
 	Config cfg;
-	cfg.SetOnNameClashAction(Group::OnNameClashAction::OverwriteExistingItem);
-	cfg.Add(Item("testItem", true));
+	cfg.SetOnNameClashAction(Group::OnNameClashAction::OverwriteExistingNamedItem);
+	cfg.Add(NamedItem("testNamedItem", true));
 	try {
-		cfg.Add(Item("testItem", 66));
-		const Item& item = cfg["testItem"];
+		cfg.Add(NamedItem("testNamedItem", 66));
+		const NamedItem& item = cfg["testNamedItem"];
 		ASSERT_EQUAL("on_name_clash_ignore", 66, item.Value<int>());
 	}
 	catch(...) {
@@ -707,13 +707,13 @@ int config_to_config_output() {
 	int result = 0;
 	Config cfg1, cfg2;
 	int value = 0;
-	cfg1.Add(Item("testInt", value));
-	cfg2.Add(Item("testString", "Hello!"));
+	cfg1.Add(NamedItem("testInt", value));
+	cfg2.Add(NamedItem("testString", "Hello!"));
 	try {
 		cfg1 << cfg2;
-		const Item& testInt = cfg1["testInt"];
+		const NamedItem& testInt = cfg1["testInt"];
 		ASSERT_EQUAL("config_to_config_output", 0, testInt.Value<int>());
-		const Item& testString = cfg1["testString"];
+		const NamedItem& testString = cfg1["testString"];
 		ASSERT_EQUAL("config_to_config_output", "Hello!", testString.Value<std::string>());
 	}
 	catch(...) {
@@ -726,11 +726,11 @@ int config_to_config_output() {
 int config_value_reference_change() {
 	int result = 0;
 	Config cfg;
-	cfg.Add(Item("testInt", 66));
+	cfg.Add(NamedItem("testInt", 66));
 
 	try {
 		cfg["testInt"].Value<int>() = 99;
-		const Item& testInt = cfg["testInt"];
+		const NamedItem& testInt = cfg["testInt"];
 		ASSERT_EQUAL("config_value_reference_change", 99, testInt.Value<int>());
 	}
 	catch(...) {
@@ -742,9 +742,9 @@ int config_value_reference_change() {
 int config_remove_full_path() {
 	int result = 0;
 	Config cfg;
-	Item& group = cfg.Add(Item("testGroup", Group()));
-	group.Value<Group>().Add(Item("testInt", 99));
-	group.Value<Group>().Add(Item("testString", "Group String"));
+	NamedItem& group = cfg.Add(NamedItem("testGroup", Group()));
+	group.Value<Group>().Add(NamedItem("testInt", 99));
+	group.Value<Group>().Add(NamedItem("testString", "Group String"));
 
 	try {
 		cfg.Remove("testGroup/testInt");

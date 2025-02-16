@@ -1,6 +1,6 @@
 #pragma once
 
-#include <StormByte/config/group.hxx>
+#include <StormByte/visibility.h>
 
 #include <algorithm>
 #include <memory>
@@ -13,11 +13,13 @@
  * @brief All the classes for handling configuration files and items
  */
 namespace StormByte::Config {
+	class Group;
 	/**
 	 * @class Item
 	 * @brief Class for a configuration item
 	 */
-	class STORMBYTE_PUBLIC Item final {
+	class STORMBYTE_PUBLIC Item {
+		friend class Group;
 		public:
 			/**
 			 * @enum Type
@@ -61,76 +63,64 @@ namespace StormByte::Config {
 			 * @param name item name
 			 * @param value item value
 			 */
-			Item(const std::string& name, const Group& value);
+			Item(const Group& value);
 			/**
 			 * Creates an item moving the group value
 			 * @param name item name
 			 * @param value item value
 			 */
-			Item(const std::string& name, Group&& value);
+			Item(Group&& value);
 			/**
 			 * Creates an item with a string value
 			 * @param name item name
 			 * @param value item value
 			 */
-			Item(const std::string& name, const std::string& value);
+			Item(const std::string& value);
 			/**
 			 * Creates an item with a string value
 			 * @param name item name
 			 * @param value item value
 			 */
-			Item(const char* name, const char* value);
+			Item(const char* value);
 			/**
 			 * Creates an item with a int value
 			 * @param name item name
 			 * @param value item value
 			 */
-			Item(const std::string& name, const int& value);
+			Item(const int& value);
 			/**
 			 * Creates an item with a double value
 			 * @param name item name
 			 * @param value item value
 			 */
-			explicit Item(const std::string& name, const double& value);
-			/**
-			 * Creates an item with a comment value
-			 * @param value item value
-			 */
-			Item(const std::string& value);
+			explicit Item(const double& value);
 			/**
 			 * Creates an item with a bool value
 			 * @param name item name
 			 * @param value item value
 			 */
-			explicit Item(const std::string& name, bool value);
+			explicit Item(bool value);
 			/**
 			 * Copy constructor
 			 */
-			Item(const Item&)					= default;
+			Item(const Item&);
 			/**
 			 * Move constructor
 			 */
-			Item(Item&&) noexcept				= default;
+			Item(Item&&) noexcept;
 			/**
 			 * Assignment operator
 			 */
-			Item& operator=(const Item&)		= default;
+			Item& operator=(const Item&);
 			/**
 			 * Move operator
 			 */
-			Item& operator=(Item&&) noexcept	= default;
+			Item& operator=(Item&&) noexcept;
 			/**
 			 * Destructor
 			 */
-			virtual ~Item() noexcept			= default;
+			virtual ~Item() noexcept;
 
-			/**
-			 * Gets item name
-			 * @return item name
-			 */
-			constexpr const std::string&		GetName() const noexcept {
-				return m_name;
-			}
 			/**
 			 * Gets item type
 			 * @return item Type
@@ -174,20 +164,12 @@ namespace StormByte::Config {
 			 * @return serialized string
 			 */
 			virtual std::string					Serialize(const int& indent_level) const noexcept;
-		
-		private:
-			/**
-			 * Item name
-			 */
-			std::string m_name;
+
+		protected:
 			/**
 			 * Item type
 			 */
 			Type m_type;
-			/**
-			 * Internal value
-			 */
-			std::variant<std::string, int, double, bool, Group> m_value;
 
 			/**
 			 * Add indentation
@@ -196,5 +178,15 @@ namespace StormByte::Config {
 			constexpr std::string					Indent(const int& level) const noexcept {
 				return level == 0 ? std::string() : std::string(level, '\t');
 			}
+		
+		private:
+			/**
+			 * Shortcut alias for internal storage
+			 */
+			using ItemStorage = std::variant<std::string, int, double, bool, Group>;
+			/**
+			 * Internal value (it is a regular pointer to avoid cyclic references Item->Group) so it is enough with a forward declaration of Group
+			 */
+			ItemStorage* m_value;
 	};
 }

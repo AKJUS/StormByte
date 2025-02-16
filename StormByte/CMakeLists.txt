@@ -4,6 +4,7 @@ set(STORMBYTE_SOURCES
 	${STORMBYTE_DIR}/StormByte/config/config.cxx
 	${STORMBYTE_DIR}/StormByte/config/exception.cxx
 	${STORMBYTE_DIR}/StormByte/config/item.cxx
+	${STORMBYTE_DIR}/StormByte/config/named_item.cxx
 	${STORMBYTE_DIR}/StormByte/config/group.cxx
 	${STORMBYTE_DIR}/StormByte/database/sqlite/exception.cxx
 	${STORMBYTE_DIR}/StormByte/database/sqlite/prepared_stmt.cxx
