@@ -2,15 +2,8 @@
 
 #include <StormByte/config/named_item.hxx>
 
-#include <cstddef>
-#include <iterator>
-#include <functional>
 #include <list>
-#include <map>
-#include <memory>
-#include <optional>
 #include <queue>
-#include <string>
 
 /**
  * @namespace StormByte::Config

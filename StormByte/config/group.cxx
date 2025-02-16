@@ -1,7 +1,6 @@
 #include <StormByte/config/group.hxx>
 #include <StormByte/config/exception.hxx>
 
-#include <algorithm>
 #include <sstream>
 
 using namespace StormByte::Config;

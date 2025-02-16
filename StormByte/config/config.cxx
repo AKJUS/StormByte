@@ -1,7 +1,7 @@
 #include <StormByte/config/config.hxx>
 #include <StormByte/config/named_item.hxx>
 
-#include <fstream>
+#include <memory>
 #include <sstream>
 
 using namespace StormByte::Config;
@@ -269,14 +269,14 @@ template<> bool Config::ParseValue<bool>(std::istream& stream) {
 	return value;
 }
 
-void Config::Parse(std::istream& stream, std::unique_ptr<Group>& group) {
+void Config::Parse(std::istream& stream) {
 	for (auto it = m_before_read_hooks.begin(); it != m_before_read_hooks.end(); it++)
 		(*it)(*this);
-	Parse(stream, *group);
+	Parse(stream, m_root);
 	for (auto it = m_after_read_hooks.begin(); it != m_after_read_hooks.end(); it++)
 		(*it)(*this);
 }
-#include <iostream>
+
 void Config::Parse(std::istream& stream, Group& group) {
 	while (FindAndParseComment(stream, group)) {}
 	while (!stream.eof()) {

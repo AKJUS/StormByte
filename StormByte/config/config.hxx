@@ -4,11 +4,6 @@
 #include <StormByte/config/group.hxx>
 
 #include <functional>
-#include <memory>
-#include <istream>
-#include <string>
-#include <ostream>
-#include <optional>
 
 /**
  * @namespace StormByte::Config
@@ -221,19 +216,11 @@ namespace StormByte::Config {
 
 		private:
 			/**
-			 * Parses a value
-			 * @param stream
-			 * @return value depending on template
-			 * @throw ParseError is thrown if integer is illformed
-			 */
-			template<typename T> T					ParseValue(std::istream& stream);
-			/**
-			 * Starts the Parse process and execute hooks after
+			 * Parses an stream and add found items to configuration executing hooks
 			 * @param stream stream with data
-			 * @param group Group to add items
 			 * @throw ParseError will be thrown on error
 			 */
-			void 									Parse(std::istream& stream, std::unique_ptr<Group>& group);
+			void 									Parse(std::istream& stream);
 			/**
 			 * Parses an stream and add found items to Group
 			 * @param stream stream with data
@@ -241,6 +228,13 @@ namespace StormByte::Config {
 			 * @throw ParseError will be thrown on error
 			 */
 			void 									Parse(std::istream& stream, Group& group);
+			/**
+			 * Parses a value
+			 * @param stream
+			 * @return value depending on template
+			 * @throw ParseError is thrown if integer is illformed
+			 */
+			template<typename T> T					ParseValue(std::istream& stream);
 			/**
 			 * Parses config item name from stream
 			 * @param stream stream with data

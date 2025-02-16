@@ -3,10 +3,6 @@
 #include <StormByte/config/item.hxx>
 
 #include <algorithm>
-#include <memory>
-#include <string>
-#include <variant>
-#include <vector>
 
 /**
  * @namespace StormByte::Config
