@@ -48,15 +48,6 @@ namespace StormByte::Config {
 					default:			return "Unknown";
 				}
 			}
-			/**
-			 * Static function to check if a name is valid (only contains numbers, letters and underscore)
-			 * @param name name to check
-			 * @return bool valid?
-			 */
-			static constexpr bool 				IsNameValid(const std::string& name) noexcept {
-				// Find unallowed chars and if not found then name is valid
-				return !(std::find_if(name.begin(), name.end(), [](char c) { return !isalnum(c) && c != '_'; }) != name.end());
-			}
 
 			/**
 			 * Creates an item with a group value

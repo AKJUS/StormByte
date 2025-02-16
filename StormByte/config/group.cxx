@@ -54,6 +54,8 @@ void Group::AddComment(const std::string& value) {
 }
 
 void Group::Remove(const std::string& name) {
+	if (!NamedItem::IsPathValid(name))
+		throw InvalidName(name);
 	std::queue<std::string> path = ExplodePath(name);
 	try {
 		Remove(path);

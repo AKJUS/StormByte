@@ -767,6 +767,21 @@ int config_remove_full_path() {
 	return result;
 }
 
+// Empty names are only allowed for comments (internally)
+int config_test_add_empty_name() {
+	int result = 0;
+	Config cfg;
+	try {
+		cfg.Add(NamedItem("", 66));
+		std::cerr << "config_test_add_empty_name: Empty name was added when it should not be alloed" << std::endl;
+		result = 1;
+	}
+	catch(...) {
+		// Expected
+	}
+	return result;
+}
+
 int main() {
     int result = 0;
     try {
@@ -802,6 +817,7 @@ int main() {
 		result += config_to_config_output();
 		result += config_value_reference_change();
 		result += config_remove_full_path();
+		result += config_test_add_empty_name();
     } catch (const StormByte::Config::Exception& ex) {
         std::cerr << ex.what() << std::endl;
         result++;
