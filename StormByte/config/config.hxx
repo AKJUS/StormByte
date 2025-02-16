@@ -269,6 +269,15 @@ namespace StormByte::Config {
 			 */
 			std::string 							ParseGroupContent(std::istream& stream);
 			/**
+			 * Parses an enclosed content (like a Group content)
+			 * @param stream
+			 * @param start_symbol symbol to start
+			 * @param end_symbol symbol to end
+			 * @return int value
+			 * @throw ParseError is thrown if integer is illformed
+			 */
+			template<const char start, const char end> std::string ParseEnclosedContent(std::istream& stream);
+			/**
 			 * Parses an double value
 			 * @param stream
 			 * @return double value

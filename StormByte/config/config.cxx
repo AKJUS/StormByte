@@ -403,10 +403,14 @@ Item::Type Config::GuessType(std::istream& stream) {
 }
 
 std::string Config::ParseGroupContent(std::istream& stream) {
-	// This function will parse the whole content of a group
-	// knowing that the next character is {, we will accumulate
-	// every character and count the levels of "{" to be sure
-	// that we get the contents, also we check for literal {
+	return ParseEnclosedContent<'{', '}'> (stream);
+}
+
+template<const char start, const char end> std::string Config::ParseEnclosedContent(std::istream& stream) {
+	// This function will parse the whole content of a enclosed content
+	// knowing that the next character is end_symbol, we will accumulate
+	// every character and count the levels of start_symbol to be sure
+	// that we get the contents, also we check for literal start_symbol
 	// inside a string to ignore it
 	std::string accumulator = "";
 	short level = 1;
@@ -414,8 +418,8 @@ std::string Config::ParseGroupContent(std::istream& stream) {
 	bool halt = false;
 	char c;
 	stream.get(c);
-	if (c != '{')
-		throw ParseError((std::string)"Expected { character but got " + c);
+	if (c != start)
+		throw ParseError(std::string("Expected ") + start + std::string(" character but got ") + c);
 
 	while (!stream.eof() && !halt) {
 		stream.get(c);
@@ -424,11 +428,11 @@ std::string Config::ParseGroupContent(std::istream& stream) {
 				string_started = !string_started;
 				accumulator += c;
 				break;
-			case '{':
+			case start:
 				if (!string_started) level++;
 				accumulator += c;
 				break;
-			case '}':
+			case end:
 				if (string_started) accumulator += c;
 				else {
 					level--;
@@ -444,7 +448,7 @@ std::string Config::ParseGroupContent(std::istream& stream) {
 	}
 
 	if (!halt)
-		throw ParseError("We should expect the equivalent of the opening { but found EOF first");
+		throw ParseError(std::string("We should expect the equivalent of the opening ") + start + std::string("but found EOF first"));
 	else
 		ExpectSemicolon(stream);
 
