@@ -5,6 +5,7 @@
 #include <StormByte/config/list.hxx>
 
 #include <functional>
+#include <memory>
 
 /**
  * @namespace StormByte::Config
@@ -56,7 +57,7 @@ namespace StormByte::Config {
 			 * @throw InvalidName thrown when item name is not allowed
 			 * @return a reference to the added item
 			 */
-			inline NamedItem&							Add(const NamedItem& item) {
+			inline NamedItem&						Add(const NamedItem& item) {
 				return m_root.Add(item, m_on_name_clash_action);
 			}
 			/**
@@ -65,7 +66,7 @@ namespace StormByte::Config {
 			 * @throw InvalidName thrown when item name is not allowed
 			 * @return a reference to the added item
 			 */
-			inline NamedItem&							Add(NamedItem&& item) {
+			inline NamedItem&						Add(NamedItem&& item) {
 				return m_root.Add(std::move(item), m_on_name_clash_action);
 			}
 			/**
@@ -191,9 +192,25 @@ namespace StormByte::Config {
 			 */
 			bool									Exists(const std::string& path) const noexcept;
 
+			/**
+			 * Gets the root group
+			 * @return root group
+			 */
 			Group::Iterator							Begin() noexcept;
+			/**
+			 * Gets the root group
+			 * @return root group
+			 */
 			Group::Const_Iterator					Begin() const noexcept;
+			/**
+			 * Gets the root group
+			 * @return root group
+			 */
 			Group::Iterator							End() noexcept;
+			/**
+			 * Gets the root group
+			 * @return root group
+			 */
 			Group::Const_Iterator					End() const noexcept;
 
 		protected:
@@ -216,8 +233,91 @@ namespace StormByte::Config {
 			Group::OnNameClashAction m_on_name_clash_action;
 
 		private:
-			
-			
+			/**
+			 * Parses a container contents
+			 * @param start start character
+			 * @param end end character
+			 * @param istream input stream
+			 * @return parsed string
+			 */
+			template<const char start, const char end> std::string ParseContainerContents(std::istream& istream);	
+			/**
+			 * Parses a value
+			 * @param istream input stream
+			 * @return parsed value
+			 */
+			template<typename T> T					ParseValue(std::istream& istream);
+			#ifdef MSVC
+			template<> double						ParseValue<double>(std::istream& istream);
+			template<> int 							ParseValue<int>(std::istream& istream);
+			template<> std::string 					ParseValue<std::string>(std::istream& istream);
+			template<> bool 						ParseValue<bool>(std::istream& istream);
+			#endif
+			/**
+			 * Finds and parses a comment
+			 * @param istream input stream
+			 * @param container container to put comments to
+			 * @return bool
+			 */
+			template<class C> bool					FindAndParseComment(std::istream& istream, C& container);
+			/**
+			 * Finds and parses comments
+			 * @param istream input stream
+			 * @param container container to put comments to
+			 */
+			template<class C> void					FindAndParseComments(std::istream& istream, C& container);
+			/**
+			 * Parses an item
+			 * @param istream input stream
+			 * @param type item type
+			 * @return parsed item
+			 */
+			std::unique_ptr<Item>					ParseItem(std::istream& istream, const Item::Type& type);
+			/**
+			 * Parses a named item
+			 * @param istream input stream
+			 * @param type item type
+			 * @param item_name item name
+			 * @return parsed item
+			 */
+			std::unique_ptr<NamedItem>				ParseItem(std::istream& istream, const Item::Type& type, std::string&& item_name);
+			/**
+			 * Parses a group
+			 * @param istream input stream
+			 * @param group group to put data to
+			 */
+			void 									Parse(std::istream& istream, Group& group);
+			/**
+			 * Parses a list
+			 * @param istream input stream
+			 * @param list list to put data to
+			 */
+			void 									Parse(std::istream& istream, List& list);
+			/**
+			 * Gets current line from input stream
+			 * @param istream input stream
+			 * @return current line
+			 */
+			std::string 							GetCurrentLine(std::istream& istream);
+			/**
+			 * Gets current line from input stream with offset
+			 * @param istream input stream
+			 * @param offset offset
+			 * @return current line
+			 */
+			std::string 							GetCurrentLine(std::istream& istream, const int& offset);
+			/**
+			 * Parses an item name
+			 * @param istream input stream
+			 * @return item name
+			 */
+			std::string 							ParseItemName(std::istream& istream);
+			/**
+			 * Parses an item type
+			 * @param istream input stream
+			 * @return item type
+			 */
+			Item::Type								ParseType(std::istream& istream);
 	};
 	/**
 	 * Initializes configuration with istream (when istream is in the left part)

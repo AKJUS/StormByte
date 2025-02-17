@@ -6,7 +6,7 @@
 using namespace StormByte::Config;
 
 Item& List::operator[](const size_t& index) {
-	return const_cast<Item&>(m_ordered[index]);
+	return const_cast<Item&>(static_cast<const List&>(*this)[index]);
 }
 
 const Item& List::operator[](const size_t& index) const {
@@ -39,16 +39,8 @@ void List::Remove(const size_t& index) {
 
 std::string List::Serialize(const int& indent_level) const noexcept {
 	std::string serial = "";
-	for (size_t i = 0; i < m_ordered.size(); i++) {
+	for (size_t i = 0; i < m_ordered.size(); i++)
 		serial += m_ordered[i].Serialize(indent_level + 1);
-		if (m_ordered[i].GetType() == Item::Type::Comment)
-			serial += "\n";
-		else if (m_ordered[i].GetType() != Item::Type::Group && m_ordered[i].GetType() != Item::Type::List) {
-			if (i < m_ordered.size() - 1)
-				serial += ",";
-			serial += "\n";
-		}
-	}
 	return serial;
 }
 

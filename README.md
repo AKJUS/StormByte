@@ -98,10 +98,10 @@ Example `example.cfg`:
 # Configuration file
 
 settings = {
-	username = "example_user";
-	timeout = 30;
-	enable_feature = true;
-};
+	username = "example_user"
+	timeout = 30
+	enable_feature = true
+}
 ```
 
 ```cpp

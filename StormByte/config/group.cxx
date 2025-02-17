@@ -1,12 +1,13 @@
 #include <StormByte/config/group.hxx>
 #include <StormByte/config/exception.hxx>
 
+#include <regex>
 #include <sstream>
 
 using namespace StormByte::Config;
 
 NamedItem& Group::operator[](const std::string& path) {
-	return LookUp(path);
+	return const_cast<NamedItem&>(static_cast<const Group&>(*this)[path]);
 }
 
 const NamedItem& Group::operator[](const std::string& path) const {
@@ -66,13 +67,8 @@ bool Group::Exists(const std::string& path) const noexcept {
 
 std::string Group::Serialize(const int& indent_level) const noexcept {
 	std::string serial = "";
-	for (auto it = m_ordered.begin(); it != m_ordered.end(); it++) {
+	for (auto it = m_ordered.begin(); it != m_ordered.end(); it++)
 		serial += it->Serialize(indent_level + 1);
-		if (it->GetType() == Item::Type::Comment)
-			serial += "\n";
-		else if (it->GetType() != Item::Type::Group && it->GetType() != Item::Type::List)
-			serial += ";\n";
-	}
 	return serial;
 }
 
@@ -98,6 +94,7 @@ const NamedItem& Group::LookUp(std::queue<std::string>& path) const {
 	if (path.size() > 0) {
 		std::string item_path = path.front();
 		path.pop();
+		std::regex integer_regex(R"(^[+-]?\d+$)");
 
 		auto it = std::find_if(
 			m_ordered.begin(),

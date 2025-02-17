@@ -42,8 +42,8 @@ int test_write_and_read() {
 	int result = 0;
     std::filesystem::path temp_file = StormByte::System::TempFileName();
     std::string config_content = 
-        "TestInt = 42;\n"
-        "TestStr = \"Hello, World!\";\n";
+        "TestInt = 42\n"
+        "TestStr = \"Hello, World!\"\n";
 
     Config config;
 
@@ -81,7 +81,7 @@ int test_write_and_read() {
 		result = 1;
 	}
 
-    std::remove(temp_file.string().c_str());
+    //std::remove(temp_file.string().c_str());
     RETURN_TEST("test_write_and_read", result);
 }
 
@@ -131,7 +131,8 @@ int test_add_remove_group() {
 		// NamedItem not removed properly
 		result = 1;
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception&) {
+		// Expected exception
 		result = 0;
 	}
 
@@ -144,10 +145,10 @@ int test_write_nested_groups() {
     std::string config_content = 
         "Group1 = {\n"
         "    Group2 = {\n"
-        "        SubTestInt = 99;\n"
-        "        SubTestStr = \"Sub Hello\";\n"
-        "    };\n"
-        "};\n";
+        "        SubTestInt = 99\n"
+        "        SubTestStr = \"Sub Hello\"\n"
+        "    }\n"
+        "}\n";
 
     Config config;
 
@@ -180,7 +181,8 @@ int test_write_nested_groups() {
 		const NamedItem& lookup_str2 = config2["Group1/Group2/SubTestStr"];
 		ASSERT_EQUAL("test_write_nested_groups", "Sub Hello", lookup_str2.Value<std::string>());
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& ex) {
+		std::cerr << ex.what() << std::endl;
 		result = 1;
 	}
 
@@ -218,17 +220,18 @@ int test_complex_config_creation() {
 		std::string expected_content = 
 			"Group1 = {\n"
 			"\tGroup2 = {\n"
-			"\t\tIntNamedItem1 = 123;\n"
-			"\t\tStrNamedItem1 = \"Nested String\";\n"
-			"\t};\n"
-			"};\n"
+			"\t\tIntNamedItem1 = 123\n"
+			"\t\tStrNamedItem1 = \"Nested String\"\n"
+			"\t}\n"
+			"}\n"
 			"Group3 = {\n"
-			"\tIntNamedItem2 = 456;\n"
-			"};\n";
+			"\tIntNamedItem2 = 456\n"
+			"}\n";
 
 		ASSERT_EQUAL("test_complex_config_creation", expected_content, buffer.str());
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& e) {
+		std::cerr << e.what() << std::endl;
 		result = 1;
 	}
 
@@ -245,9 +248,11 @@ int bad_config1() {
 		cfg << file;
 		file.close();
 		result = 1;
+		std::cout << "No exception here" << std::endl;
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception&) {
 		//Expected
+		result = 0;
 	}
 	
 	RETURN_TEST("bad_config1", result);
@@ -263,7 +268,7 @@ int bad_config2() {
 		file.close();
 		result = 1;
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception&) {
 		//Expected
 	}
 	
@@ -280,8 +285,9 @@ int bad_config3() {
 		file.close();
 		result = 1;
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception&) {
 		//Expected
+		result = 0;
 	}
 	
 	RETURN_TEST("bad_config3", result);
@@ -332,22 +338,22 @@ int commented_config() {
 	const std::filesystem::path temp_file = StormByte::System::TempFileName();
 	Config config;
 	const std::string config_str = "# The following is a test integer\n"
-		"test_integer = 666;\n"
+		"test_integer = 666\n"
 		"\n"
 		"# Now a group\n"
 		"test_group = { # We can have a comment here!\n"
 		"\t# And also here\n"
-		"\ttest_string = \"# But this is not a comment\";\n"
-		"};\n"
+		"\ttest_string = \"# But this is not a comment\"\n"
+		"}\n"
 		"# Ending comment";
 	const std::string expected_str = "# The following is a test integer\n"
-		"test_integer = 666;\n"
+		"test_integer = 666\n"
 		"# Now a group\n"
 		"test_group = {\n"
 		"\t# We can have a comment here!\n"
 		"\t# And also here\n"
-		"\ttest_string = \"# But this is not a comment\";\n"
-		"};\n"
+		"\ttest_string = \"# But this is not a comment\"\n"
+		"}\n"
 		"# Ending comment\n";
 
 	try {
@@ -394,7 +400,8 @@ int good_string_conf() {
 		const NamedItem& lookup_unfinished = cfg["test_unfinished"];
 		ASSERT_EQUAL("good_string_conf", "When you see a \" you might have the start of a string", lookup_unfinished.Value<std::string>());
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& e) {
+		std::cerr << e.what() << std::endl;
 		result = 1;
 	}
 	
@@ -411,7 +418,8 @@ int test_empty_string() {
     	const NamedItem& lookup_str = config["EmptyString"];
     	ASSERT_EQUAL("test_empty_string", "", lookup_str.Value<std::string>());
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& e) {
+		std::cerr << e.what() << std::endl;
 		result = 1;
 	}
 
@@ -433,7 +441,8 @@ int test_integer_boundaries() {
 		const NamedItem& lookup_min_int = config["MinInt"];
 		ASSERT_EQUAL("test_integer_boundaries", INT_MIN, lookup_min_int.Value<int>());
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& e) {
+		std::cerr << e.what() << std::endl;
 		result = 1;
 	}
 
@@ -450,7 +459,8 @@ int test_special_characters_in_string() {
     	const NamedItem& lookup_str = config["SpecialChars"];
     	ASSERT_EQUAL("test_special_characters_in_string", "Line1\nLine2\tTabbed", lookup_str.Value<std::string>());
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& e) {
+		std::cerr << e.what() << std::endl;
 		result = 1;
 	}
 
@@ -472,7 +482,8 @@ int test_deeply_nested_groups() {
 		const NamedItem& lookup_int = config["Group1/Group2/Group3/Group4/DeepInt"];
 		ASSERT_EQUAL("test_deeply_nested_groups", 1234, lookup_int.Value<int>());
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& e) {
+		std::cerr << e.what() << std::endl;
 		result = 1;
 	}
 
@@ -504,7 +515,8 @@ int test_special_characters_string() {
 		file.close();
         const NamedItem& lookup_special = cfg["special_string"];
         ASSERT_EQUAL("test_special_characters_string", "This is a test string with special characters: \n, \t, \\", lookup_special.Value<std::string>());
-    } catch (...) {
+    } catch (const StormByte::Config::Exception& ex) {
+		std::cerr << ex.what() << std::endl;
         result = 1;
     }
 
@@ -521,27 +533,12 @@ int test_long_string() {
 		file.close();
         const NamedItem& lookup_long = cfg["long_string"];
         ASSERT_EQUAL("test_long_string", std::string(1000, 'a'), lookup_long.Value<std::string>());
-    } catch (...) {
+    } catch (const StormByte::Config::Exception& ex) {
+		std::cerr << ex.what() << std::endl;
         result = 1;
     }
 
 	RETURN_TEST("test_long_string", result);
-}
-
-int test_missing_semicolon() {
-	int result = 0;
-    Config cfg;
-    try {
-        std::fstream file;
-		file.open(CurrentFileDirectory / "files" / "missing_semicolon.conf", std::ios::in);
-		cfg << file;
-		file.close();
-        result = 1;
-    } catch (...) {
-        // Expected
-    }
-    
-	RETURN_TEST("test_missing_semicolon", result);
 }
 
 int test_unmatched_braces() {
@@ -553,7 +550,7 @@ int test_unmatched_braces() {
 		cfg << file;
 		file.close();
         result = 1;
-    } catch (...) {
+    } catch (const StormByte::Config::Exception&) {
         // Expected
     }
     
@@ -592,7 +589,7 @@ int bad_boolean_config1() {
 		file.close();
 		result = 1;
 	}
-	catch (...) {
+	catch (const StormByte::Config::Exception&) {
 		// Expected exception
 	}
 	
@@ -637,7 +634,8 @@ int move_configuration() {
 		file.close();
 		cfg2 = std::move(cfg1);
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& ex) {
+		std::cerr << ex.what() << std::endl;
 		RETURN_TEST("move_configuration", 1);
 	}
 
@@ -646,14 +644,15 @@ int move_configuration() {
 		cfg1["settings/enable_feature"];
 		RETURN_TEST("move_configuration", 1);
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception&) {
 		// Expected
 	}
 	try {
 		const NamedItem& lookup_enable_feature = cfg2["settings/enable_feature"];
         ASSERT_EQUAL("move_configuration", true, lookup_enable_feature.Value<bool>());
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& ex) {
+		std::cerr << ex.what() << std::endl;
 		RETURN_TEST("move_configuration", 1);
 	}
 
@@ -668,7 +667,7 @@ int duplicated_insertion() {
 		cfg.Add(NamedItem("testInt", 66));
 		result = 1;
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception&) {
 		// Expected
 	}
 
@@ -686,7 +685,8 @@ int on_name_clash_keep_existing() {
 		const NamedItem& item = cfg["testNamedItem"];
 		ASSERT_EQUAL("on_name_clash_keep_existing", true, item.Value<bool>());
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& ex) {
+		std::cerr << ex.what() << std::endl;
 		result = 1;
 	}
 
@@ -703,7 +703,8 @@ int on_name_clash_replace() {
 		const NamedItem& item = cfg["testNamedItem"];
 		ASSERT_EQUAL("on_name_clash_ignore", 66, item.Value<int>());
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& ex) {
+		std::cerr << ex.what() << std::endl;
 		result = 1;
 	}
 
@@ -723,7 +724,8 @@ int config_to_config_output() {
 		const NamedItem& testString = cfg1["testString"];
 		ASSERT_EQUAL("config_to_config_output", "Hello!", testString.Value<std::string>());
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& ex) {
+		std::cerr << ex.what() << std::endl;
 		result = 1;
 	}
 
@@ -740,7 +742,8 @@ int config_value_reference_change() {
 		const NamedItem& testInt = cfg["testInt"];
 		ASSERT_EQUAL("config_value_reference_change", 99, testInt.Value<int>());
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& ex) {
+		std::cerr << ex.what() << std::endl;
 		result = 1;
 	}
 	return result;
@@ -758,7 +761,8 @@ int config_remove_full_path() {
 		auto testString = cfg["testGroup/testString"];
 		ASSERT_EQUAL("config_remove_full_path", "Group String", testString.Value<std::string>());
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& ex) {
+		std::cerr << ex.what() << std::endl;
 		result = 1;
 	}
 
@@ -767,7 +771,7 @@ int config_remove_full_path() {
 		cfg["testGroup/testInt"];
 		result = 1;
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception&) {
 		// Expected
 	}
 
@@ -783,7 +787,7 @@ int config_test_add_empty_name() {
 		std::cerr << "config_test_add_empty_name: Empty name was added when it should not be alloed" << std::endl;
 		result = 1;
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception&) {
 		// Expected
 	}
 	return result;
@@ -808,24 +812,25 @@ int config_list_test() {
 
 	const std::string expected = "testList = [\n"
     "\t#List comment\n"
-    "\t66,\n"
+    "\t66\n"
     "\t\"Test string\"\n"
-	"];\n"
+	"]\n"
 	"testGroup = {\n"
-    "\ttestInt = 99;\n"
-    "\ttestString2 = \"Group String\";\n"
+    "\ttestInt = 99\n"
+    "\ttestString2 = \"Group String\"\n"
     "\ttestList2 = [\n"
     "\t\t#List comment 2\n"
     "\t\t11\n"
-    "\t];\n"
-	"};\n";
+    "\t]\n"
+	"}\n";
 
 	Config cfg2;
 	try {
 		cfg2 << cfg;
 		ASSERT_EQUAL("config_list_test", expected, (std::string)cfg2);
 	}
-	catch(...) {
+	catch(const StormByte::Config::Exception& ex) {
+		std::cerr << ex.what() << std::endl;
 		RETURN_TEST("config_list_test", 1);
 	}
 
@@ -852,44 +857,89 @@ int config_list_access_by_index() {
 	RETURN_TEST("config_list_access_by_index", 0);
 }
 
+int complex_conf1() {
+	int result = 0;
+	Config cfg;
+	try {
+		std::fstream file;
+		file.open(CurrentFileDirectory / "files" / "complex_conf1.conf", std::ios::in);
+		cfg << file;
+		file.close();
+		const NamedItem& lookup_testInt = cfg["testGroup/testList2"];
+		const Item& group_inside_list = lookup_testInt.Value<List>()[3];
+		const NamedItem& lookup_testInt_inside = group_inside_list.Value<Group>()["testInt"];
+		ASSERT_EQUAL("complex_conf1", 1, lookup_testInt_inside.Value<int>());
+	}
+	catch(const StormByte::Config::Exception& e) {
+		std::cerr << e.what() << std::endl;
+		result = 1;
+	}
+	
+	RETURN_TEST("complex_conf1", result);
+}
+
+int copy_and_delete() {
+	int result = 0;
+	std::unique_ptr<Config> cfg(std::make_unique<Config>());
+	try {
+		std::fstream file;
+		file.open(CurrentFileDirectory / "files" / "complex_conf1.conf", std::ios::in);
+		*cfg << file;
+		file.close();
+		const Config cfg2(*cfg);
+		cfg.reset();
+		const NamedItem& lookup_testInt = cfg2["testGroup/testList2"];
+		const Item& group_inside_list = lookup_testInt.Value<List>()[3];
+		const NamedItem& lookup_testInt_inside = group_inside_list.Value<Group>()["testInt"];
+		ASSERT_EQUAL("copy_and_delete", 1, lookup_testInt_inside.Value<int>());
+	}
+	catch(const StormByte::Config::Exception& e) {
+		std::cerr << e.what() << std::endl;
+		result = 1;
+	}
+
+	RETURN_TEST("copy_and_delete", result);
+}
+
 int main() {
     int result = 0;
     try {
-        //result += test_add_and_lookup();
-        //result += test_write_and_read();
-        //result += test_nested_groups();
-        //result += test_add_remove_group();
-        //result += test_write_nested_groups();
-        //result += test_complex_config_creation();
-        //result += bad_config1();
-        //result += bad_config2();
-        //result += bad_config3();
-        //result += good_double_conf1();
-		//result += good_double_conf2();
-        //result += commented_config();
-        //result += good_string_conf();
-        //result += test_empty_string();
-        //result += test_integer_boundaries();
-        //result += test_special_characters_in_string();
-        //result += test_deeply_nested_groups();
-        //result += test_invalid_syntax();
-        //result += test_special_characters_string();
-        //result += test_long_string();
-        //result += test_missing_semicolon();
-        //result += test_unmatched_braces();
-		//result += good_boolean_config1();
-		//result += bad_boolean_config1();
-		//result += copy_configuration();
-		//result += move_configuration();
-		//result += duplicated_insertion();
-		//result += on_name_clash_keep_existing();
-		//result += on_name_clash_replace();
-		//result += config_to_config_output();
-		//result += config_value_reference_change();
-		//result += config_remove_full_path();
-		//result += config_test_add_empty_name();
-		//result += config_list_test();
+        result += test_add_and_lookup();
+        result += test_write_and_read();
+        result += test_nested_groups();
+        result += test_add_remove_group();
+        result += test_write_nested_groups();
+        result += test_complex_config_creation();
+        result += bad_config1();
+        result += bad_config2();
+        result += bad_config3();
+        result += good_double_conf1();
+		result += good_double_conf2();
+        result += commented_config();
+        result += good_string_conf();
+        result += test_empty_string();
+        result += test_integer_boundaries();
+        result += test_special_characters_in_string();
+        result += test_deeply_nested_groups();
+        result += test_invalid_syntax();
+        result += test_special_characters_string();
+        result += test_long_string();
+        result += test_unmatched_braces();
+		result += good_boolean_config1();
+		result += bad_boolean_config1();
+		result += copy_configuration();
+		result += move_configuration();
+		result += duplicated_insertion();
+		result += on_name_clash_keep_existing();
+		result += on_name_clash_replace();
+		result += config_to_config_output();
+		result += config_value_reference_change();
+		result += config_remove_full_path();
+		result += config_test_add_empty_name();
+		result += config_list_test();
 		result += config_list_access_by_index();
+		result += complex_conf1();
+		result += copy_and_delete();
     } catch (const StormByte::Config::Exception& ex) {
         std::cerr << ex.what() << std::endl;
         result++;

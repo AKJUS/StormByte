@@ -152,14 +152,14 @@ std::string Item::ContentsToString(const int& indent_level) const noexcept {
 			serial += std::string(Value<bool>() ? "true" : "false");
 			break;
 		case Type::Group:
-			serial += "{\n" + Value<Group>().Serialize(indent_level) + Item::Indent(indent_level) + "};\n";
+			serial += "{\n" + Value<Group>().Serialize(indent_level) + Item::Indent(indent_level) + "}";
 			break;
 		case Type::Comment:
 			serial = "#" + Value<std::string>();
 			break;
 		case Type::List:
-			serial += "[\n" + Value<List>().Serialize(indent_level) + Item::Indent(indent_level) + "];\n";
+			serial += "[\n" + Value<List>().Serialize(indent_level) + Item::Indent(indent_level) + "]";
 			break;
 	}
-	return serial;
+	return serial + "\n";
 }

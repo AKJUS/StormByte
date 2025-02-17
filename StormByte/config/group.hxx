@@ -17,9 +17,9 @@ namespace StormByte::Config {
 	 * @brief Group in configuration item which can hold other items and also subgroups recursivelly
 	 * @code
 	 * settings = {
-	 * 	username = "StormByte";
-	 * 	credit = 66.5;
-	 * };
+	 * 	username = "StormByte"
+	 * 	credit = 66.5
+	 * }
 	 * @endcode
 	 */
 	class STORMBYTE_PUBLIC Group final {

@@ -161,8 +161,8 @@ namespace StormByte::Config {
 			template<> const double&			Value<double>() const;
 			template<> bool&					Value<bool>();
 			template<> const bool&				Value<bool>() const;
-			template<> Group&					Value<List>();
-			template<> const Group&				Value<List>() const;
+			template<> List&					Value<List>();
+			template<> const List&				Value<List>() const;
 			#endif
 
 			/**
