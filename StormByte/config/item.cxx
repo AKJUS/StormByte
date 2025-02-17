@@ -1,5 +1,6 @@
 #include <StormByte/config/item.hxx>
 #include <StormByte/config/group.hxx>
+#include <StormByte/config/list.hxx>
 #include <StormByte/config/exception.hxx>
 
 using namespace StormByte::Config;
@@ -7,6 +8,10 @@ using namespace StormByte::Config;
 Item::Item(const Group& value):m_type(Type::Group), m_value(new ItemStorage(value)) {}
 
 Item::Item(Group&& value):m_type(Type::Group), m_value(new ItemStorage(std::move(value))) {}
+
+Item::Item(const List& value):m_type(Type::List), m_value(new ItemStorage(value)) {}
+
+Item::Item(List&& value):m_type(Type::List), m_value(new ItemStorage(std::move(value))) {}
 
 Item::Item(const std::string& value):m_type(Type::String), m_value(new ItemStorage(value)) {}
 
@@ -115,28 +120,45 @@ template<> const bool& Item::Value<bool>() const {
 		return std::get<bool>(*m_value);
 }
 
+template<> List& Item::Value<List>() {
+	if (m_type != Type::List)
+		throw WrongValueTypeConversion(*this, "List");
+	return std::get<List>(*m_value);
+}
+
+template<> const List& Item::Value<List>() const {
+	if (m_type != Type::List)
+		throw WrongValueTypeConversion(*this, "List");
+	return std::get<List>(*m_value);
+}
+
 std::string Item::Serialize(const int& indent_level) const noexcept {
+	return Indent(indent_level) + ContentsToString(indent_level);
+}
+
+std::string Item::ContentsToString(const int& indent_level) const noexcept {
 	std::string serial = "";
 	switch (m_type) {
 		case Type::Integer:
-			serial += std::to_string(Value<int>()) + ";\n";
+			serial += std::to_string(Value<int>());
 			break;
 		case Type::String:
-			serial += "\"" + Value<std::string>() + "\";\n";
+			serial += "\"" + Value<std::string>() + "\"";
 			break;
 		case Type::Double:
-			serial += std::to_string(Value<double>()) + ";\n";
+			serial += std::to_string(Value<double>());
 			break;
 		case Type::Bool:
-			serial += std::string(Value<bool>() ? "true" : "false") + ";\n";
+			serial += std::string(Value<bool>() ? "true" : "false");
 			break;
 		case Type::Group:
-			serial += "{\n";
-			serial += Value<Group>().Serialize(indent_level);
-			serial += Indent(indent_level) + "};\n";
+			serial += "{\n" + Value<Group>().Serialize(indent_level) + Item::Indent(indent_level) + "};\n";
 			break;
 		case Type::Comment:
-			serial = "#" + Value<std::string>() + "\n";
+			serial = "#" + Value<std::string>();
+			break;
+		case Type::List:
+			serial += "[\n" + Value<List>().Serialize(indent_level) + Item::Indent(indent_level) + "];\n";
 			break;
 	}
 	return serial;

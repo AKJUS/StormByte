@@ -68,6 +68,10 @@ std::string Group::Serialize(const int& indent_level) const noexcept {
 	std::string serial = "";
 	for (auto it = m_ordered.begin(); it != m_ordered.end(); it++) {
 		serial += it->Serialize(indent_level + 1);
+		if (it->GetType() == Item::Type::Comment)
+			serial += "\n";
+		else if (it->GetType() != Item::Type::Group && it->GetType() != Item::Type::List)
+			serial += ";\n";
 	}
 	return serial;
 }

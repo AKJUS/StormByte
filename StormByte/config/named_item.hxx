@@ -14,6 +14,7 @@ namespace StormByte::Config {
 	 * @brief Class for a configuration item
 	 */
 	class STORMBYTE_PUBLIC NamedItem final: public Item {
+		friend class Config;
 		public:
 			/**
 			 * Creates an item with a group value
@@ -22,11 +23,23 @@ namespace StormByte::Config {
 			 */
 			NamedItem(const std::string& name, const Group& value);
 			/**
+			 * Creates an item with a list value
+			 * @param name item name
+			 * @param value item value
+			 */
+			NamedItem(const std::string& name, const List& value);
+			/**
 			 * Creates an item moving the group value
 			 * @param name item name
 			 * @param value item value
 			 */
 			NamedItem(const std::string& name, Group&& value);
+			/**
+			 * Creates an item with moving a list value
+			 * @param name item name
+			 * @param value item value
+			 */
+			NamedItem(const std::string& name, List&& value);
 			/**
 			 * Creates an item with a string value
 			 * @param name item name

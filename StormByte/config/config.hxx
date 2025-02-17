@@ -2,6 +2,7 @@
 
 #include <StormByte/config/exception.hxx>
 #include <StormByte/config/group.hxx>
+#include <StormByte/config/list.hxx>
 
 #include <functional>
 
@@ -215,107 +216,8 @@ namespace StormByte::Config {
 			Group::OnNameClashAction m_on_name_clash_action;
 
 		private:
-			/**
-			 * Parses an stream and add found items to configuration executing hooks
-			 * @param stream stream with data
-			 * @throw ParseError will be thrown on error
-			 */
-			void 									Parse(std::istream& stream);
-			/**
-			 * Parses an stream and add found items to Group
-			 * @param stream stream with data
-			 * @param group Group to add items
-			 * @throw ParseError will be thrown on error
-			 */
-			void 									Parse(std::istream& stream, Group& group);
-			/**
-			 * Parses a value
-			 * @param stream
-			 * @return value depending on template
-			 * @throw ParseError is thrown if integer is illformed
-			 */
-			template<typename T> T					ParseValue(std::istream& stream);
-			/**
-			 * Parses config item name from stream
-			 * @param stream stream with data
-			 * @return item name string
-			 */
-			std::string 							ParseNamedItemName(std::istream& stream);
-			/**
-			 * Expects equal sign in next read from stream
-			 * @param stream stream with data
-			 * @throw ParseError is thrown if equal sign is not the next read
-			 */
-			void 									ExpectEqualSign(std::istream& stream);
-			/**
-			 * Will parse the stream to guess Type and restore the pointer to where it was
-			 * @param stream
-			 * @return Type guessed Type
-			 * @throw ParseError is thrown if Type can't be guessed
-			 */
-			Item::Type 						GuessType(std::istream& stream);
-			/**
-			 * Parses an string value
-			 * @param stream
-			 * @return string value
-			 * @throw ParseError is thrown if string is illformed
-			 */
-			std::string 							ParseStringValue(std::istream& stream);
-			/**
-			 * Will get the whole group inner content as string
-			 * @param stream
-			 * @return string value
-			 * @throw ParseError is thrown if braces are missmatches
-			 */
-			std::string 							ParseGroupContent(std::istream& stream);
-			/**
-			 * Parses an enclosed content (like a Group content)
-			 * @param stream
-			 * @param start_symbol symbol to start
-			 * @param end_symbol symbol to end
-			 * @return int value
-			 * @throw ParseError is thrown if integer is illformed
-			 */
-			template<const char start, const char end> std::string ParseEnclosedContent(std::istream& stream);
-			/**
-			 * Parses an double value
-			 * @param stream
-			 * @return double value
-			 * @throw ParseError is thrown if double is illformed
-			 */
-			double 									ParseDoubleValue(std::istream& stream);
-			/**
-			 * Parses the exponential part of a double value
-			 * @param stream
-			 * @return string value (containing the exponential part)
-			 * @throw ParseError is thrown if the exponential part is illformed
-			 */
-			std::string 							ParseExpValue(std::istream& stream);
-			/**
-			 * Parses an bool value
-			 * @param stream
-			 * @return bool value
-			 * @throw ParseError is thrown if bool is illformed
-			 */
-			bool 									ParseBoolValue(std::istream& stream);
-			/**
-			 * Parses an comment
-			 * @param stream
-			 * @return bool if it found a commentary
-			 * @throw ParseError is thrown if string is illformed
-			 */
-			bool 									FindAndParseComment(std::istream&, Group& group);
-			/**
-			 * Consumes every empty character from string (spaces, tabs, newlines, etc)
-			 * @param stream stream with data
-			 */
-			void 									ConsumeEmptyChars(std::istream& stream);
-			/**
-			 * Expects semicolon in next read from stream
-			 * @param stream stream with data
-			 * @throw ParseError is thrown if semicolon is not the next read
-			 */
-			void 									ExpectSemicolon(std::istream& stream);
+			
+			
 	};
 	/**
 	 * Initializes configuration with istream (when istream is in the left part)

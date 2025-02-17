@@ -11,12 +11,15 @@
  */
 namespace StormByte::Config {
 	class Group;
+	class List;
 	/**
 	 * @class Item
 	 * @brief Class for a configuration item
 	 */
 	class STORMBYTE_PUBLIC Item {
 		friend class Group;
+		friend class List;
+		friend class Config;
 		public:
 			/**
 			 * @enum Type
@@ -28,7 +31,8 @@ namespace StormByte::Config {
 				Integer,
 				Double,
 				Comment,
-				Bool
+				Bool,
+				List
 			};
 			/**
 			 * Gets strings from Type
@@ -42,6 +46,7 @@ namespace StormByte::Config {
 					case Type::Double: 	return "Double";
 					case Type::Comment:	return "Comment";
 					case Type::Bool:	return "Bool";
+					case Type::List:	return "List";
 					default:			return "Unknown";
 				}
 			}
@@ -58,6 +63,18 @@ namespace StormByte::Config {
 			 * @param value item value
 			 */
 			Item(Group&& value);
+			/**
+			 * Creates an item with a list value
+			 * @param name item name
+			 * @param value item value
+			 */
+			Item(const List& value);
+			/**
+			 * Creates an item moving the list value
+			 * @param name item name
+			 * @param value item value
+			 */
+			Item(List&& value);
 			/**
 			 * Creates an item with a string value
 			 * @param name item name
@@ -144,6 +161,8 @@ namespace StormByte::Config {
 			template<> const double&			Value<double>() const;
 			template<> bool&					Value<bool>();
 			template<> const bool&				Value<bool>() const;
+			template<> Group&					Value<List>();
+			template<> const Group&				Value<List>() const;
 			#endif
 
 			/**
@@ -163,15 +182,17 @@ namespace StormByte::Config {
 			 * Add indentation
 			 * @param level
 			 */
-			constexpr std::string					Indent(const int& level) const noexcept {
+			constexpr static std::string		Indent(const int& level) noexcept {
 				return level == 0 ? std::string() : std::string(level, '\t');
 			}
+
+			std::string 						ContentsToString(const int& level) const noexcept;
 		
 		private:
 			/**
 			 * Shortcut alias for internal storage
 			 */
-			using ItemStorage = std::variant<std::string, int, double, bool, Group>;
+			using ItemStorage = std::variant<std::string, int, double, bool, Group, List>;
 			/**
 			 * Internal value (it is a regular pointer to avoid cyclic references Item->Group) so it is enough with a forward declaration of Group
 			 */

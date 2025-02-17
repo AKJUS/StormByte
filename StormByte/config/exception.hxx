@@ -240,4 +240,33 @@ namespace StormByte::Config {
 			 */
 			~NamedItemNameAlreadyExists() noexcept override						= default;
 	};
+	class STORMBYTE_PUBLIC OutOfBounds final: public Exception {
+		public:
+			/**
+			 * Constructor
+			 * @param index item index
+			 * @param size size
+			 */
+			OutOfBounds(const size_t& index, const size_t& size);
+			/**
+			 * Copy constructor
+			 */
+			OutOfBounds(const OutOfBounds&)				= default;
+			/**
+			 * Move constructor
+			 */
+			OutOfBounds(OutOfBounds&&)					= default;
+			/**
+			 * Assignment operator
+			 */
+			OutOfBounds& operator=(const OutOfBounds&)	= default;
+			/**
+			 * Move assignment operator
+			 */
+			OutOfBounds& operator=(OutOfBounds&)		= default;
+			/**
+			 * Destructor
+			 */
+			~OutOfBounds() noexcept override			= default;
+	};
 }

@@ -21,3 +21,6 @@ Exception("NamedItem " + name + " do not exist") {}
 
 NamedItemNameAlreadyExists::NamedItemNameAlreadyExists(const std::string& name):
 Exception("Can not add item: Another item with name " + name + " already exists") {}
+
+OutOfBounds::OutOfBounds(const size_t& index, const size_t& size):
+Exception("Index " + std::to_string(index) + " is out of bounds when size is " + std::to_string(size)) {}
