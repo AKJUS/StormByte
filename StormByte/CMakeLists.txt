@@ -2,10 +2,10 @@ include(GNUInstallDirs)
 set(STORMBYTE_SOURCES
 	${STORMBYTE_DIR}/StormByte/exception.cxx
 	${STORMBYTE_DIR}/StormByte/config/config.cxx
+	${STORMBYTE_DIR}/StormByte/config/container.cxx
 	${STORMBYTE_DIR}/StormByte/config/exception.cxx
 	${STORMBYTE_DIR}/StormByte/config/item.cxx
 	${STORMBYTE_DIR}/StormByte/config/list.cxx
-	${STORMBYTE_DIR}/StormByte/config/named_item.cxx
 	${STORMBYTE_DIR}/StormByte/config/group.cxx
 	${STORMBYTE_DIR}/StormByte/database/sqlite/exception.cxx
 	${STORMBYTE_DIR}/StormByte/database/sqlite/prepared_stmt.cxx
@@ -18,6 +18,7 @@ set(STORMBYTE_SOURCES
 	${STORMBYTE_DIR}/StormByte/system/process.cxx
 	${STORMBYTE_DIR}/StormByte/system/variable.cxx
 	${STORMBYTE_DIR}/StormByte/system/system.cxx
+	${STORMBYTE_DIR}/StormByte/util/string/string.cxx
 )
 
 if (NOT STORMBYTE_AS_SUBPROJECT OR WIN32)

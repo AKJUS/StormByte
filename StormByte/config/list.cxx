@@ -1,145 +1,37 @@
 #include <StormByte/config/list.hxx>
-#include <StormByte/config/exception.hxx>
-
-#include <sstream>
 
 using namespace StormByte::Config;
 
-Item& List::operator[](const size_t& index) {
-	return const_cast<Item&>(static_cast<const List&>(*this)[index]);
+std::shared_ptr<Container> List::Clone() const {
+	return std::make_shared<List>(*this);
 }
 
-const Item& List::operator[](const size_t& index) const {
-	if (index >= m_ordered.size())
-		throw OutOfBounds(index, m_ordered.size());
-	return m_ordered[index];
+std::shared_ptr<Container> List::Move() {
+	return std::make_shared<List>(std::move(*this));
 }
 
-Item& List::Add(const Item& item) {
-	Item item_copy(item);
-	return Add(std::move(item_copy));
-}
+Item& List::Add(Item&& item, const OnExistingAction& on_existing) {
+	if (item.GetType() != Item::Type::Comment && item.Name()) {
+		throw InvalidName("List does not allow named items");
+	}	
 
-Item& List::Add(Item&& item) {
-	m_ordered.push_back(std::move(item));
-	return m_ordered.back();
-}
+	if (item.GetType() != Item::Type::Comment) {
+		if (std::find(m_items.begin(), m_items.end(), item) != m_items.end()) {
+			switch (on_existing) {
+				case OnExistingAction::Keep:
+					return Child(*item.Name());
+					break;
+				case OnExistingAction::Overwrite: {
+					Remove(*item.Name());
+					break;
+				}
+				case OnExistingAction::ThrowException:
+					throw Config::ItemAlreadyExists();
+					break;
+			}
+		}
+	}
 
-void List::AddComment(const std::string& value) {
-	Item item(value);
-	item.m_type = Item::Type::Comment;
-	m_ordered.push_back(std::move(item));
-}
-
-void List::Remove(const size_t& index) {
-	if (index >= m_ordered.size())
-		throw OutOfBounds(index, m_ordered.size());
-	m_ordered.erase(m_ordered.begin() + index);
-}
-
-std::string List::Serialize(const int& indent_level) const noexcept {
-	std::string serial = "";
-	for (size_t i = 0; i < m_ordered.size(); i++)
-		serial += m_ordered[i].Serialize(indent_level + 1);
-	return serial;
-}
-
-List::Iterator& List::Iterator::operator++() noexcept {
-	++m_it;
-	return *this;
-}
-
-List::Iterator List::Iterator::operator++(int) noexcept {
-	Iterator it = *this;
-	m_it++;
-	return it;
-}
-
-List::Iterator& List::Iterator::operator--() noexcept {
-	--m_it;
-	return *this;
-}
-
-List::Iterator List::Iterator::operator--(int) noexcept {
-	Iterator it = *this;
-	m_it--;
-	return it;
-}
-
-bool List::Iterator::operator==(const Iterator& it) const noexcept {
-	return m_it == it.m_it;
-}
-
-bool List::Iterator::operator!=(const Iterator& it) const noexcept {
-	return m_it != it.m_it;
-}
-
-Item* List::Iterator::operator->() noexcept {
-	return &*m_it;
-}
-
-Item& List::Iterator::operator*() noexcept {
-	return *m_it;
-}
-
-List::Const_Iterator& List::Const_Iterator::operator++() noexcept {
-	++m_it;
-	return *this;
-}
-
-List::Const_Iterator List::Const_Iterator::operator++(int) noexcept {
-	Const_Iterator it = *this;
-	m_it++;
-	return it;
-}
-
-List::Const_Iterator& List::Const_Iterator::operator--() noexcept {
-	--m_it;
-	return *this;
-}
-
-List::Const_Iterator List::Const_Iterator::operator--(int) noexcept {
-	Const_Iterator it = *this;
-	m_it--;
-	return it;
-}
-
-bool List::Const_Iterator::operator==(const Const_Iterator& it) const noexcept {
-	return m_it == it.m_it;
-}
-
-bool List::Const_Iterator::operator!=(const Const_Iterator& it) const noexcept {
-	return m_it != it.m_it;
-}
-
-const Item* List::Const_Iterator::operator->() const noexcept {
-	return &*m_it;
-}
-
-const Item& List::Const_Iterator::operator*() const noexcept {
-	return *m_it;
-}
-
-List::Iterator List::Begin() noexcept {
-	Iterator it;
-	it.m_it = m_ordered.begin();
-	return it;
-}
-
-List::Const_Iterator List::Begin() const noexcept {
-	Const_Iterator it;
-	it.m_it = m_ordered.begin();
-	return it;
-}
-
-List::Iterator List::End() noexcept {
-	Iterator it;
-	it.m_it = m_ordered.end();
-	return it;
-}
-
-List::Const_Iterator List::End() const noexcept {
-	Const_Iterator it;
-	it.m_it = m_ordered.end();
-	return it;
+	m_items.push_back(std::move(item));
+	return m_items.back();
 }

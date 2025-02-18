@@ -101,6 +101,11 @@ settings = {
 	username = "example_user"
 	timeout = 30
 	enable_feature = true
+	permissions = [
+		"read"
+		"write"
+		"admin"
+	]
 }
 ```
 

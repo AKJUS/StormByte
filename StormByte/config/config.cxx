@@ -1,63 +1,19 @@
 #include <StormByte/config/config.hxx>
-#include <StormByte/config/named_item.hxx>
+#include <StormByte/config/list.hxx>
 
-#include <iostream> // For logger and std::istream
 #include <regex>
-#include <sstream>
 
 using namespace StormByte::Config;
 
-Config::Config():m_root(), m_on_name_clash_action(Group::OnNameClashAction::ThrowException) {}
-
-Config::Config(const Config& config):
-m_root(config.m_root),m_before_read_hooks(config.m_before_read_hooks),
-m_after_read_hooks(config.m_after_read_hooks), m_on_name_clash_action(config.m_on_name_clash_action) {}
-
-Config::Config(Config&& config) noexcept:
-m_root(std::move(config.m_root)),m_before_read_hooks(std::move(config.m_before_read_hooks)),
-m_after_read_hooks(std::move(config.m_after_read_hooks)), m_on_name_clash_action(config.m_on_name_clash_action) {}
-
-Config& Config::operator=(const Config& config) {
-	if (this != &config) {
-		m_root = Group(config.m_root);
-		m_on_name_clash_action = config.m_on_name_clash_action;
-		m_before_read_hooks = config.m_before_read_hooks;
-		m_after_read_hooks = config.m_after_read_hooks;
-	}
-	return *this;
-}
-
-Config& Config::operator=(Config&& config) noexcept {
-	if (this != &config) {
-		m_root = std::move(config.m_root);
-		m_on_name_clash_action = config.m_on_name_clash_action;
-		m_before_read_hooks = std::move(config.m_before_read_hooks);
-		m_after_read_hooks = std::move(config.m_after_read_hooks);
-	}
-	return *this;
-}
-
-void Config::Clear() noexcept {
-	m_root = Group();
-}
-
-NamedItem& Config::operator[](const std::string& path) {
-	return m_root[path];
-}
-
-const NamedItem& Config::operator[](const std::string& path) const {
-	return m_root[path];
-}
-
 Config& Config::operator<<(const Config& source) {
 	// We will not use serialize for performance reasons
-	for (auto it = source.Begin(); it != source.End(); it++)
-		m_root.Add(*it, m_on_name_clash_action);
+	for (ConstIterator it = source.Begin(); it != source.End(); it++)
+		Add(*it);
 	return *this;
 }
 
 void Config::operator<<(std::istream& istream) { // 1
-	Parse(istream, m_root);
+	Parse(istream, *this, ParseMode::Named);
 }
 
 void Config::operator<<(const std::string& str) { // 2
@@ -106,26 +62,6 @@ Config::operator std::string() const {
 		serialized += it->Serialize(0);// + "\n";
 	}
 	return serialized;
-}
-
-bool Config::Exists(const std::string& path) const noexcept {
-	return m_root.Exists(path);
-}
-
-Group::Iterator Config::Begin() noexcept {
-	return m_root.Begin();
-}
-
-Group::Const_Iterator Config::Begin() const noexcept {
-	return m_root.Begin();
-}
-
-Group::Iterator Config::End() noexcept {
-	return m_root.End();
-}
-
-Group::Const_Iterator Config::End() const noexcept {
-	return m_root.End();
 }
 
 template <const char start, const char end> std::string Config::ParseContainerContents(std::istream& istream) {
@@ -190,6 +126,23 @@ template <const char start, const char end> std::string Config::ParseContainerCo
 			throw ParseError("Expected '" + std::string(1, end) + "' but found EOF near " + GetCurrentLine(istream, -20));
 		}
 		return buffer;
+	}
+}
+
+std::string Config::ParseContainerContents(std::istream& istream, const Container::Type& container_type) {
+	switch (container_type) {
+		case Container::Type::Group: {
+			constexpr auto enclosure_chars = Container::EnclosureCharacters(Container::Type::Group);
+			return ParseContainerContents<enclosure_chars.first, enclosure_chars.second>(istream);
+			break;
+		}
+		case Container::Type::List: {
+			constexpr auto enclosure_chars = Container::EnclosureCharacters(Container::Type::List);
+			return ParseContainerContents<enclosure_chars.first, enclosure_chars.second>(istream);
+			break;
+		}
+		default:
+			throw Exception("Unknown container type");
 	}
 }
 
@@ -340,45 +293,24 @@ template<class C> void Config::FindAndParseComments(std::istream& istream, C& co
 	while (FindAndParseComment(istream, container));
 }
 
-std::unique_ptr<NamedItem> Config::ParseItem(std::istream& istream, const Item::Type& type, std::string&& item_name) {
-	switch(type) {
-		case Item::Type::Group: {
-			std::istringstream buffer(ParseContainerContents<'{', '}'>(istream));
-			Group group;
-			Parse(buffer, group);
-			return std::make_unique<NamedItem>(std::move(item_name), std::move(group));
-			break;
-		}
-		case Item::Type::Comment: // Not handled here but make compiler not emit any warning
-		case Item::Type::String:
-			return std::make_unique<NamedItem>(std::move(item_name), ParseValue<std::string>(istream));
-		case Item::Type::Integer:
-			return std::make_unique<NamedItem>(item_name, ParseValue<int>(istream));
-		case Item::Type::Double:
-			return std::make_unique<NamedItem>(item_name, ParseValue<double>(istream));
-		case Item::Type::Bool:
-			return std::make_unique<NamedItem>(item_name, ParseValue<bool>(istream));
-		case Item::Type::List: {
-			std::istringstream buffer(ParseContainerContents<'[', ']'>(istream));
-			List list;
-			Parse(buffer, list);
-			return std::make_unique<NamedItem>(std::move(item_name), std::move(list));
-			break;
-		}
-		default:
-			throw ParseError("Failed to parse item");
-	}
-}
-
 std::unique_ptr<Item> Config::ParseItem(std::istream& istream, const Item::Type& type) {
 	switch(type) {
-		case Item::Type::Group: {
-			std::istringstream buffer(ParseContainerContents<'{', '}'>(istream));
-			Group group;
-			Parse(buffer, group);
-			return std::make_unique<Item>(std::move(group));
+		case Item::Type::Container:
+			switch (ParseContainerType(istream)) {
+				case Container::Type::Group: {
+					Group group;
+					std::istringstream buffer(ParseContainerContents(istream, Container::Type::Group));
+					Parse(buffer, group, ParseMode::Named);
+					return std::make_unique<Item>(std::move(group));
+				}
+				case Container::Type::List: {
+					List list;
+					std::istringstream buffer(ParseContainerContents(istream, Container::Type::List));
+					Parse(buffer, list, ParseMode::Unnamed);
+					return std::make_unique<Item>(std::move(list));
+				}
+			}
 			break;
-		}
 		case Item::Type::Comment: // Not handled here but make compiler not emit any warning
 		case Item::Type::String:
 			return std::make_unique<Item>(ParseValue<std::string>(istream));
@@ -388,16 +320,8 @@ std::unique_ptr<Item> Config::ParseItem(std::istream& istream, const Item::Type&
 			return std::make_unique<Item>(ParseValue<double>(istream));
 		case Item::Type::Bool:
 			return std::make_unique<Item>(ParseValue<bool>(istream));
-		case Item::Type::List: {
-			std::istringstream buffer(ParseContainerContents<'[', ']'>(istream));
-			List list;
-			Parse(buffer, list);
-			return std::make_unique<Item>(std::move(list));
-			break;
-		}
-		default:
-			throw ParseError("Failed to parse item");
 	}
+	return nullptr;
 }
 
 std::string Config::GetCurrentLine(std::istream& istream) {
@@ -419,52 +343,39 @@ std::string Config::GetCurrentLine(std::istream& istream, const int& offset) {
 	return GetCurrentLine(istream);
 }
 
-void Config::Parse(std::istream& istream, Group& group) {
+void Config::Parse(std::istream& istream, Container& container, const ParseMode& mode) {
 	bool halt = false;
-	FindAndParseComments(istream, group);
+	FindAndParseComments(istream, container);
 	while (!halt && !istream.eof()) {
 		char c;
-		// Item Name
-		std::string item_name = ParseItemName(istream);
-		if (!NamedItem::IsNameValid(item_name)) {
-			throw ParseError("Invalid item name: " + item_name);
-		}
-		// Equal expected
-		istream >> std::ws;
-		if (!istream.get(c) || c != '=') {
-			throw ParseError("Expected '=' after item name: " + item_name);
+		std::string item_name;
+
+		if (mode == ParseMode::Named) {
+			// Item Name
+			item_name = ParseItemName(istream);
+			if (!Item::IsNameValid(item_name)) {
+				throw ParseError("Invalid item name: " + item_name);
+			}
+			// Equal expected
+			istream >> std::ws;
+			if (!istream.get(c) || c != '=') {
+				throw ParseError("Expected '=' after item name: " + item_name);
+			}
 		}
 
 		// Guessing type
-		auto type = ParseType(istream);
-		std::unique_ptr<NamedItem> item = ParseItem(istream, type, std::move(item_name));
-		if (!item)
-			throw ParseError("Failed to parse item");
-		else {
-			group.Add(std::move(*item), m_on_name_clash_action);
-		}
-		// Group items require to have ending semicolon (but there might be comments)
-		FindAndParseComments(istream, group);
-		FindAndParseComments(istream, group);
-		if (istream.fail()) halt = true;
-	}
-}
-
-void Config::Parse(std::istream& istream, List& list) {
-	bool halt = false;
-	FindAndParseComments(istream, list);
-	while (!halt && !istream.eof()) {
-		// Guessing type
-		auto type = ParseType(istream);
+		Item::Type type = ParseType(istream);
 		std::unique_ptr<Item> item = ParseItem(istream, type);
+
 		if (!item)
 			throw ParseError("Failed to parse item");
 		else {
-			list.Add(std::move(*item));
+			if (mode == ParseMode::Named)
+				item->Name() = std::move(item_name);
+			container.Add(std::move(*item), m_on_existing_action);
 		}
-		istream >> std::ws;
-		// List items only require colon separator when it is not the last element
-		FindAndParseComments(istream, list);
+
+		FindAndParseComments(istream, container);
 		if (istream.fail()) halt = true;
 	}
 }
@@ -490,10 +401,8 @@ Item::Type Config::ParseType(std::istream& istream) {
 			type = std::make_unique<Item::Type>(Item::Type::String);
 			break;
 		case '[':
-			type = std::make_unique<Item::Type>(Item::Type::List);
-			break;
 		case '{':
-			type = std::make_unique<Item::Type>(Item::Type::Group);
+			type = std::make_unique<Item::Type>(Item::Type::Container);
 			break;
 		case '-':
 		case '+':
@@ -530,4 +439,19 @@ Item::Type Config::ParseType(std::istream& istream) {
 	}
 	istream.seekg(start_position);
 	return *type;
+}
+
+Container::Type Config::ParseContainerType(std::istream& istream) {
+	/**** THIS FUNCTION ONLY DETECTS TYPE NOT CHECKS FOR VALIDITY *****/
+	char c = '\0';
+	istream >> std::ws;
+	istream.get(c);
+	try {
+		Container::Type type = Container::TypeFromStartCharacter(c);
+		istream.unget();
+		return type;
+	}
+	catch (const StormByte::Exception&) {
+		throw ParseError("Unknown start character " + std::string(1, c) + " for container");
+	}
 }
