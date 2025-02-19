@@ -66,6 +66,7 @@ Config::operator std::string() const {
 
 void Config::StartParse(std::istream& istream) {
 	m_container_level = 0;
+	m_current_line = 1;
 	for (auto it = m_before_read_hooks.begin(); it != m_before_read_hooks.end(); it++) {
 		(*it)(*this);
 	}
@@ -76,69 +77,54 @@ void Config::StartParse(std::istream& istream) {
 }
 
 template<> double Config::ParseValue<double>(std::istream& istream) {
-	std::string buffer;
-	istream >> std::skipws;
-	istream >> buffer;
+	const std::string buffer = GetStringIgnoringWS(istream);
 
 	// std::stod just ignore extra characters so we better check
 	std::regex double_regex(R"(^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$)");
 	if (!std::regex_match(buffer, double_regex))
-		throw ParseError("Failed to parse double value '" + buffer + "'");
+		throw ParseError(m_current_line, "Failed to parse double value '" + buffer + "'");
 	try {
 		double result = std::stod(buffer);
-		istream >> std::noskipws;
 		return result;
 	}
 	catch (std::invalid_argument&) {
-		istream.seekg(-(int)buffer.size(), std::ios_base::cur); // Cast needed to avoid MSVC warning
-		std::string line = GetCurrentLine(istream);
-		throw Exception("Failed to parse double value near " + line);
+		throw ParseError(m_current_line, "Failed to parse double value near ");
 	}
 	catch (std::out_of_range&) {
-		istream.seekg(-(int)buffer.size(), std::ios_base::cur); // Cast needed to avoid MSVC warning
-		std::string line = GetCurrentLine(istream);
-		throw Exception("Double value out of range near " + line);
+		throw ParseError(m_current_line, "Double value " + buffer + " out of range");
 	}
 }
 
 template<> int Config::ParseValue<int>(std::istream& istream) {
-	std::string buffer;
-	istream >> std::skipws;
-	istream >> buffer;
+	const std::string buffer = GetStringIgnoringWS(istream);
 
 	// stoi will ignore extra characters so we force check
 	std::regex integer_regex(R"(^[+-]?\d+$)");
 	if (!std::regex_match(buffer, integer_regex))
-		throw ParseError("Failed to parse integer value '" + buffer + '"');
+		throw ParseError(m_current_line, "Failed to parse integer value '" + buffer + '"');
 	try {
 		int result = std::stoi(buffer);
-		istream >> std::noskipws;
 		return result;
 	}
 	catch (std::invalid_argument&) {
-		istream.seekg(-(int)buffer.size(), std::ios_base::cur); // Cast needed to avoid MSVC warning
-		std::string line = GetCurrentLine(istream);
-		throw Exception("Failed to parse integer value near " + line);
+		throw ParseError(m_current_line, "Failed to parse integer value '" + buffer + '"');
 	}
 	catch (std::out_of_range&) {
-		istream.seekg(-(int)buffer.size(), std::ios_base::cur); // Cast needed to avoid MSVC warning
-		std::string line = GetCurrentLine(istream);
-		throw Exception("Integer value out of range near " + line);
+		throw ParseError(m_current_line, "Integer value " + buffer + " out of range");
 	}
 }
 
 template<> std::string Config::ParseValue<std::string>(std::istream& istream) {
-	istream >> std::ws;
+	ConsumeWS(istream);
 	std::string accumulator;
 	// Guesser already detected the opened " so we skip it
 	istream.seekg(1, std::ios::cur);
 	bool string_closed = false;
 
 	if (istream.eof())
-		throw ParseError("String content was expected but found EOF");
+		throw ParseError(m_current_line, "String content was expected but found EOF");
 
 	// Do not skip space characters
-	istream >> std::noskipws;
 	bool escape_next = false;
 	char c;
 	while (istream.get(c)) {
@@ -159,42 +145,45 @@ template<> std::string Config::ParseValue<std::string>(std::istream& istream) {
 					accumulator += '\t';
 					break;
 				default:
-					throw ParseError(std::string("Invalid escape sequence: \\") + std::string(1, c) + " near: " + GetCurrentLine(istream, -20));
+					throw ParseError(m_current_line, std::string("Invalid escape sequence: \\") + std::string(1, c));
 					break;
 			}
 			escape_next = false;
 		} else {
-			if (c == '\\') {
-				// Indicate that the next character should be escaped
-				escape_next = true;
-			} else if (c == '"') {
-				string_closed = true;
-				break;
-			} else {
-				accumulator += c;
+			switch(c) {
+				case '\\':
+					// Indicate that the next character should be escaped
+					escape_next = true;
+					break;
+				case '"':
+					string_closed = true;
+					goto end;
+				case '\n':
+					m_current_line++;
+					[[fallthrough]];
+				default:
+					accumulator += c;
+					break;
 			}
 		}
 	}
 
+	end:
 	if (!string_closed)
-		throw ParseError("Expected string closure but got EOF");
+		throw ParseError(m_current_line, "Expected string closure but got EOF");
 
 	return accumulator;
 }
 
 template<> bool Config::ParseValue<bool>(std::istream& istream) {
-	bool result;
-	istream >> std::skipws >> std::boolalpha;
-	istream >> result;
-	if (istream.fail()) {
-		throw Exception("Failed to parse boolean value near " + GetCurrentLine(istream, -20));
-	}
-	istream >> std::noskipws >> std::noboolalpha;
-	return result;
+	const std::string buffer = GetStringIgnoringWS(istream);
+	if (buffer != "true" && buffer != "false")
+		throw ParseError(m_current_line, "Failed to parse boolean value '" + buffer + "'");
+	return buffer == "true";
 }
 
 template<class C> bool Config::FindAndParseComment(std::istream& istream, C& container) {
-	istream >> std::ws;
+	ConsumeWS(istream);
 	if (istream.eof() || istream.fail())
 		return false;
 	std::string line;
@@ -205,6 +194,7 @@ template<class C> bool Config::FindAndParseComment(std::istream& istream, C& con
 			line.erase(line.begin());
 			container.AddComment(line);
 			result = true;
+			m_current_line++;
 		}
 		else {
 			istream.seekg(start_pos);
@@ -252,42 +242,20 @@ std::unique_ptr<Item> Config::ParseItem(std::istream& istream, const Item::Type&
 	return nullptr;
 }
 
-std::string Config::GetCurrentLine(std::istream& istream) {
-	std::string line = "";
-	auto start_pos = istream.tellg();
-	if (std::getline(istream, line)) {
-		istream.seekg(start_pos);
-	}
-	else {
-		istream.clear();
-		istream.seekg(start_pos);
-	}
-	return line;
-}
-
-std::string Config::GetCurrentLine(std::istream& istream, const int& offset) {
-	istream.clear();
-	istream.seekg(offset, std::ios_base::cur);
-	return GetCurrentLine(istream);
-}
-
 void Config::Parse(std::istream& istream, Container& container, const ParseMode& mode) {
 	bool halt = false;
 	FindAndParseComments(istream, container);
 	while (!halt && !istream.eof()) {
-		char c;
 		std::string item_name;
 
 		if (mode == ParseMode::Named) {
 			// Item Name
 			item_name = ParseItemName(istream);
-			if (!Item::IsNameValid(item_name)) {
-				throw ParseError("Invalid item name: " + item_name);
-			}
+			
 			// Equal expected
-			istream >> std::ws;
-			if (!istream.get(c) || c != '=') {
-				throw ParseError("Expected '=' after item name: " + item_name);
+			std::string equal = GetStringIgnoringWS(istream);
+			if (equal != "=") {
+				throw ParseError(m_current_line, "Expected '=' after item name " + item_name + " but got " + equal);
 			}
 		}
 
@@ -295,19 +263,16 @@ void Config::Parse(std::istream& istream, Container& container, const ParseMode&
 		Item::Type type = ParseType(istream);
 		std::unique_ptr<Item> item = ParseItem(istream, type);
 
-		if (!item)
-			throw ParseError("Failed to parse item");
-		else {
-			if (mode == ParseMode::Named)
-				item->Name() = std::move(item_name);
-			container.Add(std::move(*item), m_on_existing_action);
-		}
+		if (mode == ParseMode::Named)
+			item->Name() = std::move(item_name);
+
+		container.Add(std::move(*item), m_on_existing_action);
 
 		FindAndParseComments(istream, container);
 		if (FindContainerEnd(istream, container.GetType())) {
 			// If it is encountered on level 0 it is a syntax error
 			if (m_container_level == 0)
-				throw ParseError("Unexpected container end symbol near " + GetCurrentLine(istream, -20));
+				throw ParseError(m_current_line, "Unexpected container end symbol");
 			else
 				m_container_level--;
 			
@@ -315,7 +280,7 @@ void Config::Parse(std::istream& istream, Container& container, const ParseMode&
 		}
 		if (istream.fail()) {
 			if (m_container_level > 0)
-				throw ParseError("Unexpected EOF near " + GetCurrentLine(istream, -20));
+				throw ParseError(m_current_line, "Unexpected EOF");
 			else
 				halt = true;
 		}
@@ -323,17 +288,17 @@ void Config::Parse(std::istream& istream, Container& container, const ParseMode&
 }
 
 std::string Config::ParseItemName(std::istream& istream) {
-	std::string name;
-	istream >> std::skipws;
-	istream >> name;
-	istream >> std::noskipws;
+	const std::string name = GetStringIgnoringWS(istream);
+	if (!Item::IsNameValid(name)) {
+		throw ParseError(m_current_line, "Invalid item name: " + name);
+	}
 	return name;
 }
 
 Item::Type Config::ParseType(std::istream& istream) {
 	/**** THIS FUNCTION ONLY DETECTS TYPE NOT CHECKS FOR VALIDITY *****/
 	std::unique_ptr<Item::Type> type;
-	istream >> std::ws;
+	ConsumeWS(istream);
 	auto start_position = istream.tellg();
 	std::string line;
 	std::getline(istream, line);
@@ -376,7 +341,7 @@ Item::Type Config::ParseType(std::istream& istream) {
 			type = std::make_unique<Item::Type>(Item::Type::Bool);
 			break;
 		default: {
-			throw ParseError("Unexpected character when parsing type near " + line);
+			throw ParseError(m_current_line, "Unexpected " + std::string(1, line[0]) + " when parsing item type");
 		}
 	}
 	istream.seekg(start_position);
@@ -386,19 +351,19 @@ Item::Type Config::ParseType(std::istream& istream) {
 Container::Type Config::ParseContainerType(std::istream& istream) {
 	/**** THIS FUNCTION ONLY DETECTS TYPE NOT CHECKS FOR VALIDITY *****/
 	char c = '\0';
-	istream >> std::ws;
+	ConsumeWS(istream);
 	istream.get(c);
 	try {
 		return Container::TypeFromStartCharacter(c);
 	}
 	catch (const StormByte::Exception&) {
-		throw ParseError("Unknown start character " + std::string(1, c) + " for container");
+		throw ParseError(m_current_line, "Unknown start character " + std::string(1, c) + " for container");
 	}
 }
 
-bool Config::FindContainerEnd(std::istream& istream, const Container::Type& container_type) const {
+bool Config::FindContainerEnd(std::istream& istream, const Container::Type& container_type) {
 	/**** THIS FUNCTION ONLY DETECTS TYPE NOT CHECKS FOR VALIDITY *****/
-	istream >> std::ws;
+	ConsumeWS(istream);
 	char c;
 	bool result = false;
 	if (istream.get(c)) {
@@ -408,4 +373,43 @@ bool Config::FindContainerEnd(std::istream& istream, const Container::Type& cont
 			istream.unget();
 	}
 	return result;
+}
+
+void Config::ConsumeWS(std::istream& istream) {
+	char c;
+	while (istream.get(c)) {
+		switch(c) {
+			case ' ':
+			case '\t':
+			case '\r':
+				continue;
+			case '\n':
+				m_current_line++;
+				continue;
+			default:
+				istream.unget();
+				return;
+		}
+	}
+}
+
+std::string Config::GetStringIgnoringWS(std::istream& istream) {
+	ConsumeWS(istream);
+	std::string buffer = "";
+	char c;
+	while (istream.get(c)) {
+		switch(c) {
+			case ' ':
+			case '\t':
+			case '\r':
+				return buffer;
+			case '\n':
+				m_current_line++;
+				return buffer;
+			default:
+				buffer += c;
+				continue;
+		}
+	}
+	return buffer;
 }

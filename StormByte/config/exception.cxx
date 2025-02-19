@@ -16,8 +16,8 @@ Exception("Invalid name " + name + " given as identifier, only alfanumeric is al
 InvalidPath::InvalidPath(const std::string& path):
 Exception("Invalid path " + path + " given") {}
 
-ParseError::ParseError(const std::string& reason):
-Exception("Parse error: " + reason) {}
+ParseError::ParseError(const unsigned int& line, const std::string& reason):
+Exception("Parse error on line " + std::to_string(line) + ": " + reason) {}
 
 ItemNotFound::ItemNotFound(const std::string& name):
 Exception("Item " + name + " do not exist") {}

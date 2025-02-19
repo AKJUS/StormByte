@@ -207,9 +207,10 @@ namespace StormByte::Config {
 		public:
 			/**
 			 * Constructor
+			 * @param line the line where the error was found
 			 * @param error the error string to show
 			 */
-			ParseError(const std::string& error);
+			ParseError(const unsigned int& line, const std::string& error);
 
 			/**
 			 * Copy constructor

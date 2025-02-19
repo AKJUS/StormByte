@@ -333,7 +333,13 @@ namespace StormByte::Config {
 			/**
 			 * Container level
 			 */
-			int 											m_container_level;
+			unsigned int 									m_container_level;
+
+			/**
+			 * Current line
+			 */
+			unsigned int 									m_current_line;
+
 
 			/**
 			 * @enum ParseMode
@@ -348,7 +354,7 @@ namespace StormByte::Config {
 			 * Starts parsing
 			 * @param istream input stream
 			 */
-			void 									StartParse(std::istream& istream);
+			void 											StartParse(std::istream& istream);
 
 			/**
 			 * Parses a value
@@ -405,6 +411,7 @@ namespace StormByte::Config {
 			 * Parses an item
 			 * @param istream input stream
 			 * @param type item type
+			 * @throw ParseError if item is invalid
 			 * @return parsed item
 			 */
 			std::unique_ptr<Item>							ParseItem(std::istream& istream, const Item::Type& type);
@@ -417,23 +424,9 @@ namespace StormByte::Config {
 			void 											Parse(std::istream& istream, Container& group, const ParseMode& mode);
 
 			/**
-			 * Gets current line from input stream
-			 * @param istream input stream
-			 * @return current line
-			 */
-			std::string 									GetCurrentLine(std::istream& istream);
-
-			/**
-			 * Gets current line from input stream with offset
-			 * @param istream input stream
-			 * @param offset offset
-			 * @return current line
-			 */
-			std::string 									GetCurrentLine(std::istream& istream, const int& offset);
-
-			/**
 			 * Parses an item name
 			 * @param istream input stream
+			 * @throw ParseError if name is invalid
 			 * @return item name
 			 */
 			std::string 									ParseItemName(std::istream& istream);
@@ -458,7 +451,20 @@ namespace StormByte::Config {
 			 * @param container_type container type to know the end symbol
 			 * @return bool
 			 */
-			bool 											FindContainerEnd(std::istream& istream, const Container::Type& container_type) const;
+			bool 											FindContainerEnd(std::istream& istream, const Container::Type& container_type);
+
+			/**
+			 * Consumes whitespace (and tabs, newline, etc) updating line number
+			 * @param istream stream to consume whitespace from
+			 */
+			void 											ConsumeWS(std::istream& istream);
+
+			/**
+			 * Gets a string ignoring leading whitespace updating line number
+			 * @param istream input stream
+			 * @return string value
+			 */
+			std::string 									GetStringIgnoringWS(std::istream& istream);
 	};
 	/**
 	 * Initializes configuration with istream (when istream is in the left part)
