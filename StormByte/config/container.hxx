@@ -6,10 +6,14 @@
 #include <StormByte/util/string/string.hxx>
 
 /**
- * @namespace StormByte::Config
+ * @namespace Config
  * @brief All the classes for handling configuration files and items
  */
 namespace StormByte::Config {
+	/**
+	 * @class Container
+	 * @brief Base class for a container of configuration items
+	 */
 	class STORMBYTE_PUBLIC Container {
 		public:
 			/**
@@ -30,7 +34,7 @@ namespace StormByte::Config {
 			using ConstIterator = Util::ConstIterator<Storage>;
 
 			/**
-			 * @enum OnNameClashAction
+			 * @enum OnExistingAction
 			 * @brief Action to take when a name is already in use
 			 */
 			enum class OnExistingAction: unsigned short {

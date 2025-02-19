@@ -13,7 +13,7 @@
 #include <vector>
 
 /**
- * @namespace StormByte::System
+ * @namespace System
  * @brief All the classes for handling system exceptions
  */
 namespace StormByte::System {
@@ -22,10 +22,12 @@ namespace StormByte::System {
 	 * @brief End of file struct
 	 */
 	struct {} typedef _EoF;
+
 	/**
 	 * End of file constant
 	 */
 	static constexpr const _EoF EoF = {};
+
 	/**
 	 * @class Process
 	 * @brief Process class for running external programs
@@ -39,28 +41,34 @@ namespace StormByte::System {
 			 * @param args arguments
 			 */
 			Process(const std::filesystem::path& prog, const std::vector<std::string>& args = std::vector<std::string>());
+
 			/**
 			 * Constructor
 			 * @param prog program
 			 * @param args arguments
 			 */
 			Process(std::filesystem::path&& prog, std::vector<std::string>&& args = std::vector<std::string>());
+
 			/**
 			 * Copy constructor
 			 */
 			Process(const Process&)				= delete;
+
 			/**
 			 * Move constructor
 			 */
 			Process(Process&&)					= default;
+
 			/**
 			 * Assignment operator
 			 */
 			Process& operator=(const Process&)	= delete;
+
 			/**
 			 * Move assignment operator
 			 */
 			Process& operator=(Process&&)		= default;
+
 			/**
 			 * Destructor
 			 */
@@ -71,19 +79,30 @@ namespace StormByte::System {
 			 * @return exit code
 			 */
 			int wait() noexcept;
+
 			/**
 			 * Gets the process id
 			 * @return process id
 			 */
 			pid_t get_pid() noexcept;
 			#else
+			/**
+			 * Waits for the process to finish
+			 * @return exit code
+			 */
 			DWORD wait() noexcept;
+
+			/**
+			 * Gets the process id
+			 * @return process id
+			 */
 			PROCESS_INFORMATION get_pid();
 			#endif
 			/**
 			 * Suspends the process
 			 */
 			void suspend();
+
 			/**
 			 * Resumes the process
 			 */
@@ -95,12 +114,14 @@ namespace StormByte::System {
 			 * @return Process reference
 			 */
 			Process& operator>>(Process& proc);
+
 			/**
 			 * Outputs the process stdout to a string
 			 * @param str string
 			 * @return string reference
 			 */
 			std::string& operator>>(std::string& str) const;
+
 			/**
 			 * Outputs the process stdout to an ostream
 			 * @param ostream ostream
@@ -108,12 +129,14 @@ namespace StormByte::System {
 			 * @return ostream reference
 			 */
 			friend STORMBYTE_PUBLIC std::ostream& operator<<(std::ostream& ostream, const Process& proc);
+
 			/**
 			 * Writes to the process stdin
 			 * @param str string
 			 * @return Process reference
 			 */
 			Process& operator<<(const std::string& str);
+
 			/**
 			 * Writes EOF to the process stdin
 			 * @param eof EoF
@@ -136,7 +159,14 @@ namespace StormByte::System {
 			 */
 			pid_t m_pid;
 			#else
+			/**
+			 * Process handles
+			 */
 			STARTUPINFO m_siStartInfo;
+
+			/**
+			 * Process information
+			 */
 			PROCESS_INFORMATION m_piProcInfo;
 			#endif
 			/**
@@ -150,16 +180,22 @@ namespace StormByte::System {
 			 * @param str string
 			 */
 			void send(const std::string& str);
+
 			/**
 			 * Runs the process
 			 */
 			void run();
+
 			/**
 			 * Consumes current process stdout and forwards it to another process stdin until it finishes
 			 * @param exec Process
 			 */
 			void consume_and_forward(Process&);
 			#ifdef WINDOWS
+			/**
+			 * Gets the full command
+			 * @return full command
+			 */
 			std::wstring full_command() const;
 			#endif
 
@@ -167,10 +203,12 @@ namespace StormByte::System {
 			 * Program path
 			 */
 			std::filesystem::path m_program;
+
 			/**
 			 * Program arguments
 			 */
 			std::vector<std::string> m_arguments;
+
 			/**
 			 * stdin to stdout forwarder thread
 			 */

@@ -3,7 +3,7 @@
 #include <StormByte/visibility.h>
 
 /**
- * @namespace StormByte::Database::SQLite
+ * @namespace Database::SQLite
  * @brief All the classes for handling SQLite databases
  */
 namespace StormByte::Database::SQLite {

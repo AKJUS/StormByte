@@ -7,7 +7,7 @@
 #include <variant>
 
 /**
- * @namespace StormByte::Config
+ * @namespace Config
  * @brief All the classes for handling configuration files and items
  */
 namespace StormByte::Config {

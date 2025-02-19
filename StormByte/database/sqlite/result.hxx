@@ -7,7 +7,7 @@
 #include <variant>
 
 /**
- * @namespace StormByte::Database::SQLite
+ * @namespace Database::SQLite
  * @brief All the classes for handling SQLite databases
  */
 namespace StormByte::Database::SQLite {
@@ -22,47 +22,57 @@ namespace StormByte::Database::SQLite {
 			 * @param value integer
 			 */
 			Result(const int64_t& value);
+
 			/**
 			 * Constructor
 			 * @param value string
 			 */
 			Result(const std::string& value);
+
 			/**
 			 * Constructor
 			 * @param value string
 			 */
 			Result(std::string&& value);
+
 			/**
 			 * Constructor
 			 * @param value nullptr
 			 */
 			Result(std::nullptr_t);
+
 			/**
 			 * Constructor
 			 * @param value double
 			 */
 			Result(const double&);
+
 			/**
 			 * Constructor
 			 * @param value double
 			 */
 			Result(double&&);
+
 			/**
 			 * Copy Constructor
 			 */
 			Result(const Result&)							= default;
+
 			/**
 			 * Move Constructor
 			 */
 			Result(Result&&) noexcept						= default;
+
 			/**
 			 * Assignment operator
 			 */
 			Result& operator=(const Result&)				= default;
+
 			/**
 			 * Move operator
 			 */
 			Result& operator=(Result&&) noexcept			= default;
+
 			/**
 			 * Destructor
 			 */
@@ -73,16 +83,42 @@ namespace StormByte::Database::SQLite {
 			 * @return true if the result is null
 			 */
 			virtual bool 							IsNull() const noexcept;
+
 			/**
 			 * Gets the value
 			 * @return result value
 			 */
 			template<typename T> const T&			Value() const;
+
 			#ifdef MSVC
+			/**
+			 * Gets the value
+			 * @return result value
+			 */
 			template<> const int&					Value<int>() const;
+
+			/**
+			 * Gets the value
+			 * @return result value
+			 */
 			template<> const int64_t&				Value<int64_t>() const;
+
+			/**
+			 * Gets the value
+			 * @return result value
+			 */
 			template<> const bool&					Value<bool>() const;
+
+			/**
+			 * Gets the value
+			 * @return result value
+			 */
 			template<> const double&				Value<double>() const;
+
+			/**
+			 * Gets the value
+			 * @return result value
+			 */
 			template<> const std::string&			Value<std::string>() const;
 			#endif
 
@@ -98,14 +134,17 @@ namespace StormByte::Database::SQLite {
 			 * @param type type
 			 */
 			Type m_type;
+
 			/**
 			 * Internal value
 			 */
 			std::variant<int64_t, std::string, double> m_value;
+
 			/**
 			 * Internal to mark conversion to bool
 			 */
 			mutable bool m_bool_conversion;
+
 			/**
 			 * Internal to mark conversion to int
 			 */

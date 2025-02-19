@@ -1,7 +1,7 @@
 #include <StormByte/visibility.h>
 
 /**
- * @namespace StormByte::Util
+ * @namespace Util
  * @brief All the utility classes and functions
  */
 namespace StormByte::Util {

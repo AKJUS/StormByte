@@ -6,11 +6,15 @@
 #include <string>
 
 /**
- * @namespace StormByte::System
+ * @namespace System
  * @brief All the classes for handling system exceptions
  */
 namespace StormByte::System {
-	struct STORMBYTE_PUBLIC Variable {
+	/**
+	 * @class Variable
+	 * @brief Handling system variables
+	 */
+	class STORMBYTE_PUBLIC Variable {
 		public:
 			/**
 			 * Expands environment variables in a string
@@ -19,6 +23,11 @@ namespace StormByte::System {
 			 */
 			static std::string 				Expand(const std::string& str);
 			#ifdef WINDOWS
+			/**
+			 * Expands environment variables in a string
+			 * @param str string
+			 * @return expanded string
+			 */
 			static std::string 				Expand(const std::wstring&);
 			#endif
 
@@ -30,6 +39,11 @@ namespace StormByte::System {
 			 */
 			static std::string				ExpandEnvironmentVariable(const std::string& str);
 			#ifdef WINDOWS
+			/**
+			 * Expands environment variables in a string
+			 * @param str string
+			 * @return expanded string
+			 */
 			static std::string				ExpandEnvironmentVariable(const std::wstring&);
 			#else
 			/**

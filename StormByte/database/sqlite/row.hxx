@@ -8,7 +8,7 @@
 #include <string>
 
 /**
- * @namespace StormByte::Database::SQLite
+ * @namespace Database::SQLite
  * @brief All the classes for handling SQLite databases
  */
 namespace StormByte::Database::SQLite {
@@ -24,22 +24,27 @@ namespace StormByte::Database::SQLite {
 			 * Constructor
 			 */
 			Row()							= default;
+
 			/**
 			 * Copy constructor
 			 */
 			Row(const Row&)					= default;
+
 			/**
 			 * Move constructor
 			 */
 			Row(Row&&)						= default;
+
 			/**
 			 * Assignment operator
 			 */
 			Row& operator=(const Row&)		= default;
+
 			/**
 			 * Move operator
 			 */
 			Row& operator=(Row&&) noexcept	= default;
+
 			/**
 			 * Destructor
 			 */
@@ -50,21 +55,25 @@ namespace StormByte::Database::SQLite {
 			 * @return number of columns
 			 */
 			size_t 							Columns() const noexcept;
+
 			/**
 			 * Gets the column result given its index
 			 * @return column result
 			 */
 			const std::shared_ptr<Result>	operator[](const size_t&) const;
+
 			/**
 			 * Gets the column result given its name
 			 * @return column result
 			 */
 			const std::shared_ptr<Result>	operator[](const std::string&) const;
+
 			/**
 			 * Gets the column result given its index
 			 * @return column result
 			 */
 			const std::shared_ptr<Result>	At(const size_t&) const;
+
 			/**
 			 * Gets the column result given its name
 			 * @return column result
@@ -78,17 +87,47 @@ namespace StormByte::Database::SQLite {
 			 * @param res column result
 			 */
 			void add(std::string&& name, std::shared_ptr<Result> res);
+
 			/**
 			 * Gets the column result given its index
 			 * @return column result
 			 * @throws OutOfBounds if the index is out of bounds
 			 */
 			std::shared_ptr<Result> get(const size_t&);
+
+			/**
+			 * Gets the column result given its index
+			 * @return column result
+			 * @throws OutOfBounds if the index is out of bounds
+			 */
 			const std::shared_ptr<Result> get(const size_t&) const;
+
+			/**
+			 * Gets the column result given its name
+			 * @return column result
+			 * @throws ColumnNotFound if the column is not found
+			 */
 			std::shared_ptr<Result> get(const std::string&);
+
+			/**
+			 * Gets the column result given its name
+			 * @return column result
+			 * @throws ColumnNotFound if the column is not found
+			 */
 			const std::shared_ptr<Result> get(const std::string&) const;
 
+			/**
+			 * Gets the column result given its index
+			 * @return column result
+			 * @throws OutOfBounds if the index is out of bounds
+			 */
 			std::map<std::string, std::shared_ptr<Result>> m_column_name_assoc;
+
+			/**
+			 * Gets the column result given its name
+			 * @return column result
+			 * @throws ColumnNotFound if the column is not found
+			 */
 			std::map<size_t, std::shared_ptr<Result>> m_column_pos_assoc;
 	};
 }

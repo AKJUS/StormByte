@@ -8,7 +8,7 @@
 #include <sstream>
 
 /**
- * @namespace StormByte::Util::String
+ * @namespace Util::String
  * @brief All the classes for handling strings
  */
 namespace StormByte::Util::String {

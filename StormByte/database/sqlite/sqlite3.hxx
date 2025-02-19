@@ -9,7 +9,7 @@
 
 class sqlite3; // Forward declaration so we don't have to depend on sqlite3 headers
 /**
- * @namespace StormByte::Database::SQLite
+ * @namespace Database::SQLite
  * @brief All the classes for handling SQLite databases
  */
 namespace StormByte::Database::SQLite {
@@ -25,18 +25,22 @@ namespace StormByte::Database::SQLite {
 			 * Copy constructor
 			 */
 			SQLite3(const SQLite3& db) 					= delete;
+
 			/**
 			 * Move constructor
 			 */
 			SQLite3(SQLite3&& db) noexcept				= default;
+
 			/**
 			 * Assignment operator
 			 */
 			SQLite3& operator=(const SQLite3& db) 		= delete;
+
 			/**
 			 * Move operator
 			 */
 			SQLite3& operator=(SQLite3&& db) noexcept 	= default;
+
 			/**
 			 * Destructor
 			 */
@@ -48,11 +52,13 @@ namespace StormByte::Database::SQLite {
 			 * @param dbfile database file
 			 */
 			SQLite3();
+
 			/**
 			 * Constructor
 			 * @param dbfile database file
 			 */
 			SQLite3(const std::filesystem::path& dbfile);
+
 			/**
 			 * Constructor
 			 * @param dbfile database file
@@ -63,23 +69,28 @@ namespace StormByte::Database::SQLite {
 			 * Initializes the database
 			 */
 			void 							init_database();
+
 			/**
 			 * Gets the database file
 			 * @return database file
 			 */
 			void 							begin_transaction();
+
 			/**
 			 * Begins an exclusive transaction
 			 */
 			void 							begin_exclusive_transaction();
+
 			/**
 			 * Commits the transaction
 			 */
 			void 							commit_transaction();
+
 			/**
 			 * Rolls back the transaction
 			 */
 			void 							rollback_transaction();
+
 			/**
 			 * Prepares a sentence
 			 * @param query query
@@ -87,17 +98,20 @@ namespace StormByte::Database::SQLite {
 			 * @return prepared statement
 			 */
 			std::shared_ptr<PreparedSTMT>	prepare_sentence(const std::string& query, const std::string& name);
+
 			/**
 			 * Gets a prepared statement
 			 * @param name name
 			 * @return prepared statement
 			 */
 			std::shared_ptr<PreparedSTMT>	get_prepared(const std::string& name);
+
 			/**
 			 * Executes a query ignoring its results
 			 * @param query query
 			 */
 			void							silent_query(const std::string& query);
+
 			/**
 			 * Executes a query
 			 * @param query query
@@ -110,11 +124,13 @@ namespace StormByte::Database::SQLite {
 			 * Database file
 			 */
 			std::filesystem::path m_database_file;
+
 			/**
 			 * SQLite3 database
 			 * (can not use std::unique_ptr because sqlite3 is an incomplete type)
 			 */
 			sqlite3* m_database;
+
 			/**
 			 * Prepared statements
 			 */
@@ -125,10 +141,12 @@ namespace StormByte::Database::SQLite {
 			 * Action to execute after database connection
 			 */
 			virtual void post_init_action() noexcept = 0;
+
 			/**
 			 * Closes the database
 			 */
 			void close_database();
+
 			/**
 			 * Enable the foreign keys for SQLite3 (default is disabled)
 			 */

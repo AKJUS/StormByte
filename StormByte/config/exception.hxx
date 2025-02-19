@@ -3,7 +3,7 @@
 #include <StormByte/exception.hxx>
 
 /**
- * @namespace StormByte::Config
+ * @namespace Config
  * @brief All the classes for handling configuration files and items
  */
 namespace StormByte::Config {
@@ -162,8 +162,8 @@ namespace StormByte::Config {
 	};
 
 	/**
-	 * @class InvalidName
-	 * @brief Exception thrown when adding to a group an item with invalid name
+	 * @class InvalidPath
+	 * @brief Exception thrown when adding to a group an item with invalid path
 	 */
 	class STORMBYTE_PUBLIC InvalidPath final: public Exception {
 		public:
@@ -275,6 +275,10 @@ namespace StormByte::Config {
 			~ItemNotFound() noexcept override				= default;
 	};
 
+	/**
+	 * @class ItemAlreadyExists
+	 * @brief Exception thrown when adding an item which already exists
+	 */
 	class STORMBYTE_PUBLIC ItemAlreadyExists final: public Exception {
 		public:
 			/**
@@ -335,6 +339,11 @@ namespace StormByte::Config {
 			 */
 			~ItemNameAlreadyExists() noexcept override						= default;
 	};
+
+	/**
+	 * @class OutOfBounds
+	 * @brief Exception thrown when index is out of bounds
+	 */
 	class STORMBYTE_PUBLIC OutOfBounds final: public Exception {
 		public:
 			/**

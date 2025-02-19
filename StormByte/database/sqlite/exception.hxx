@@ -6,7 +6,7 @@
 #include <cstdint>
 
 /**
- * @namespace StormByte::Database::SQLite
+ * @namespace Database::SQLite
  * @brief All the classes for handling SQLite databases
  */
 namespace StormByte::Database::SQLite {
@@ -21,22 +21,27 @@ namespace StormByte::Database::SQLite {
 			 * @param msg message
 			 */
 			Exception(const std::string& message);
+
 			/**
 			 * Copy constructor
 			 */
 			Exception(const Exception&)								= default;
+
 			/**
 			 * Move constructor
 			 */
 			Exception(Exception&&) noexcept 						= default;
+
 			/**
 			 * Assignment operator
 			 */
 			Exception& operator=(const Exception&)					= default;
+
 			/**
 			 * Move operator
 			 */
 			Exception& operator=(Exception&&) noexcept				= default;
+
 			/**
 			 * Destructor
 			 */
@@ -55,22 +60,27 @@ namespace StormByte::Database::SQLite {
 			 * @param asked_type asked type
 			 */
 			WrongResultType(const Type& source_type, const Type& asked_type);
+			
 			/**
 			 * Copy constructor
 			 */
 			WrongResultType(const WrongResultType&)					= default;
+
 			/**
 			 * Move constructor
 			 */
 			WrongResultType(WrongResultType&&) noexcept				= default;
+
 			/**
 			 * Assignment operator
 			 */
 			WrongResultType& operator=(const WrongResultType&)		= default;
+
 			/**
 			 * Move operator
 			 */
 			WrongResultType& operator=(WrongResultType&&) noexcept 	= default;
+
 			/**
 			 * Destructor
 			 */
@@ -88,22 +98,27 @@ namespace StormByte::Database::SQLite {
 			 * @param source source value
 			 */
 			Overflow(const int64_t& source);
+
 			/**
 			 * Copy constructor
 			 */
 			Overflow(const Overflow&)					= default;
+
 			/**
 			 * Move constructor
 			 */
 			Overflow(Overflow&&) noexcept				= default;
+
 			/**
 			 * Assignment operator
 			 */
 			Overflow& operator=(const Overflow&)		= default;
+
 			/**
 			 * Move operator
 			 */
 			Overflow& operator=(Overflow&&) noexcept 	= default;
+
 			/**
 			 * Destructor
 			 */
@@ -114,39 +129,45 @@ namespace StormByte::Database::SQLite {
 	 * @class ColumnNotFound
 	 * @brief Exception when accessing a not found column
 	 */
-	class STORMBYTE_PUBLIC ColumNotFound: public Exception {
+	class STORMBYTE_PUBLIC ColumnNotFound: public Exception {
 		public:
 			/**
 			 * Constructor
 			 * @param max maximum number of columns
 			 * @param asked asked column number
 			 */
-			ColumNotFound(const size_t& max, const size_t& asked);
+			ColumnNotFound(const size_t& max, const size_t& asked);
+
 			/**
 			 * Constructor
 			 * @param name column name
 			 */
-			ColumNotFound(const std::string& name);
+			ColumnNotFound(const std::string& name);
+
 			/**
 			 * Copy constructor
 			 */
-			ColumNotFound(const ColumNotFound&)					= default;
+			ColumnNotFound(const ColumnNotFound&)					= default;
+
 			/**
 			 * Move constructor
 			 */
-			ColumNotFound(ColumNotFound&&) noexcept				= default;
+			ColumnNotFound(ColumnNotFound&&) noexcept				= default;
+
 			/**
 			 * Assignment operator
 			 */
-			ColumNotFound& operator=(const ColumNotFound&)		= default;
+			ColumnNotFound& operator=(const ColumnNotFound&)		= default;
+
 			/**
 			 * Move operator
 			 */
-			ColumNotFound& operator=(ColumNotFound&&) noexcept 	= default;
+			ColumnNotFound& operator=(ColumnNotFound&&) noexcept 	= default;
+
 			/**
 			 * Destructor
 			 */
-			~ColumNotFound() noexcept override					= default;
+			~ColumnNotFound() noexcept override						= default;
 	};
 
 	/**
@@ -160,27 +181,33 @@ namespace StormByte::Database::SQLite {
 			 * @param reason reason
 			 */
 			ConnectionError(const std::string& reason);
+
 			/**
 			 * Constructor
 			 * @param reason reason
 			 */
 			ConnectionError(std::string&&);
+
 			/**
 			 * Copy constructor
 			 */
 			ConnectionError(const ConnectionError&)					= default;
+
 			/**
 			 * Move constructor
 			 */
 			ConnectionError(ConnectionError&&) noexcept				= default;
+
 			/**
 			 * Assignment operator
 			 */
 			ConnectionError& operator=(const ConnectionError&)		= default;
+
 			/**
 			 * Move operator
 			 */
 			ConnectionError& operator=(ConnectionError&&) noexcept 	= default;
+
 			/**
 			 * Destructor
 			 */
@@ -198,27 +225,33 @@ namespace StormByte::Database::SQLite {
 			 * @param reason reason
 			 */
 			QueryError(const std::string& reason);
+
 			/**
 			 * Constructor
 			 * @param reason reason
 			 */
 			QueryError(std::string&&);
+
 			/**
 			 * Copy constructor
 			 */
 			QueryError(const QueryError&)					= default;
+
 			/**
 			 * Move constructor
 			 */
 			QueryError(QueryError&&) noexcept				= default;
+
 			/**
 			 * Assignment operator
 			 */
 			QueryError& operator=(const QueryError&)		= default;
+
 			/**
 			 * Move operator
 			 */
 			QueryError& operator=(QueryError&&) noexcept 	= default;
+
 			/**
 			 * Destructor
 			 */

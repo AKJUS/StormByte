@@ -5,7 +5,7 @@
 #include <filesystem>
 
 /**
- * @namespace StormByte::System
+ * @namespace System
  * @brief All the classes for handling system exceptions
  */
 namespace StormByte::System {
@@ -24,22 +24,27 @@ namespace StormByte::System {
 			 * @param message message
 			 */
 			Exception(const std::string& message);
+
 			/**
 			 * Copy constructor
 			 */
 			Exception(const Exception&)					= default;
+
 			/**
 			 * Move constructor
 			 */
 			Exception(Exception&&) noexcept				= default;
+
 			/**
 			 * Assignment operator
 			 */
 			Exception& operator=(const Exception&)		= default;
+
 			/**
 			 * Move operator
 			 */
 			Exception& operator=(Exception&&) noexcept	= default;
+
 			/**
 			 * Destructor
 			 */
@@ -57,6 +62,12 @@ namespace StormByte::System {
 			 * @brief File operation
 			 */
 			enum class Operation { Read = 0, Write }; 
+
+			/**
+			 * Converts Operation to string
+			 * @param op operation
+			 * @return string
+			 */
 			constexpr static const char* operation_to_string(const Operation& op) noexcept {
 				switch(op) {
 					case Operation::Read: 	return "read";
@@ -64,28 +75,34 @@ namespace StormByte::System {
 					default:				return "unknown";
 				}
 			}
+
 			/**
 			 * Constructor
 			 * @param file file path
 			 * @param operation operation
 			 */
 			FileIOError(const std::filesystem::path& file, const Operation& operation);
+
 			/**
 			 * Copy constructor
 			 */
 			FileIOError(const FileIOError&)				= default;
+
 			/**
 			 * Move constructor
 			 */
 			FileIOError(FileIOError&&) noexcept			= default;
+
 			/**
 			 * Assignment operator
 			 */
 			FileIOError& operator=(const FileIOError&)	= default;
+
 			/**
 			 * Move assignment operator
 			 */
 			FileIOError& operator=(FileIOError&&)		= default;
+
 			/**
 			 * Destructor
 			 */
