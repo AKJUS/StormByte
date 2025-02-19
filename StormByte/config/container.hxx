@@ -1,5 +1,7 @@
 #pragma once
 
+#include <StormByte/config/serializable.hxx>
+#include <StormByte/config/comment.hxx>
 #include <StormByte/config/item.hxx>
 #include <StormByte/config/exception.hxx>
 #include <StormByte/util/iterator.hxx>
@@ -14,7 +16,7 @@ namespace StormByte::Config {
 	 * @class Container
 	 * @brief Base class for a container of configuration items
 	 */
-	class STORMBYTE_PUBLIC Container {
+	class STORMBYTE_PUBLIC Container: public Serializable {
 		public:
 			/**
 			 * Shortcut alias for internal storage
@@ -188,16 +190,6 @@ namespace StormByte::Config {
 			virtual Item&										Add(Item&& item, const OnExistingAction& on_existing = OnExistingAction::ThrowException) = 0;
 
 			/**
-			 * Adds a comment to the container
-			 * @param comment comment value
-			 */
-			inline virtual void 								AddComment(const std::string& comment) {
-				Item item(comment);
-				item.m_type = Item::Type::Comment;
-				Add(std::move(item));
-			}
-
-			/**
 			 * Gets a direct child by name
 			 * @param name comment value
 			 * @throw ItemNotFound if item is not found
@@ -226,13 +218,13 @@ namespace StormByte::Config {
 			 * Clones the container
 			 * @return shared pointer to cloned container
 			 */
-			virtual std::shared_ptr<Container> 					Clone() const = 0;
+			virtual std::shared_ptr<Serializable> 				Clone() const = 0;
 
 			/**
 			 * Moves the container
 			 * @return shared pointer to moved container
 			 */
-			virtual std::shared_ptr<Container>					Move() = 0;
+			virtual std::shared_ptr<Serializable>				Move() = 0;
 
 			/**
 			 * Checks if item exists by path
@@ -286,6 +278,7 @@ namespace StormByte::Config {
 				switch(type) {
 					case Type::Group:	return std::make_pair<const char, const char>('{', '}');
 					case Type::List:	return std::make_pair<const char, const char>('[', ']');
+					default:			return std::make_pair<const char, const char>('\0', '\0');
 				}
 			}
 
@@ -298,6 +291,7 @@ namespace StormByte::Config {
 				switch(type) {
 					case Type::Group:	return '}';
 					case Type::List:	return ']';
+					default:			return '\0';
 				}
 			}
 

@@ -10,16 +10,48 @@
  */
 namespace StormByte::Config {
 	/**
+	 * @namespace Parser
+	 * @brief Parsing types
+	 */
+	namespace Parser {
+		/**
+		 * @enum Parser::Mode
+		 * @brief Parsing mode
+		 */
+		enum class Mode: unsigned short {
+			Named, 	///< Named items
+			Unnamed ///< Unnamed items
+		};
+
+		/**
+		 * @enum CommentType
+		 * @brief Comment type
+		 */
+		enum class CommentType: unsigned short {
+			None, 		///< No comment
+			SingleLine, ///< Single line comment
+			MultiLine 	///< Multi line comment
+		};
+	};
+
+	namespace Comment {
+		class Multi;
+		class Single;
+	}
+
+	/**
 	 * @class Config
 	 * @brief Abstract class for a configuration file
 	 * 
 	 * The configuration specs are defined by its elements, have no "root" element and can contain any number of the below:
-	 * @see Bool
-	 * @see Double
-	 * @see Integer
-	 * @see String
-	 * @see Comment
-	 * @see Group
+	 * - Bool
+	 * - Double
+	 * - Integer
+	 * - String
+	 * - Single line comment (starting with #)
+	 * - Multiple line comment (like C/C++ multiline comments)
+	 * - Group
+	 * - List
 	 */
 	class STORMBYTE_PUBLIC Config: private Group {
 		public:
@@ -215,11 +247,10 @@ namespace StormByte::Config {
 			}
 
 			/**
-			 * Adds a comment to the container
-			 * @param comment comment value
+			 * Clears all configuration items
 			 */
-			inline void										AddComment(const std::string& comment) {
-				Group::AddComment(comment);
+			inline void										Clear() noexcept {
+				Group::Clear();
 			}
 
 			/**
@@ -340,16 +371,6 @@ namespace StormByte::Config {
 			 */
 			unsigned int 									m_current_line;
 
-
-			/**
-			 * @enum ParseMode
-			 * @brief Parsing mode
-			 */
-			enum class ParseMode: unsigned short {
-				Named,
-				Unnamed
-			};
-
 			/**
 			 * Starts parsing
 			 * @param istream input stream
@@ -363,6 +384,20 @@ namespace StormByte::Config {
 			 */
 			template<typename T> T							ParseValue(std::istream& istream);
 			#ifdef MSVC
+			/**
+			 * Parses a value
+			 * @param istream input stream
+			 * @return parsed value
+			 */
+			template<> Comment::Multi						ParseValue<Comment::Multi>(std::istream& istream);
+
+			/**
+			 * Parses a value
+			 * @param istream input stream
+			 * @return parsed value
+			 */
+			template<> Comment::Single						ParseValue<Comment::Single>(std::istream& istream);
+
 			/**
 			 * Parses a value
 			 * @param istream input stream
@@ -393,19 +428,18 @@ namespace StormByte::Config {
 			#endif
 
 			/**
-			 * Finds and parses a comment
+			 * Finds a comment and returns its type
 			 * @param istream input stream
-			 * @param container container to put comments to
-			 * @return bool
+			 * @return comment type
 			 */
-			template<class C> bool							FindAndParseComment(std::istream& istream, C& container);
+			Parser::CommentType								FindComment(std::istream& istream);
 
 			/**
 			 * Finds and parses comments
 			 * @param istream input stream
 			 * @param container container to put comments to
 			 */
-			template<class C> void							FindAndParseComments(std::istream& istream, C& container);
+			void											FindAndParseComments(std::istream& istream, Container& container);
 
 			/**
 			 * Parses an item
@@ -421,7 +455,7 @@ namespace StormByte::Config {
 			 * @param istream input stream
 			 * @param container Container to put data to
 			 */
-			void 											Parse(std::istream& istream, Container& group, const ParseMode& mode);
+			void 											Parse(std::istream& istream, Container& group, const Parser::Mode& mode);
 
 			/**
 			 * Parses an item name

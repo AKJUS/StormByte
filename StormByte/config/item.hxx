@@ -1,8 +1,8 @@
 #pragma once
 
+#include <StormByte/config/serializable.hxx>
 #include <StormByte/config/exception.hxx>
 
-#include <memory>
 #include <optional>
 #include <variant>
 
@@ -14,16 +14,18 @@ namespace StormByte::Config {
 	class Group; // Needed for MSVC template specializations
 	class List; // Needed for MSVC template specializations
 	class Container;
+	namespace Comment {
+		class Comment;
+	}
 	/**
 	 * @class Item
 	 * @brief Class for a configuration item
 	 */
-	class STORMBYTE_PUBLIC Item {
-		friend class Container; // for AddComment
+	class STORMBYTE_PUBLIC Item: public Serializable {
 		/**
 		 * Shortcut alias for internal storage
 		 */
-		using ItemStorage = std::variant<std::string, int, double, bool, std::shared_ptr<Container>>;
+		using ItemStorage = std::variant<std::string, int, double, bool, std::shared_ptr<Serializable>>;
 
 		public:
 			/**
@@ -77,6 +79,18 @@ namespace StormByte::Config {
 			 * @param value item value
 			 */
 			Item(std::string&& name, Container&& value);
+
+			/**
+			 * Creates an item with a comment value
+			 * @param value item value
+			 */
+			Item(const Comment::Comment& value);
+
+			/**
+			 * Creates an item with a comment value
+			 * @param value item value
+			 */
+			Item(Comment::Comment&& value);
 
 			/**
 			 * Creates an item moving the group value
@@ -266,6 +280,18 @@ namespace StormByte::Config {
 			 * Value getter as reference
 			 * @return value reference
 			 */
+			template<> Serializable&					Value<Serializable>();
+
+			/**
+			 * Value getter as const reference
+			 * @return value const reference
+			 */
+			template<> const Serializable&				Value<Serializable>() const;
+			
+			/**
+			 * Value getter as reference
+			 * @return value reference
+			 */
 			template<> Group&							Value<Group>();
 
 			/**
@@ -297,6 +323,19 @@ namespace StormByte::Config {
 			 * @return value const reference
 			 */
 			template<> const Container&					Value<Container>() const;
+
+			/**
+			 * Value getter as reference
+			 * @return value reference
+			 */
+			template<> Comment::Comment&				Value<Comment::Comment>();
+
+			/**
+			 * Value getter as const reference
+			 * @return value const reference
+			 */
+			template<> const Comment::Comment&			Value<Comment::Comment>() const;
+
 			/**
 			 * Value getter as reference
 			 * @return value reference
@@ -351,7 +390,7 @@ namespace StormByte::Config {
 			 * @param indent_level intentation level
 			 * @return serialized string
 			 */
-			virtual inline std::string					Serialize(const int& indent_level) const noexcept {
+			virtual inline std::string					Serialize(const int& indent_level) const noexcept override {
 				return ContentsToString(indent_level);
 			}
 
@@ -386,5 +425,17 @@ namespace StormByte::Config {
 					result += *m_name + " = ";
 				return result;
 			}
+
+			/**
+			 * Clones item
+			 * @return shared pointer to cloned item
+			 */
+			std::shared_ptr<Serializable>				Clone() const override;
+
+			/**
+			 * Moves item
+			 * @return shared pointer to moved item
+			 */
+			std::shared_ptr<Serializable>				Move() override;
 	};
 }

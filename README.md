@@ -143,12 +143,16 @@ favorite_numbers = [
 #### Comments
 
 Comments can be added using the `#` symbol. Comments can appear on their own line or after a value.
+Furthermore, multiline comments will use C/C++ like syntax and will be enclosed between `/*` and `*/`
 
 ##### Example
 
 ```plaintext
 # This is a comment
 username = "example_user"  # This is an inline comment
+/**
+ * Or multiline comments which are also allowed
+ */
 ```
 
 #### Advanced Examples

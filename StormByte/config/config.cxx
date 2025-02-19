@@ -1,5 +1,7 @@
 #include <StormByte/config/config.hxx>
 #include <StormByte/config/list.hxx>
+#include <StormByte/config/comment/multi.hxx>
+#include <StormByte/config/comment/single.hxx>
 
 #include <regex>
 
@@ -70,10 +72,46 @@ void Config::StartParse(std::istream& istream) {
 	for (auto it = m_before_read_hooks.begin(); it != m_before_read_hooks.end(); it++) {
 		(*it)(*this);
 	}
-	Parse(istream, *this, ParseMode::Named);
+	Parse(istream, *this, Parser::Mode::Named);
 	for (auto it = m_after_read_hooks.begin(); it != m_after_read_hooks.end(); it++) {
 		(*it)(*this);
 	}
+}
+
+template<> Comment::Multi Config::ParseValue<Comment::Multi>(std::istream& istream) {
+	bool comment_closed = false;
+	char c;
+	std::string buffer;
+	while (!comment_closed && istream.get(c)) {
+		switch(c) {
+			case '*':
+				if (istream.peek() == '/') {
+					comment_closed = true;
+					istream.get(c);
+				}
+				else
+					buffer += c;
+				break;
+			case '\n':
+				m_current_line++;
+				[[fallthrough]];
+			default:
+				buffer += c;
+				break;
+		}
+	}
+
+	if (!comment_closed || istream.eof() || istream.fail())
+		throw ParseError(m_current_line, "Unclosed multiline comment");
+
+	return Comment::Multi(std::move(buffer));
+}
+
+template<> Comment::Single Config::ParseValue<Comment::Single>(std::istream& istream) {
+	std::string line;
+	std::getline(istream, line);
+	m_current_line++;
+	return Comment::Single(std::move(line));
 }
 
 template<> double Config::ParseValue<double>(std::istream& istream) {
@@ -182,34 +220,43 @@ template<> bool Config::ParseValue<bool>(std::istream& istream) {
 	return buffer == "true";
 }
 
-template<class C> bool Config::FindAndParseComment(std::istream& istream, C& container) {
+Parser::CommentType Config::FindComment(std::istream& istream) {
 	ConsumeWS(istream);
-	if (istream.eof() || istream.fail())
-		return false;
-	std::string line;
-	bool result = false;
-	auto start_pos = istream.tellg();
-	if (std::getline(istream, line)) {
-		if (line[0] == '#') {
-			line.erase(line.begin());
-			container.AddComment(line);
-			result = true;
-			m_current_line++;
-		}
-		else {
-			istream.seekg(start_pos);
-			result = false;
+	if (istream.eof())
+		return Parser::CommentType::None;
+	char c;
+	auto current_position = istream.tellg();
+	istream.get(c);
+	if (c == '#') {
+		return Parser::CommentType::SingleLine;
+	}
+	else if (c == '/') {
+		istream.get(c);
+		if (c == '*') {
+			return Parser::CommentType::MultiLine;
 		}
 	}
 	else {
 		istream.clear();
-		istream.seekg(start_pos);
+		istream.seekg(current_position);
 	}
-	return result;
+	return Parser::CommentType::None;
 }
 
-template<class C> void Config::FindAndParseComments(std::istream& istream, C& container) {
-	while (FindAndParseComment(istream, container));
+void Config::FindAndParseComments(std::istream& istream, Container& container) {
+	Parser::CommentType type;
+	while ((type = FindComment(istream)) != Parser::CommentType::None) {
+		switch (type) {
+			case Parser::CommentType::SingleLine:
+				container.Add(Item(ParseValue<Comment::Single>(istream)));
+				break;
+			case Parser::CommentType::MultiLine:
+			container.Add(Item(ParseValue<Comment::Multi>(istream)));
+				break;
+			case Parser::CommentType::None:
+				return;
+		}
+	}
 }
 
 std::unique_ptr<Item> Config::ParseItem(std::istream& istream, const Item::Type& type) {
@@ -219,17 +266,18 @@ std::unique_ptr<Item> Config::ParseItem(std::istream& istream, const Item::Type&
 			switch (ParseContainerType(istream)) {
 				case Container::Type::Group: {
 					Group group;
-					Parse(istream, group, ParseMode::Named);
+					Parse(istream, group, Parser::Mode::Named);
 					return std::make_unique<Item>(std::move(group));
 				}
 				case Container::Type::List: {
 					List list;
-					Parse(istream, list, ParseMode::Unnamed);
+					Parse(istream, list, Parser::Mode::Unnamed);
 					return std::make_unique<Item>(std::move(list));
 				}
 			}
 			break;
 		case Item::Type::Comment: // Not handled here but make compiler not emit any warning
+			return nullptr;
 		case Item::Type::String:
 			return std::make_unique<Item>(ParseValue<std::string>(istream));
 		case Item::Type::Integer:
@@ -242,13 +290,13 @@ std::unique_ptr<Item> Config::ParseItem(std::istream& istream, const Item::Type&
 	return nullptr;
 }
 
-void Config::Parse(std::istream& istream, Container& container, const ParseMode& mode) {
+void Config::Parse(std::istream& istream, Container& container, const Parser::Mode& mode) {
 	bool halt = false;
 	FindAndParseComments(istream, container);
 	while (!halt && !istream.eof()) {
 		std::string item_name;
 
-		if (mode == ParseMode::Named) {
+		if (mode == Parser::Mode::Named) {
 			// Item Name
 			item_name = ParseItemName(istream);
 			
@@ -263,12 +311,13 @@ void Config::Parse(std::istream& istream, Container& container, const ParseMode&
 		Item::Type type = ParseType(istream);
 		std::unique_ptr<Item> item = ParseItem(istream, type);
 
-		if (mode == ParseMode::Named)
+		if (mode == Parser::Mode::Named)
 			item->Name() = std::move(item_name);
 
 		container.Add(std::move(*item), m_on_existing_action);
 
 		FindAndParseComments(istream, container);
+
 		if (FindContainerEnd(istream, container.GetType())) {
 			// If it is encountered on level 0 it is a syntax error
 			if (m_container_level == 0)
@@ -278,6 +327,7 @@ void Config::Parse(std::istream& istream, Container& container, const ParseMode&
 			
 			halt = true;
 		}
+
 		if (istream.fail()) {
 			if (m_container_level > 0)
 				throw ParseError(m_current_line, "Unexpected EOF");
@@ -379,12 +429,12 @@ void Config::ConsumeWS(std::istream& istream) {
 	char c;
 	while (istream.get(c)) {
 		switch(c) {
+			case '\n':
+				m_current_line++;
+				[[fallthrough]];
 			case ' ':
 			case '\t':
 			case '\r':
-				continue;
-			case '\n':
-				m_current_line++;
 				continue;
 			default:
 				istream.unget();
@@ -396,17 +446,21 @@ void Config::ConsumeWS(std::istream& istream) {
 std::string Config::GetStringIgnoringWS(std::istream& istream) {
 	ConsumeWS(istream);
 	std::string buffer = "";
+	bool character_found = false;
 	char c;
 	while (istream.get(c)) {
 		switch(c) {
+			case '\n':
+				m_current_line++;
+				[[fallthrough]];
 			case ' ':
 			case '\t':
 			case '\r':
-				return buffer;
-			case '\n':
-				m_current_line++;
-				return buffer;
+				if (character_found)
+					return buffer;
+				break;
 			default:
+				character_found = true;
 				buffer += c;
 				continue;
 		}

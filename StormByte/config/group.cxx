@@ -2,11 +2,11 @@
 
 using namespace StormByte::Config;
 
-std::shared_ptr<Container> Group::Clone() const {
+std::shared_ptr<Serializable> Group::Clone() const {
 	return std::make_shared<Group>(*this);
 }
 
-std::shared_ptr<Container> Group::Move() {
+std::shared_ptr<Serializable> Group::Move() {
 	return std::make_shared<Group>(std::move(*this));
 }
 

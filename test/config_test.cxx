@@ -1,5 +1,7 @@
 #include <StormByte/config/config.hxx>
 #include <StormByte/config/list.hxx>
+#include <StormByte/config/comment/multi.hxx>
+#include <StormByte/config/comment/single.hxx>
 #include <StormByte/system/system.hxx>
 
 #include <iostream>
@@ -796,7 +798,7 @@ int config_list_test() {
 	Config cfg;
 	cfg.Add(Item("testList", List()));
 	Item& list = cfg["testList"];
-	list.Value<List>().AddComment("List comment");
+	list.Value<List>().Add(Item(Comment::Single("List comment")));
 	list.Value<List>().Add(Item(66));
 	list.Value<List>().Add(Item("Test string"));
 	cfg.Add(Item("testGroup", Group()));
@@ -805,7 +807,7 @@ int config_list_test() {
 	group.Value<Group>().Add(Item("testString2", "Group String"));
 	group.Value<Group>().Add(Item("testList2", List()));
 	Item& list2 = group.Value<Group>()["testList2"];
-	list2.Value<List>().AddComment("List comment 2");
+	list2.Value<List>().Add(Item(Comment::Single("List comment 2")));
 	list2.Value<List>().Add(Item(11));
 
 	const std::string expected = "testList = [\n"
@@ -918,6 +920,59 @@ int complex_path_access() {
 	RETURN_TEST("complex_path_access", result);
 }
 
+int good_comment_multi_conf1() {
+	int result = 0;
+	Config cfg;
+	try {
+		std::fstream file;
+		file.open(CurrentFileDirectory / "files" / "good_comment_multi_conf1.conf", std::ios::in);
+		cfg << file;
+		file.close();
+		const std::string expected = 
+		"# This is a comment\n"
+		"testInteger = 6\n"
+		"/*\n"
+ 		" * This is a block comment\n"
+		" */\n"
+		"testString = \"test\"\n"
+		"/* This is a comment */\n"
+		"testGroup = {\n"
+		"\t/**\n"
+		"\t * This is a documentation comment\n"
+		"\t */\n"
+		"\t/* testInt = 6 */\n"
+		"\ttestString = \"test2\"\n"
+		"}\n";
+		const std::string actual = (std::string)cfg;
+		ASSERT_EQUAL("good_comment_conf1", expected, actual);
+	}
+	catch(const StormByte::Config::Exception&) {
+		result = 1;
+	}
+	
+	RETURN_TEST("good_double_conf2", result);
+}
+
+int test_config_hooks() {
+	int result = 0;
+	Config cfg1;
+	cfg1.AddHookAfterRead([](Config& cfg) {
+		cfg.Clear();
+	});
+	try {
+		std::fstream file;
+		file.open(CurrentFileDirectory / "files" / "complex_conf1.conf", std::ios::in);
+		cfg1 << file;
+		file.close();
+		ASSERT_EQUAL("test_config_hooks", 0, cfg1.Size());
+	}
+	catch(const StormByte::Config::Exception& e) {
+		std::cerr << e.what() << std::endl;
+		result = 1;
+	}
+	return result;
+}
+
 int main() {
     int result = 0;
     try {
@@ -958,6 +1013,8 @@ int main() {
 		result += complex_conf1();
 		result += copy_and_delete();
 		result += complex_path_access();
+		result += good_comment_multi_conf1();
+		result += test_config_hooks();
     } catch (const StormByte::Config::Exception& ex) {
         std::cerr << ex.what() << std::endl;
         result++;

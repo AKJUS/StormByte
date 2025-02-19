@@ -74,12 +74,12 @@ namespace StormByte::Config {
 			 * Clones the container
 			 * @return cloned container
 			 */
-			std::shared_ptr<Container>						Clone() const override;
+			std::shared_ptr<Serializable>					Clone() const override;
 
 			/**
 			 * Moves the container
 			 * @return moved container
 			 */
-			std::shared_ptr<Container>						Move() override;
+			std::shared_ptr<Serializable>					Move() override;
 	};
 }

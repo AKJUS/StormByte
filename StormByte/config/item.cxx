@@ -1,4 +1,4 @@
-#include <StormByte/config/item.hxx>
+#include <StormByte/config/comment.hxx>
 #include <StormByte/config/group.hxx>
 #include <StormByte/config/list.hxx>
 #include <StormByte/config/exception.hxx>
@@ -15,6 +15,10 @@ Item::Item(const Container& value):m_type(Type::Container), m_value(std::make_un
 Item::Item(std::string&& name, Container&& value):m_name(std::move(name)), m_type(Type::Container), m_value(std::make_unique<ItemStorage>(value.Move())) {}
 
 Item::Item(Container&& value):m_type(Type::Container), m_value(std::make_unique<ItemStorage>(value.Move())) {}
+
+Item::Item(const Comment::Comment& value):m_type(Type::Comment), m_value(std::make_unique<ItemStorage>(value.Clone())) {}
+
+Item::Item(Comment::Comment&& value):m_type(Type::Comment), m_value(std::make_unique<ItemStorage>(value.Move())) {}
 
 Item::Item(const std::string& name, const std::string& value):m_name(name), m_type(Type::String), m_value(std::make_unique<ItemStorage>(value)) {}
 
@@ -65,40 +69,76 @@ bool Item::operator==(const Item& other) const noexcept {
 	return m_name == other.m_name && m_type == other.m_type && *m_value == *other.m_value;
 }
 
-template<> Group& Item::Value<Group>() {
-	if (m_type != Type::Container || !dynamic_cast<Group*>(std::get<std::shared_ptr<Container>>(*m_value).get()))
-		throw WrongValueTypeConversion(TypeAsString(), Container::TypeAsString(Container::Type::Group));
-	return *dynamic_cast<Group*>(std::get<std::shared_ptr<Container>>(*m_value).get());
+template<> Serializable& Item::Value<Serializable>() {
+	if (m_type != Type::Container && m_type != Type::Comment)
+		throw WrongValueTypeConversion(TypeAsString(), "Serializable");
+	return *std::get<std::shared_ptr<Serializable>>(*m_value);
 }
 
-template<> const Group& Item::Value<Group>() const {
-	if (m_type != Type::Container || !dynamic_cast<Group*>(std::get<std::shared_ptr<Container>>(*m_value).get()))
-		throw WrongValueTypeConversion(TypeAsString(), Container::TypeAsString(Container::Type::Group));
-	return *dynamic_cast<Group*>(std::get<std::shared_ptr<Container>>(*m_value).get());
-}
-
-template<> List& Item::Value<List>() {
-	if (m_type != Type::Container || !dynamic_cast<List*>(std::get<std::shared_ptr<Container>>(*m_value).get()))
-		throw WrongValueTypeConversion(TypeAsString(), Container::TypeAsString(Container::Type::List));
-	return *dynamic_cast<List*>(std::get<std::shared_ptr<Container>>(*m_value).get());
-}
-
-template<> const List& Item::Value<List>() const {
-	if (m_type != Type::Container || !dynamic_cast<List*>(std::get<std::shared_ptr<Container>>(*m_value).get()))
-		throw WrongValueTypeConversion(TypeAsString(), Container::TypeAsString(Container::Type::List));
-	return *dynamic_cast<List*>(std::get<std::shared_ptr<Container>>(*m_value).get());
+template<> const Serializable& Item::Value<Serializable>() const {
+	if (m_type != Type::Container && m_type != Type::Comment)
+		throw WrongValueTypeConversion(TypeAsString(), "Serializable");
+	return *std::get<std::shared_ptr<Serializable>>(*m_value);
 }
 
 template<> Container& Item::Value<Container>() {
 	if (m_type != Type::Container)
 		throw WrongValueTypeConversion(TypeAsString(), TypeAsString(Type::Container));
-	return *std::get<std::shared_ptr<Container>>(*m_value).get();
+	return *std::static_pointer_cast<Container>(std::get<std::shared_ptr<Serializable>>(*m_value));
 }
 
 template<> const Container& Item::Value<Container>() const {
 	if (m_type != Type::Container)
 		throw WrongValueTypeConversion(TypeAsString(), TypeAsString(Type::Container));
-	return *std::get<std::shared_ptr<Container>>(*m_value);
+	return *std::static_pointer_cast<Container>(std::get<std::shared_ptr<Serializable>>(*m_value));
+}
+
+template<> Group& Item::Value<Group>() {
+	if (m_type != Type::Container)
+		throw WrongValueTypeConversion(TypeAsString(), Container::TypeAsString(Container::Type::Group));
+	Container& container = *std::static_pointer_cast<Container>(std::get<std::shared_ptr<Serializable>>(*m_value));
+	if (container.GetType() != Container::Type::Group)
+		throw WrongValueTypeConversion(TypeAsString(), Container::TypeAsString(Container::Type::Group));
+	return *static_cast<Group*>(&container);
+}
+
+template<> const Group& Item::Value<Group>() const {
+	if (m_type != Type::Container)
+		throw WrongValueTypeConversion(TypeAsString(), Container::TypeAsString(Container::Type::Group));
+	const Container& container = *std::static_pointer_cast<Container>(std::get<std::shared_ptr<Serializable>>(*m_value));
+	if (container.GetType() != Container::Type::Group)
+		throw WrongValueTypeConversion(TypeAsString(), Container::TypeAsString(Container::Type::Group));
+	return *static_cast<const Group*>(&container);
+}
+
+template<> List& Item::Value<List>() {
+	if (m_type != Type::Container)
+		throw WrongValueTypeConversion(TypeAsString(), Container::TypeAsString(Container::Type::List));
+	Container& container = *std::static_pointer_cast<Container>(std::get<std::shared_ptr<Serializable>>(*m_value));
+	if (container.GetType() != Container::Type::List)
+		throw WrongValueTypeConversion(TypeAsString(), Container::TypeAsString(Container::Type::List));
+	return *static_cast<List*>(&container);
+}
+
+template<> const List& Item::Value<List>() const {
+	if (m_type != Type::Container)
+		throw WrongValueTypeConversion(TypeAsString(), Container::TypeAsString(Container::Type::List));
+	const Container& container = *std::static_pointer_cast<Container>(std::get<std::shared_ptr<Serializable>>(*m_value));
+	if (container.GetType() != Container::Type::List)
+		throw WrongValueTypeConversion(TypeAsString(), Container::TypeAsString(Container::Type::List));
+	return *static_cast<const List*>(&container);
+}
+
+template<> Comment::Comment& Item::Value<Comment::Comment>() {
+	if (m_type != Type::Comment)
+		throw WrongValueTypeConversion(TypeAsString(), TypeAsString(Type::Comment));
+	return *std::static_pointer_cast<Comment::Comment>(std::get<std::shared_ptr<Serializable>>(*m_value));
+}
+
+template<> const Comment::Comment& Item::Value<Comment::Comment>() const {
+	if (m_type != Type::Comment)
+		throw WrongValueTypeConversion(TypeAsString(), TypeAsString(Type::Comment));
+	return *std::static_pointer_cast<Comment::Comment>(std::get<std::shared_ptr<Serializable>>(*m_value));
 }
 
 template<> int& Item::Value<int>() {
@@ -130,14 +170,14 @@ template<> const double& Item::Value<double>() const {
 }
 
 template<> std::string& Item::Value<std::string>() {
-	if (m_type != Type::String && m_type != Type::Comment)
+	if (m_type != Type::String)
 		throw WrongValueTypeConversion(TypeAsString(), TypeAsString(Type::String));
 	else
 		return std::get<std::string>(*m_value);
 }
 
 template<> const std::string& Item::Value<std::string>() const {
-	if (m_type != Type::String && m_type != Type::Comment)
+	if (m_type != Type::String)
 		throw WrongValueTypeConversion(TypeAsString(), TypeAsString(Type::String));
 	else
 		return std::get<std::string>(*m_value);
@@ -173,11 +213,19 @@ std::string Item::ContentsToString(const int& indent_level) const noexcept {
 			serial += NameEqualSignString() + std::string(Value<bool>() ? "true" : "false");
 			break;
 		case Type::Comment:
-			serial += "#" + Value<std::string>();
+			serial += Value<Comment::Comment>().Serialize(indent_level);
 			break;
 		case Type::Container:
 			serial += NameEqualSignString() + Value<Container>().Serialize(indent_level);
 			break;
 	}
 	return serial + "\n";
+}
+
+std::shared_ptr<Serializable> Item::Clone() const {
+	return std::make_shared<Item>(*this);
+}
+
+std::shared_ptr<Serializable> Item::Move() {
+	return std::make_shared<Item>(std::move(*this));
 }
