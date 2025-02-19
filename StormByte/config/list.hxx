@@ -12,7 +12,7 @@ namespace StormByte::Config {
 	 * @brief List in configuration item which can hold other items and also subgroups and sublists recursivelly separated by spaces
 	 * @code
 	 * include_dirs = [
-	 * 		"/usr/include",
+	 * 		"/usr/include"
 	 * 		"/usr/local/include"
 	 * ]
 	 * @endcode

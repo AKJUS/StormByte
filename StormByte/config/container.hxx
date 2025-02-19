@@ -14,35 +14,35 @@
 namespace StormByte::Config {
 	/**
 	 * @class Container
-	 * @brief Base class for a container of configuration items
+	 * @brief Base abstract class for a container of configuration items
 	 */
 	class STORMBYTE_PUBLIC Container: public Serializable {
 		public:
 			/**
 			 * Shortcut alias for internal storage
 			 */
-			using Storage = std::vector<Item>;
+			using Storage = std::vector<Item>;					///< Shortcut alias for internal storage
 
 			/**
 			 * @class Iterator
 			 * @brief Iterator for Container
 			 */
-			using Iterator = Util::Iterator<Storage>;
+			using Iterator = Util::Iterator<Storage>;			///< Iterator for Container
 
 			/**
 			 * @class ConstIterator
 			 * @brief Const iterator for Container
 			 */
-			using ConstIterator = Util::ConstIterator<Storage>;
+			using ConstIterator = Util::ConstIterator<Storage>;	///< ConstIterator for Container
 
 			/**
 			 * @enum OnExistingAction
 			 * @brief Action to take when a name is already in use
 			 */
 			enum class OnExistingAction: unsigned short {
-				Keep,
-				Overwrite,
-				ThrowException
+				Keep,			///< Keep existing item
+				Overwrite,		///< Overwrite existing item
+				ThrowException	///< Throw exception
 			};
 
 			/**
@@ -50,12 +50,13 @@ namespace StormByte::Config {
 			 * @brief Container type
 			 */
 			enum class Type: unsigned short {
-				Group,
-				List
+				Group, 	///< Group of items
+				List	///< List of items
 			};
 
 			/**
 			 * Gets strings from Type
+			 * @param t type to convert
 			 * @return string
 			 */
 			constexpr static const char* 						TypeAsString(const Type& t) noexcept {
@@ -367,7 +368,8 @@ namespace StormByte::Config {
 
 			/**
 			 * Internal function for checking if path name is valid
-			 * @param bool is path valid?
+			 * @param name item path
+			 * @return bool valid?
 			 */
 			static bool 										IsPathValid(const std::string& name) noexcept;
 

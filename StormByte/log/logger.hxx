@@ -19,6 +19,7 @@ namespace StormByte::Log {
 			 * Constructor
 			 * @param out output stream
 			 * @param level log level
+			 * @param format custom format
 			 */
 			Logger(std::ostream& out, const Level& level = Level::Info, const std::string& format = "[%L] %T") noexcept;
 
@@ -51,19 +52,19 @@ namespace StormByte::Log {
 			 * Sets the log level
 			 * @param level log level
 			 */
-			Logger& operator<<(const Level&) noexcept;
+			Logger& operator<<(const Level& level) noexcept;
 
 			/**
 			 * Logs a string
 			 * @param str string
 			 */
-			Logger& operator<<(const std::string&) noexcept;
+			Logger& operator<<(const std::string& str) noexcept;
 
 			/**
 			 * Logs a const char*
 			 * @param str string
 			 */
-			Logger& operator<<(const char*) noexcept;
+			Logger& operator<<(const char* str) noexcept;
 
 			/**
 			 * Logs an integer
@@ -112,16 +113,17 @@ namespace StormByte::Log {
 			/**
 			 * Print level and current level
 			 */
-			Level m_print_level, m_current_level;
+			Level m_print_level;		///< Print level
+			Level m_current_level;		///< Current level
 
 			/**
 			 * Line started
 			 */
-			bool m_line_started;
+			bool m_line_started;		///< Line started
 			
 			/**
 			 * Custom user Format
 			 */
-			const std::string m_format;
+			const std::string m_format;	///< Custom user format %L for Level and %T for Time
 	};
 }

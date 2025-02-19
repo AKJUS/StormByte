@@ -49,7 +49,6 @@ namespace StormByte::Database::SQLite {
 		protected:
 			/**
 			 * Constructor
-			 * @param dbfile database file
 			 */
 			SQLite3();
 
@@ -71,8 +70,7 @@ namespace StormByte::Database::SQLite {
 			void 							init_database();
 
 			/**
-			 * Gets the database file
-			 * @return database file
+			 * Begins a transaction
 			 */
 			void 							begin_transaction();
 
@@ -113,9 +111,8 @@ namespace StormByte::Database::SQLite {
 			void							silent_query(const std::string& query);
 
 			/**
-			 * Executes a query
-			 * @param query query
-			 * @return row pointer (nullptr if there are no more rows)
+			 * Gets last error
+			 * @return std::string last error
 			 */
 			const std::string				last_error();
 
@@ -123,18 +120,18 @@ namespace StormByte::Database::SQLite {
 			/**
 			 * Database file
 			 */
-			std::filesystem::path m_database_file;
+			std::filesystem::path m_database_file;	///< Database file
 
 			/**
 			 * SQLite3 database
 			 * (can not use std::unique_ptr because sqlite3 is an incomplete type)
 			 */
-			sqlite3* m_database;
+			sqlite3* m_database;					///< SQLite3 database
 
 			/**
 			 * Prepared statements
 			 */
-			std::map<std::string, std::shared_ptr<PreparedSTMT>> m_prepared;
+			std::map<std::string, std::shared_ptr<PreparedSTMT>> m_prepared;	///< Prepared statements
 
 			/* Database internals */
 			/**

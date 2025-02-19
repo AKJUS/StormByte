@@ -15,7 +15,7 @@ namespace StormByte::Config {
 	 */
 	namespace Parser {
 		/**
-		 * @enum Parser::Mode
+		 * @enum Mode
 		 * @brief Parsing mode
 		 */
 		enum class Mode: unsigned short {
@@ -34,6 +34,7 @@ namespace StormByte::Config {
 		};
 	};
 
+	// Forward declaration
 	namespace Comment {
 		class Multi;
 		class Single;
@@ -59,13 +60,13 @@ namespace StormByte::Config {
 			 * @class Iterator
 			 * @brief Iterator for Config
 			 */
-			using Iterator = Group::Iterator;
+			using Iterator = Group::Iterator;	///< Iterator for Config
 
 			/**
 			 * @class ConstIterator
 			 * @brief Const iterator for Config
 			 */
-			using ConstIterator = Group::ConstIterator;
+			using ConstIterator = Group::ConstIterator;	///< ConstIterator for Config
 
 			/**
 			 * Constructor
@@ -264,7 +265,7 @@ namespace StormByte::Config {
 
 			/**
 			 * Removes an item by path
-			 * @param item item to add
+			 * @param path item path
 			 * @throw ItemNotFound if item is not found
 			 */
 			inline void										Remove(const std::string& path) {
@@ -273,7 +274,7 @@ namespace StormByte::Config {
 
 			/**
 			 * Removes an item by position
-			 * @param item item to add
+			 * @param path item path
 			 * @throw OutOfBounds if index is out of bounds
 			 */
 			constexpr void									Remove(const size_t& path) {
@@ -281,8 +282,7 @@ namespace StormByte::Config {
 			}
 
 			/**
-			 * Gets a reference to item by path
-			 * @param path path to item
+			 * Gets number of items in the current level
 			 * @return item reference
 			 */
 			constexpr size_t 								Size() const noexcept {
@@ -351,14 +351,14 @@ namespace StormByte::Config {
 			 * Ordered hook list which will be executed sequentially
 			 * in their corresponding event
 			 */
-			std::vector<std::function<void(Config&)>> m_before_read_hooks, m_after_read_hooks;
+			std::vector<std::function<void(Config&)>> m_before_read_hooks, m_after_read_hooks;	///< Hooks executed before and after successful reading
 
 			/**
 			 * Function to override the default action when duplicate name is found when inserting
 			 * Takes 3 parameters: current configuration, existing item and new item and will return
 			 * the item to be inserted (or might throw to cancel the insert)
 			 */
-			Container::OnExistingAction m_on_existing_action;
+			Container::OnExistingAction m_on_existing_action;									///< Action to take when item name already exists
 
 		private:
 			/**

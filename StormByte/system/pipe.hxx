@@ -112,17 +112,17 @@ namespace StormByte::System {
 			#else
 			/**
 			 * Sets the read handle information
-			 * @param handle handle
+			 * @param mask mask
 			 * @param flags flags
 			 */
-			void set_read_handle_information(DWORD, DWORD);
+			void set_read_handle_information(DWORD mask, DWORD flags);
 
 			/**
 			 * Sets the write handle information
-			 * @param handle handle
+			 * @param mask mask
 			 * @param flags flags
 			 */
-			void set_write_handle_information(DWORD, DWORD);
+			void set_write_handle_information(DWORD mask, DWORD flags);
 
 			/**
 			 * Gets the read handle
@@ -141,7 +141,7 @@ namespace StormByte::System {
 			 * @param str string
 			 * @return bytes written
 			 */
-			DWORD write(const std::string&);
+			DWORD write(const std::string& str);
 
 			/**
 			 * Reads from the pipe
@@ -149,19 +149,18 @@ namespace StormByte::System {
 			 * @param size size
 			 * @return bytes read
 			 */
-			DWORD read(std::vector<CHAR>&, DWORD) const;
+			DWORD read(std::vector<CHAR>& buffer, DWORD size) const;
 			#endif
 
 			/**
 			 * Writes to the pipe
-			 * @param bool string
+			 * @param str string
 			 * @return boolean indicating if it was written
 			 */
 			bool write_atomic(std::string&& str);
 
 			/**
 			 * Close read end
-			 * @return bytes read
 			 */
 			void close_read() noexcept;
 
@@ -175,14 +174,14 @@ namespace StormByte::System {
 			 * @param str string
 			 * @return Pipe reference
 			 */
-			Pipe& operator<<(const std::string&);
+			Pipe& operator<<(const std::string& str);
 
 			/**
 			 * Reads from the pipe
 			 * @param str string
 			 * @return Pipe reference
 			 */
-			std::string& operator>>(std::string&) const;
+			std::string& operator>>(std::string& str) const;
 
 		private:
 			#ifdef LINUX

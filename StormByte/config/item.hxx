@@ -13,7 +13,8 @@
 namespace StormByte::Config {
 	class Group; // Needed for MSVC template specializations
 	class List; // Needed for MSVC template specializations
-	class Container;
+	class Container; // Needed for MSVC template specializations
+	// Forward declaration needed for MSVC template specializations
 	namespace Comment {
 		class Comment;
 	}
@@ -33,15 +34,16 @@ namespace StormByte::Config {
 			 * @brief Item type
 			 */
 			enum class Type: unsigned short {
-				String,
-				Integer,
-				Double,
-				Comment,
-				Bool,
-				Container
+				String,		///< String item
+				Integer,	///< Integer item
+				Double,		///< Double item
+				Comment,	///< Comment item
+				Bool,		///< Bool item
+				Container	///< Container item
 			};
 			/**
 			 * Gets strings from Type
+			 * @param t type to convert
 			 * @return string
 			 */
 			static constexpr const char* TypeAsString(const Type& t) noexcept {
@@ -412,6 +414,7 @@ namespace StormByte::Config {
 
 			/**
 			 * Internal function to get item contents as string
+			 * @param level intentation level
 			 * @return item contents as std::string
 			 */
 			std::string 								ContentsToString(const int& level) const noexcept;

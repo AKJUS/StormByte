@@ -48,9 +48,9 @@ namespace StormByte::Database::SQLite {
 			/**
 			 * Binds a value to a prepared statement
 			 * @param index parameter index
-			 * @param value nullptr
+			 * @param ignored Any pointer (will be ignored), best a nullptr
 			 */
-			void 					Bind(const int& index, const void*) noexcept; // Sintactic sugar for bind NULL
+			void 					Bind(const int& index, const void* ignored) noexcept; // Sintactic sugar for bind NULL
 
 			/**
 			 * Binds a value to a prepared statement

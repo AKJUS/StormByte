@@ -14,7 +14,7 @@ StormByte is a comprehensive, cross-platform C++ library aimed at easing system 
 - [Installation](#Installation)
 - [Modules](#Modules)
 	- [System](#System)
-	- [Config](#Configuration)
+	- [Config](#Config)
 	- [Log](#Log)
 	- [Database](#Database)
 - [Contributing](#Contributing)
@@ -87,7 +87,7 @@ int main() {
 }
 ```
 
-### Configuration
+### Config
 
 #### Overview
 
@@ -186,7 +186,7 @@ Group1 = {
 ##### Special Characters in Strings
 
 ```plaintext
-special_string = "This is a test string with special characters: \n, \t, \\"
+special_string = "This is a test string with special characters: \n, \\"
 ```
 
 ##### Floating Point Precision

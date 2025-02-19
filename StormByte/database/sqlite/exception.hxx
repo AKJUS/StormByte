@@ -18,7 +18,7 @@ namespace StormByte::Database::SQLite {
 		public:
 			/**
 			 * Constructor
-			 * @param msg message
+			 * @param message message
 			 */
 			Exception(const std::string& message);
 
@@ -186,7 +186,7 @@ namespace StormByte::Database::SQLite {
 			 * Constructor
 			 * @param reason reason
 			 */
-			ConnectionError(std::string&&);
+			ConnectionError(std::string&& reason);
 
 			/**
 			 * Copy constructor
@@ -230,7 +230,7 @@ namespace StormByte::Database::SQLite {
 			 * Constructor
 			 * @param reason reason
 			 */
-			QueryError(std::string&&);
+			QueryError(std::string&& reason);
 
 			/**
 			 * Copy constructor

@@ -103,12 +103,22 @@ namespace StormByte::Util {
 				return *m_it;
 			}
 
+			/**
+			 * Gets an iterator pointing to first element
+			 * @param storage storage
+			 * @return iterator
+			 */
 			constexpr static Iterator 							Begin(Storage& storage) noexcept {
 				Iterator it;
 				it.m_it = storage.begin();
 				return it;
 			}
 
+			/**
+			 * Gets an iterator pointing to past last element
+			 * @param storage storage
+			 * @return iterator
+			 */
 			constexpr static Iterator 							End(Storage& storage) noexcept {
 				Iterator it;
 				it.m_it = storage.end();
@@ -119,7 +129,7 @@ namespace StormByte::Util {
 			/**
 			 * Internal iterator to original data
 			 */
-			Storage::iterator m_it;
+			Storage::iterator m_it;	///< Internal iterator to original data
 	};
 
 	/**
@@ -220,12 +230,22 @@ namespace StormByte::Util {
 				return *m_it;
 			}
 
+			/**
+			 * Gets an iterator pointing to first element
+			 * @param storage storage
+			 * @return const iterator
+			 */
 			constexpr static ConstIterator 									Begin(const Storage& storage) noexcept {
 				ConstIterator it;
 				it.m_it = storage.cbegin();
 				return it;
 			}
 
+			/**
+			 * Gets an iterator pointing to past last element
+			 * @param storage storage
+			 * @return const iterator
+			 */
 			constexpr static ConstIterator 									End(const Storage& storage) noexcept {
 				ConstIterator it;
 				it.m_it = storage.cend();
@@ -236,6 +256,6 @@ namespace StormByte::Util {
 			/**
 			 * Internal iterator to original data
 			 */
-			Storage::const_iterator m_it;
+			Storage::const_iterator m_it;	///< Internal iterator to original data
 	};
 }

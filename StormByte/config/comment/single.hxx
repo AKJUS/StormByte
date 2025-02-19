@@ -7,6 +7,10 @@
  * @brief All the classes for handling comments on configuration files
  */
 namespace StormByte::Config::Comment {
+	/**
+	 * @class Single
+	 * @brief Class for a single line comment item starting with #
+	 */
 	class STORMBYTE_PUBLIC Single final: public Comment {
 		public:
 			/**

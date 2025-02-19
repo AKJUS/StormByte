@@ -141,38 +141,46 @@ namespace StormByte::System {
 			 * Writes EOF to the process stdin
 			 * @param eof EoF
 			 */
-			void operator<<(const System::_EoF&);
+			void operator<<(const System::_EoF& eof);
 
 			/**
 			 * Process status
+			 * @enum Status
+			 * @brief Process status
 			 */
-			enum class Status { RUNNING, SUSPENDED, TERMINATED };
+			enum class Status:unsigned short {
+				RUNNING,	///< Process is running
+				SUSPENDED,	///< Process is suspended
+				TERMINATED	///< Process is terminated
+			};
 
 		protected:
 			/**
 			 * Process status
 			 */
-			Status m_status;
+			Status m_status;								///< Process status
 			#ifdef LINUX
 			/**
 			 * Process id
 			 */
-			pid_t m_pid;
+			pid_t m_pid;									///< Process id
 			#else
 			/**
 			 * Process handles
 			 */
-			STARTUPINFO m_siStartInfo;
+			STARTUPINFO m_siStartInfo;						///< Startup information
 
 			/**
 			 * Process information
 			 */
-			PROCESS_INFORMATION m_piProcInfo;
+			PROCESS_INFORMATION m_piProcInfo;				///< Process information
 			#endif
 			/**
 			 * Process pipes
 			 */
-			System::Pipe m_pstdout, m_pstdin, m_pstderr;
+			System::Pipe m_pstdout;	///< Standard output pipe
+			System::Pipe m_pstdin;	///< Standard input pipe
+			System::Pipe m_pstderr;	///< Standard error pipe
 			
 		private:
 			/**

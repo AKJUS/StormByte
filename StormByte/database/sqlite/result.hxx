@@ -37,21 +37,21 @@ namespace StormByte::Database::SQLite {
 
 			/**
 			 * Constructor
-			 * @param value nullptr
+			 * @param ignored A nullptr which will be ignored
 			 */
-			Result(std::nullptr_t);
+			Result(std::nullptr_t ignored);
 
 			/**
 			 * Constructor
 			 * @param value double
 			 */
-			Result(const double&);
+			Result(const double& value);
 
 			/**
 			 * Constructor
 			 * @param value double
 			 */
-			Result(double&&);
+			Result(double&& value);
 
 			/**
 			 * Copy Constructor

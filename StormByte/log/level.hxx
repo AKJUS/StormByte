@@ -12,12 +12,12 @@ namespace StormByte::Log {
 	 * @brief Log level
 	 */
 	enum class STORMBYTE_PUBLIC Level {
-		Debug = 0,
-		Warning,
-		Notice,
-		Info,
-		Error,
-		Fatal
+		Debug = 0,	///< Debug level
+		Warning,	///< Warning level
+		Notice,		///< Notice level
+		Info,		///< Info level
+		Error,		///< Error level
+		Fatal		///< Fatal level
 	};
 
 	/**

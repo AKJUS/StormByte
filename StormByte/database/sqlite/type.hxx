@@ -12,11 +12,11 @@ namespace StormByte::Database::SQLite {
 	 * @brief Type of a value
 	 */
 	enum class STORMBYTE_PUBLIC Type: unsigned short {
-		Integer = 0,
-		Double,
-		Bool,
-		String,
-		Null
+		Integer = 0,	///< Integer type
+		Double,			///< Double type
+		Bool,			///< Bool type
+		String,			///< String type
+		Null			///< Null type
 	};
 	/**
 	 * Gets Type string

@@ -24,6 +24,7 @@ namespace StormByte::Config::Comment {
 
 			/**
 			 * Gets strings from Type
+			 * @param t type to convert
 			 * @return string
 			 */
 			constexpr static std::string TypeAsString(const Type& t) noexcept {
