@@ -273,7 +273,7 @@ namespace StormByte::Config {
 			 * Gets the number of items in the container
 			 * @return size_t number of items
 			 */
-			constexpr size_t 												Size() const noexcept {
+			constexpr size_t 									Size() const noexcept {
 				return m_items.size();
 			}
 

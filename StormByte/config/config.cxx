@@ -13,7 +13,7 @@ Config& Config::operator<<(const Config& source) {
 }
 
 void Config::operator<<(std::istream& istream) { // 1
-	Parse(istream, *this, ParseMode::Named);
+	StartParse(istream);
 }
 
 void Config::operator<<(const std::string& str) { // 2
@@ -64,85 +64,14 @@ Config::operator std::string() const {
 	return serialized;
 }
 
-template <const char start, const char end> std::string Config::ParseContainerContents(std::istream& istream) {
-	char c;
-	if (!istream.get(c) || c != start) {
-		throw ParseError("Expected '" + std::string(1, start) + "' but found " + std::string(1, c) + " near " + GetCurrentLine(istream, -20));
+void Config::StartParse(std::istream& istream) {
+	m_container_level = 0;
+	for (auto it = m_before_read_hooks.begin(); it != m_before_read_hooks.end(); it++) {
+		(*it)(*this);
 	}
-	else {
-		int level = 1; // Assuming that we are already inside the container
-		std::string buffer = "";
-		bool string_started = false;
-		bool escape_next = false;
-		while (level > 0 && istream.get(c)) {
-			// We will parse char by char looking for end character:
-			// If it is inside a string or a comment it will be ignored
-			// If a valid start character is found, level will be raised
-			// When level == 0 we must check its final semicolon
-			if (escape_next) {
-				buffer += c;
-				escape_next = false;
-			}
-			else {
-				switch (c) {
-					case '\\':
-						escape_next = true;
-						buffer += c;
-						break;
-					case '"':
-						buffer += c;
-						string_started = !string_started;
-						break;
-					case '#':
-						if (!string_started) {
-							std::string comment;
-							std::getline(istream, comment);
-							// Getline does not include the newline character
-							buffer += c + comment + '\n';
-						}
-						else
-							buffer += c;
-						break;
-					case start:
-						buffer += c;
-						if (!string_started)
-							level++;
-						break;
-					case end:
-						// In end case if level is 0 we don't want to add the character
-						if (string_started)
-							buffer += c;
-						else
-							if (--level > 0)
-								buffer += c;
-						break;
-					default:
-						buffer += c;
-						break;
-				}
-			}
-		}
-		if (level > 0) {
-			throw ParseError("Expected '" + std::string(1, end) + "' but found EOF near " + GetCurrentLine(istream, -20));
-		}
-		return buffer;
-	}
-}
-
-std::string Config::ParseContainerContents(std::istream& istream, const Container::Type& container_type) {
-	switch (container_type) {
-		case Container::Type::Group: {
-			constexpr auto enclosure_chars = Container::EnclosureCharacters(Container::Type::Group);
-			return ParseContainerContents<enclosure_chars.first, enclosure_chars.second>(istream);
-			break;
-		}
-		case Container::Type::List: {
-			constexpr auto enclosure_chars = Container::EnclosureCharacters(Container::Type::List);
-			return ParseContainerContents<enclosure_chars.first, enclosure_chars.second>(istream);
-			break;
-		}
-		default:
-			throw Exception("Unknown container type");
+	Parse(istream, *this, ParseMode::Named);
+	for (auto it = m_after_read_hooks.begin(); it != m_after_read_hooks.end(); it++) {
+		(*it)(*this);
 	}
 }
 
@@ -296,17 +225,16 @@ template<class C> void Config::FindAndParseComments(std::istream& istream, C& co
 std::unique_ptr<Item> Config::ParseItem(std::istream& istream, const Item::Type& type) {
 	switch(type) {
 		case Item::Type::Container:
+			m_container_level++;
 			switch (ParseContainerType(istream)) {
 				case Container::Type::Group: {
 					Group group;
-					std::istringstream buffer(ParseContainerContents(istream, Container::Type::Group));
-					Parse(buffer, group, ParseMode::Named);
+					Parse(istream, group, ParseMode::Named);
 					return std::make_unique<Item>(std::move(group));
 				}
 				case Container::Type::List: {
 					List list;
-					std::istringstream buffer(ParseContainerContents(istream, Container::Type::List));
-					Parse(buffer, list, ParseMode::Unnamed);
+					Parse(istream, list, ParseMode::Unnamed);
 					return std::make_unique<Item>(std::move(list));
 				}
 			}
@@ -376,7 +304,21 @@ void Config::Parse(std::istream& istream, Container& container, const ParseMode&
 		}
 
 		FindAndParseComments(istream, container);
-		if (istream.fail()) halt = true;
+		if (FindContainerEnd(istream, container.GetType())) {
+			// If it is encountered on level 0 it is a syntax error
+			if (m_container_level == 0)
+				throw ParseError("Unexpected container end symbol near " + GetCurrentLine(istream, -20));
+			else
+				m_container_level--;
+			
+			halt = true;
+		}
+		if (istream.fail()) {
+			if (m_container_level > 0)
+				throw ParseError("Unexpected EOF near " + GetCurrentLine(istream, -20));
+			else
+				halt = true;
+		}
 	}
 }
 
@@ -447,11 +389,23 @@ Container::Type Config::ParseContainerType(std::istream& istream) {
 	istream >> std::ws;
 	istream.get(c);
 	try {
-		Container::Type type = Container::TypeFromStartCharacter(c);
-		istream.unget();
-		return type;
+		return Container::TypeFromStartCharacter(c);
 	}
 	catch (const StormByte::Exception&) {
 		throw ParseError("Unknown start character " + std::string(1, c) + " for container");
 	}
+}
+
+bool Config::FindContainerEnd(std::istream& istream, const Container::Type& container_type) const {
+	/**** THIS FUNCTION ONLY DETECTS TYPE NOT CHECKS FOR VALIDITY *****/
+	istream >> std::ws;
+	char c;
+	bool result = false;
+	if (istream.get(c)) {
+		if (Container::EnclosureCharacters(container_type).second == c)
+			result = true;
+		else
+			istream.unget();
+	}
+	return result;
 }

@@ -331,6 +331,11 @@ namespace StormByte::Config {
 
 		private:
 			/**
+			 * Container level
+			 */
+			int 											m_container_level;
+
+			/**
 			 * @enum ParseMode
 			 * @brief Parsing mode
 			 */
@@ -340,21 +345,10 @@ namespace StormByte::Config {
 			};
 
 			/**
-			 * Parses a container contents
-			 * @param start start character
-			 * @param end end character
+			 * Starts parsing
 			 * @param istream input stream
-			 * @return parsed string
 			 */
-			template<const char start, const char end> std::string ParseContainerContents(std::istream& istream);
-
-			/**
-			 * Parses a container contents
-			 * @param container_type container type
-			 * @param istream input stream
-			 * @return parsed string
-			 */
-			std::string ParseContainerContents(std::istream& istream, const Container::Type& container_type);
+			void 									StartParse(std::istream& istream);
 
 			/**
 			 * Parses a value
@@ -457,6 +451,14 @@ namespace StormByte::Config {
 			 * @return container type
 			 */
 			Container::Type 								ParseContainerType(std::istream& istream);
+
+			/**
+			 * Finds the container end symbol
+			 * @param istream input stream
+			 * @param container_type container type to know the end symbol
+			 * @return bool
+			 */
+			bool 											FindContainerEnd(std::istream& istream, const Container::Type& container_type) const;
 	};
 	/**
 	 * Initializes configuration with istream (when istream is in the left part)
