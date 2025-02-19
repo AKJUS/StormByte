@@ -14,11 +14,11 @@ Overflow::Overflow(const int64_t& source):
 Exception("Value " + std::to_string(source) + " exceeds int max (" +
 std::to_string(std::numeric_limits<int>::max()) + ")") {}
 
-ColumNotFound::ColumNotFound(const size_t& max, const size_t& asked):
+ColumnNotFound::ColumnNotFound(const size_t& max, const size_t& asked):
 Exception("Out of bounds: Asked for column number " +
 std::to_string(asked) + " when there is only " + std::to_string(max)) {}
 
-ColumNotFound::ColumNotFound(const std::string& name):
+ColumnNotFound::ColumnNotFound(const std::string& name):
 Exception("Out of bounds: Column name " + name + " do not exist") {}
 
 ConnectionError::ConnectionError(const std::string& reason):

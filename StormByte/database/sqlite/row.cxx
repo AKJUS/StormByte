@@ -32,28 +32,28 @@ const std::shared_ptr<Result> Row::At(const std::string& name) const {
 
 std::shared_ptr<Result> Row::get(const size_t& pos) {
 	if (pos >= m_column_pos_assoc.size())
-		throw ColumNotFound(m_column_pos_assoc.size(), pos);
+		throw ColumnNotFound(m_column_pos_assoc.size(), pos);
 
 	return m_column_pos_assoc.at(pos);
 }
 
 const std::shared_ptr<Result> Row::get(const size_t& pos) const {
 	if (pos >= m_column_pos_assoc.size())
-		throw ColumNotFound(m_column_pos_assoc.size(), pos);
+		throw ColumnNotFound(m_column_pos_assoc.size(), pos);
 
 	return m_column_pos_assoc.at(pos);
 }
 
 std::shared_ptr<Result> Row::get(const std::string& name) {
 	if (m_column_name_assoc.find(name) == m_column_name_assoc.end())
-		throw ColumNotFound(name);
+		throw ColumnNotFound(name);
 
 	return m_column_name_assoc.at(name);
 }
 
 const std::shared_ptr<Result> Row::get(const std::string& name) const {
 	if (m_column_name_assoc.find(name) == m_column_name_assoc.end())
-		throw ColumNotFound(name);
+		throw ColumnNotFound(name);
 
 	return m_column_name_assoc.at(name);
 }
