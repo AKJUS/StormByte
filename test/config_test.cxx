@@ -79,7 +79,7 @@ int test_write_and_read() {
 		result = 1;
 	}
 
-    //std::remove(temp_file.string().c_str());
+    std::remove(temp_file.string().c_str());
     RETURN_TEST("test_write_and_read", result);
 }
 
