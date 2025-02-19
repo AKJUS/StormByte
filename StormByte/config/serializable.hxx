@@ -64,5 +64,17 @@ namespace StormByte::Config {
 			 * @return moved object
 			 */
 			virtual std::shared_ptr<Serializable> 							Move() = 0;
+
+			/**
+			 * Gets the number of items in the current level
+			 * @return size_t number of items
+			 */
+			virtual size_t 													Size() const noexcept = 0;
+
+			/**
+			 * Gets the full number of items
+			 * @return size_t number of items
+			 */
+			virtual size_t 													Count() const noexcept = 0;
 	};
 }

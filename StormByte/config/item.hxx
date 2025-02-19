@@ -396,6 +396,20 @@ namespace StormByte::Config {
 				return ContentsToString(indent_level);
 			}
 
+			/**
+			 * Gets the number of items in the current level
+			 * @return size_t number of items
+			 */
+			virtual constexpr size_t					Size() const noexcept override {
+				return 1;
+			}
+
+			/**
+			 * Gets the full number of items
+			 * @return size_t number of items
+			 */
+			virtual size_t								Count() const noexcept override;
+
 		protected:
 			/**
 			 * Item optional name

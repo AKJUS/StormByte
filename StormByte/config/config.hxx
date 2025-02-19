@@ -282,14 +282,6 @@ namespace StormByte::Config {
 			}
 
 			/**
-			 * Gets number of items in the current level
-			 * @return item reference
-			 */
-			constexpr size_t 								Size() const noexcept {
-				return Group::Size();
-			}
-
-			/**
 			 * Sets a function to execute on name collission when inserting
 			 * @param on_existing function to select element on collission
 			 * @see Container::OnExistingAction
@@ -344,6 +336,22 @@ namespace StormByte::Config {
 			 */
 			constexpr ConstIterator							End() const noexcept override {
 				return Group::End();
+			}
+
+			/**
+			 * Gets the number of items in the current level
+			 * @return size_t number of items
+			 */
+			virtual constexpr size_t						Size() const noexcept override {
+				return Group::Size();
+			}
+
+			/**
+			 * Gets the full number of items
+			 * @return size_t number of items
+			 */
+			inline virtual size_t							Count() const noexcept override {
+				return Group::Count();
 			}
 
 		protected:

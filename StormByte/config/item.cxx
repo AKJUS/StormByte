@@ -222,6 +222,17 @@ std::string Item::ContentsToString(const int& indent_level) const noexcept {
 	return serial + "\n";
 }
 
+size_t Item::Count() const noexcept {
+	switch(m_type) {
+		case Type::Container:
+			return 1 + Value<Container>().Count();
+		case Type::Comment:
+			return Value<Comment::Comment>().Count();
+		default:
+			return 1;
+	}
+}
+
 std::shared_ptr<Serializable> Item::Clone() const {
 	return std::make_shared<Item>(*this);
 }

@@ -44,6 +44,14 @@ std::string Container::Serialize(const int& indent_level) const noexcept {
 	return serial;
 }
 
+size_t Container::Count() const noexcept {
+	size_t count = 0;
+	for (const auto& item : m_items) {
+		count += item.Count();
+	}
+	return count;
+}
+
 std::string Container::ContentsToString(const int& indent_level) const noexcept {
 	std::string serial = "";
 	for (auto it = m_items.begin(); it != m_items.end(); it++)

@@ -973,6 +973,27 @@ int test_config_hooks() {
 	return result;
 }
 
+int size_and_count() {
+	int result = 0;
+	Config cfg;
+	try {
+		std::fstream file;
+		file.open(CurrentFileDirectory / "files" / "complex_conf1.conf", std::ios::in);
+		cfg << file;
+		file.close();
+		const size_t size = cfg.Size();
+		const size_t count = cfg.Count();
+		ASSERT_EQUAL("size_and_count", 4, size);
+		ASSERT_EQUAL("size_and_count", 24, count);
+	}
+	catch(const StormByte::Config::Exception& e) {
+		std::cerr << e.what() << std::endl;
+		result = 1;
+	}
+	
+	RETURN_TEST("complex_conf1", result);
+}
+
 int main() {
     int result = 0;
     try {
@@ -1015,6 +1036,7 @@ int main() {
 		result += complex_path_access();
 		result += good_comment_multi_conf1();
 		result += test_config_hooks();
+		result += size_and_count();
     } catch (const StormByte::Config::Exception& ex) {
         std::cerr << ex.what() << std::endl;
         result++;

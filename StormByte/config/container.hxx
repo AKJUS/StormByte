@@ -263,14 +263,6 @@ namespace StormByte::Config {
 			virtual std::string 								Serialize(const int& indent_level) const noexcept;
 
 			/**
-			 * Gets the number of items in the container
-			 * @return size_t number of items
-			 */
-			constexpr size_t 									Size() const noexcept {
-				return m_items.size();
-			}
-
-			/**
 			 * Gets the start character for the container type
 			 * @param type container type
 			 * @return start character
@@ -343,6 +335,20 @@ namespace StormByte::Config {
 			constexpr std::string 								TypeAsString() const noexcept {
 				return TypeAsString(m_type);
 			}
+
+			/**
+			 * Gets the number of items in the current level
+			 * @return size_t number of items
+			 */
+			virtual constexpr size_t 							Size() const noexcept override {
+				return m_items.size();
+			}
+
+			/**
+			 * Gets the full number of items
+			 * @return size_t number of items
+			 */
+			virtual size_t 										Count() const noexcept override;
 
 		protected:
 			/**
