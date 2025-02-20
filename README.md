@@ -336,10 +336,10 @@ int main() {
     const List& favorite_numbers = config["favorite_numbers"].Value<List>();
     std::cout << "Favorite Numbers: ";
     for (const auto& number : favorite_numbers) {
-		if (number.GetType() == Item::Type::Integer)
-        	std::cout << number.Value<int>() << " ";
-		else
-			std::cout << number.Value<std::string> << number;
+	if (number.GetType() == Item::Type::Integer)
+            std::cout << number.Value<int>() << " ";
+        else
+            std::cout << number.Value<std::string> << number;
     }
     std::cout << std::endl;
 
