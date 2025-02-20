@@ -87,217 +87,302 @@ int main() {
 }
 ```
 
+Thank you for the correction! Let's update the example to access comments through their position or using an iterator.
+
 ### Config
 
 #### Overview
 
-The StormByte configuration format is designed to be flexible and human-readable. It supports various data types, including integers, floating-point numbers, strings, booleans, groups (nested configurations), and lists. The format also allows for comments to enhance readability and documentation.
+The `Config` module of StormByte provides a flexible and human-readable way to manage configuration files. It supports initialization from any `std::istream`, setting pre and post read hooks using `std::function`, handling different data types (string, int, double, single and multiline comments, and containers such as lists and groups), and managing operation modes when items already exist before addition.
 
-#### Basic Structure
+#### Initialization from `std::istream`
 
-Configuration files consist of key-value pairs. Keys are strings that follow a specific naming convention, while values can be of different data types.
-
-##### Example
-
-```plaintext
-username = "example_user"
-timeout = 30
-enable_feature = true
-```
-
-#### Naming Convention
-
-- Keys and group names must consist of alphanumeric characters, underscores (`_`), and hyphens (`-`).
-- Strings must be enclosed in double quotes (`"`).
-- Special characters like newline (`\n`), tab (`\t`), and backslash (`\\`) are supported within strings.
-- Boolean values are represented as `true` or `false`.
-
-#### Groups
-
-Groups are nested configurations that can contain other key-value pairs, groups, or lists. Groups are denoted by curly braces `{}`.
+You can initialize the configuration from any `std::istream`, including `std::fstream`, `std::cin`, or even another `Config` object.
 
 ##### Example
-
-```plaintext
-settings = {
-    username = "example_user"
-    timeout = 30
-    enable_feature = true
-}
-```
-
-#### Lists
-
-Lists are sequences of values enclosed in square brackets `[]`. Lists can contain comments, values, and even nested groups.
-
-##### Example
-
-```plaintext
-favorite_numbers = [
-    3
-    14
-    42
-]
-```
-
-#### Comments
-
-Comments can be added using the `#` symbol. Comments can appear on their own line or after a value.
-Furthermore, multiline comments will use C/C++ like syntax and will be enclosed between `/*` and `*/`
-
-##### Example
-
-```plaintext
-# This is a comment
-username = "example_user"  # This is an inline comment
-/**
- * Or multiline comments which are also allowed
- */
-```
-
-#### Advanced Examples
-
-##### Group with Nested List and Comments
-
-```plaintext
-settings = {
-    username = "example_user"  # This is a comment
-    timeout = 30
-    enable_feature = true
-    favorite_numbers = [  # List of favorite numbers
-        3
-        14
-        42
-    ]
-}
-```
-
-##### Complex Nested Structure
-
-```plaintext
-Group1 = {
-    Group2 = {
-        SubTestInt = 99
-        SubTestStr = "Sub Hello"
-    }
-}
-```
-
-##### Special Characters in Strings
-
-```plaintext
-special_string = "This is a test string with special characters: \n, \\"
-```
-
-##### Floating Point Precision
-
-```plaintext
-float_precise = 1.123456789012345
-```
-
-##### Large Numbers
-
-```plaintext
-large_number = 9223372036854775807  # INT64_MAX
-small_number = -9223372036854775807  # INT64_MIN
-```
-
-#### Real Usage Example
-
-Consider a real usage example where a main file reads a configuration file (`config.cfg`) and parses its values.
-
-##### Configuration File (`config.cfg`)
-
-```plaintext
-settings = {
-    username = "example_user"
-    timeout = 30
-    enable_feature = true
-}
-
-database = {
-    host = "localhost"
-    port = 5432
-    user = "db_user"
-    password = "secret"
-}
-
-log_levels = [
-    "info"
-    "debug"
-    "error"
-]
-
-features = {
-    enable_new_feature = true
-    feature_timeout = 60.5
-}
-```
-
-##### Main File (`main.cpp`)
 
 ```cpp
 #include <StormByte/config/config.hxx>
-#include <StormByte/system/system.hxx>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+
+using namespace StormByte::Config;
+
+int main() {
+    // Initialize from std::fstream
+    Config config;
+    std::ifstream file("config.cfg");
+    file >> config;
+    file.close();
+
+    // Initialize from std::cin
+    Config config2;
+    std::cin >> config2;
+
+    // Initialize from another Config object
+    Config config3;
+    config2 >> config3;
+
+    return 0;
+}
+```
+
+#### Hooks: Pre and Post Read
+
+You can set pre and post read hooks using `std::function`. These hooks allow you to perform actions before and after reading the configuration, with the `Config` object passed as a reference argument.
+
+##### Example
+
+```cpp
+#include <StormByte/config/config.hxx>
+#include <iostream>
+#include <functional>
+
+using namespace StormByte::Config;
+
+void pre_read_hook(Config& config) {
+    std::cout << "Pre-read hook executed. Current config has " << config.Size() << " items." << std::endl;
+}
+
+void post_read_hook(Config& config) {
+    std::cout << "Post-read hook executed. Current config has " << config.Size() << " items." << std::endl;
+}
+
+int main() {
+    Config config;
+    config.SetPreReadHook(pre_read_hook);
+    config.SetPostReadHook(post_read_hook);
+
+    // Read configuration (hooks will be called accordingly)
+    std::ifstream file("config.cfg");
+    file >> config;
+    file.close();
+
+    return 0;
+}
+```
+
+#### Operation Modes for Existing Items
+
+You can set the operation mode when an item already exists before adding a new one. Operation modes can include replace, ignore, or throw an exception (the default).
+
+##### Example
+
+```cpp
+#include <StormByte/config/config.hxx>
+#include <iostream>
 
 using namespace StormByte::Config;
 
 int main() {
     Config config;
 
-    // Read configuration from file
-    std::ifstream config_file("config.cfg");
-    if (!config_file.is_open()) {
-        std::cerr << "Failed to open config file." << std::endl;
-        return 1;
-    }
+    // Set operation mode to replace existing items
+    config.SetOperationMode(Config::OperationMode::Replace);
 
-    config_file >> config;
-    config_file.close();
+    // Read configuration
+    std::ifstream file("config.cfg");
+    file >> config;
+    file.close();
 
-    // Access configuration values
-    try {
-        const Item& username = config["settings/username"];
-        const Item& timeout = config["settings/timeout"];
-        const Item& enable_feature = config["settings/enable_feature"];
-        const Item& db_host = config["database/host"];
-        const Item& db_port = config["database/port"];
-        const Item& db_user = config["database/user"];
-        const Item& db_password = config["database/password"];
-        const List& log_levels = config["log_levels"].Value<List>();
-        const Item& enable_new_feature = config["features/enable_new_feature"];
-        const Item& feature_timeout = config["features/feature_timeout"];
+    return 0;
+}
+```
 
-        // Print configuration values
-        std::cout << "Username: " << username.Value<std::string>() << std::endl;
-        std::cout << "Timeout: " << timeout.Value<int>() << std::endl;
-        std::cout << "Enable Feature: " << enable_feature.Value<bool>() << std::endl;
-        std::cout << "Database Host: " << db_host.Value<std::string>() << std::endl;
-        std::cout << "Database Port: " << db_port.Value<int>() << std::endl;
-        std::cout << "Database User: " << db_user.Value<std::string>() << std::endl;
-        std::cout << "Database Password: " << db_password.Value<std::string>() << std::endl;
-        std::cout << "Log Levels: ";
-        for (const auto& level : log_levels) {
-            std::cout << level.Value<std::string>() << " ";
+#### Data Types
+
+The configuration supports various data types, including strings, integers, doubles, comments (single and multiline), and containers (lists and groups).
+
+##### Strings
+
+```plaintext
+username = "example_user"
+```
+
+##### Example
+
+```cpp
+#include <StormByte/config/config.hxx>
+#include <iostream>
+
+using namespace StormByte::Config;
+
+int main() {
+    Config config;
+    std::ifstream file("config.cfg");
+    file >> config;
+    file.close();
+
+    const Item& username = config["username"];
+    std::cout << "Username: " << username.Value<std::string>() << std::endl;
+
+    return 0;
+}
+```
+
+##### Integers
+
+```plaintext
+timeout = 30
+```
+
+##### Example
+
+```cpp
+#include <StormByte/config/config.hxx>
+#include <iostream>
+
+using namespace StormByte::Config;
+
+int main() {
+    Config config;
+    std::ifstream file("config.cfg");
+    file >> config;
+    file.close();
+
+    const Item& timeout = config["timeout"];
+    std::cout << "Timeout: " << timeout.Value<int>() << std::endl;
+
+    return 0;
+}
+```
+
+##### Doubles
+
+```plaintext
+feature_timeout = 60.5
+```
+
+##### Example
+
+```cpp
+#include <StormByte/config/config.hxx>
+#include <iostream>
+
+using namespace StormByte::Config;
+
+int main() {
+    Config config;
+    std::ifstream file("config.cfg");
+    file >> config;
+    file.close();
+
+    const Item& feature_timeout = config["feature_timeout"];
+    std::cout << "Feature Timeout: " << feature_timeout.Value<double>() << std::endl;
+
+    return 0;
+}
+```
+
+##### Comments
+
+Single-line comments start with `#`, and multiline comments are enclosed between `/*` and `*/`.
+
+```plaintext
+# This is a single-line comment
+/**
+ * This is a multiline comment
+ */
+```
+
+##### Example
+
+```cpp
+#include <StormByte/config/config.hxx>
+#include <iostream>
+
+using namespace StormByte::Config;
+
+int main() {
+    Config config;
+    std::ifstream file("config.cfg");
+    file >> config;
+    file.close();
+
+    // Retrieve comments using position
+    for (std::size_t i = 0; i < config.Size(); ++i) {
+        const Item& item = config[i];
+        if (item.Type() == Item::Type::Comment) {
+            std::cout << "Comment: " << item.Value<Comment>() << std::endl;
         }
-        std::cout << std::endl;
-        std::cout << "Enable New Feature: " << enable_new_feature.Value<bool>() << std::endl;
-        std::cout << "Feature Timeout: " << feature_timeout.Value<double>() << std::endl;
-
-    } catch (const StormByte::Config::Exception& e) {
-        std::cerr << "Error accessing configuration: " << e.what() << std::endl;
-        return 1;
     }
 
     return 0;
 }
 ```
 
-#### Summary
+##### Containers: Lists
 
-The StormByte configuration format is designed to be flexible and easy to use. It supports various data types, including nested structures, lists, and comments. By following the provided examples and guidelines, you can create comprehensive and readable configuration files for your StormByte projects. The real usage example demonstrates how to read and parse a configuration file in a main program, providing a practical application of the configuration format.
+Lists are sequences of values enclosed in square brackets `[]` separated by spaces and can contain any other item (including nested lists and groups).
+
+```plaintext
+favorite_numbers = [3 14 42 "pi constant"]
+```
+
+##### Example
+
+```cpp
+#include <StormByte/config/config.hxx>
+#include <iostream>
+
+using namespace StormByte::Config;
+
+int main() {
+    Config config;
+    std::ifstream file("config.cfg");
+    file >> config;
+    file.close();
+
+    const List& favorite_numbers = config["favorite_numbers"].Value<List>();
+    std::cout << "Favorite Numbers: ";
+    for (const auto& number : favorite_numbers) {
+		if (number.GetType() == Item::Type::Integer)
+        	std::cout << number.Value<int>() << " ";
+		else
+			std::cout << number.Value<std::string> << number;
+    }
+    std::cout << std::endl;
+
+    return 0;
+}
+```
+
+##### Containers: Groups
+
+Groups are nested configurations that can contain other key-value pairs, groups, or lists.
+
+```plaintext
+settings = {
+    username = "example_user"
+    timeout = 30
+}
+```
+
+##### Example
+
+```cpp
+#include <StormByte/config/config.hxx>
+#include <iostream>
+
+using namespace StormByte::Config;
+
+int main() {
+    Config config;
+    std::ifstream file("config.cfg");
+    file >> config;
+    file.close();
+
+    const Item& username = config["settings/username"];
+    const Item& timeout = config["settings/timeout"];
+    
+    std::cout << "Username: " << username.Value<std::string>() << std::endl;
+    std::cout << "Timeout: " << timeout.Value<int>() << std::endl;
+
+    return 0;
+}
+```
+
+This expanded section covers all requested features for the configuration file management in your library, with the correct handling and retrieval of comments. If there's anything specific you'd like to adjust or add, let me know!
 
 ### Log
 
