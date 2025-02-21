@@ -1,6 +1,6 @@
 #pragma once
 
-#include <StormByte/system/definitions.h>
+#include <StormByte/definitions.h>
 
 #ifdef WINDOWS
 	#ifdef StormByte_EXPORTS

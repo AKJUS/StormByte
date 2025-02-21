@@ -1,4 +1,5 @@
 #include <StormByte/visibility.h>
+#include <StormByte/compatibility.h>
 
 #include <string>
 
