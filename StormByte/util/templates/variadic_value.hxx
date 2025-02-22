@@ -76,6 +76,18 @@ namespace StormByte::Util::Templates {
 				throw ValueTypeMissmatch(typeid(T).name());
 			}
 
+			/**
+			 * Checks if the value is of a certain type
+			 * @return true if the value is of the type
+			 */
+			template <typename T> bool IsType() const {
+				return std::holds_alternative<T>(m_values);
+			}
+
+			bool IsNull() const {
+				return std::holds_alternative<std::nullptr_t>(m_values);
+			}
+
 		private:
 			std::variant<Types...> m_values; ///< Values variant
 	};
