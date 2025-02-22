@@ -49,7 +49,7 @@ namespace StormByte::Database {
 			/**
 			 * Step into the query results
 			 */
-			virtual const Row& 								Step() = 0;
+			virtual const Row&								Step() noexcept = 0;
 
 			/**
 			 * Gets the query string
@@ -60,7 +60,7 @@ namespace StormByte::Database {
 			}
 
 		protected:
-			std::string m_query;	///< Query to prepare
-			std::unique_ptr<Row> m_currentRow;	///< Current row
+			std::string m_query;		///< Query to prepare
+			std::shared_ptr<Row> m_row;	///< Current row
 	};
 }

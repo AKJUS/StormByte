@@ -1,6 +1,8 @@
 #pragma once
 
-#include <StormByte/visibility.h>
+#include <StormByte/database/database.hxx>
+#include <StormByte/database/sqlite/preparedSTMT.hxx>
+#include <StormByte/database/sqlite/query.hxx>
 
 #include <filesystem>
 #include <list>
@@ -13,33 +15,31 @@ class sqlite3; // Forward declaration so we don't have to depend on sqlite3 head
  * @brief All the classes for handling SQLite databases
  */
 namespace StormByte::Database::SQLite {
-	class PreparedSTMT;
-	class Row;
 	/**
 	 * @class SQLite3
 	 * @brief SQLite3 database class
 	 */
-	class STORMBYTE_PUBLIC SQLite3 {
+	class STORMBYTE_PUBLIC SQLite3: public Database {
 		public:
 			/**
 			 * Copy constructor
 			 */
-			SQLite3(const SQLite3& db) 					= delete;
+			SQLite3(const SQLite3& db) 								= delete;
 
 			/**
 			 * Move constructor
 			 */
-			SQLite3(SQLite3&& db) noexcept				= default;
+			constexpr SQLite3(SQLite3&& db) noexcept				= default;
 
 			/**
 			 * Assignment operator
 			 */
-			SQLite3& operator=(const SQLite3& db) 		= delete;
+			SQLite3& operator=(const SQLite3& db) 					= delete;
 
 			/**
 			 * Move operator
 			 */
-			SQLite3& operator=(SQLite3&& db) noexcept 	= default;
+			constexpr SQLite3& operator=(SQLite3&& db) noexcept 	= default;
 
 			/**
 			 * Destructor
@@ -65,56 +65,26 @@ namespace StormByte::Database::SQLite {
 			SQLite3(std::filesystem::path&& dbfile);
 
 			/**
-			 * Initializes the database
+			 * Connects to the database.
 			 */
-			void 							init_database();
+			void 												Connect() override;
 
 			/**
-			 * Begins a transaction
+			 * Disconnects from the database.
 			 */
-			void 							begin_transaction();
+			void 												Disconnect() override;
 
 			/**
-			 * Begins an exclusive transaction
+			 * Gets the last error
+			 * @return last error
 			 */
-			void 							begin_exclusive_transaction();
+			const std::string 									LastError() const override;
 
 			/**
-			 * Commits the transaction
+			 * Executes a query without returning any result
+			 * @param query The query to execute
 			 */
-			void 							commit_transaction();
-
-			/**
-			 * Rolls back the transaction
-			 */
-			void 							rollback_transaction();
-
-			/**
-			 * Prepares a sentence
-			 * @param query query
-			 * @param name name
-			 * @return prepared statement
-			 */
-			std::shared_ptr<PreparedSTMT>	prepare_sentence(const std::string& query, const std::string& name);
-
-			/**
-			 * Gets a prepared statement
-			 * @param name name
-			 * @return prepared statement
-			 */
-			std::shared_ptr<PreparedSTMT>	get_prepared(const std::string& name);
-
-			/**
-			 * Executes a query ignoring its results
-			 * @param query query
-			 */
-			void							silent_query(const std::string& query);
-
-			/**
-			 * Gets last error
-			 * @return std::string last error
-			 */
-			const std::string				last_error();
+			void 												SilentQuery(const std::string& query) override;
 
 		private:
 			/**
@@ -129,24 +99,28 @@ namespace StormByte::Database::SQLite {
 			sqlite3* m_database;					///< SQLite3 database
 
 			/**
-			 * Prepared statements
-			 */
-			std::map<std::string, std::shared_ptr<PreparedSTMT>> m_prepared;	///< Prepared statements
-
-			/* Database internals */
-			/**
-			 * Action to execute after database connection
-			 */
-			virtual void post_init_action() noexcept = 0;
-
-			/**
-			 * Closes the database
-			 */
-			void close_database();
-
-			/**
 			 * Enable the foreign keys for SQLite3 (default is disabled)
 			 */
-			void enable_foreign_keys();
+			void 												EnableForeignKeys();
+
+			/**
+			 * Internal function for disconnecting
+			 */
+			void												InternalDisconnect();
+
+			/**
+			 * Prepares a statement
+			 * @param name The name of the prepared statement
+			 * @param query The query to prepare
+			 * @return The created prepared statement
+			 */
+			std::unique_ptr<StormByte::Database::PreparedSTMT>	InternalPrepare(const std::string& name, const std::string& query) override;
+
+			/**
+			 * Executes a query
+			 * @param query The query to execute.
+			 * @return The created query
+			 */
+			std::unique_ptr<StormByte::Database::Query>			InternalQuery(const std::string& query) override;
 	};
 }

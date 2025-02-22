@@ -54,6 +54,13 @@ namespace StormByte::Database {
 			 * @param index parameter index
 			 * @param value Value to be bound
 			 */
+			virtual PreparedSTMT&										Bind(const int& index, const nullptr_t& value) noexcept = 0;
+
+			/**
+			 * Binds a value to a prepared statement
+			 * @param index parameter index
+			 * @param value Value to be bound
+			 */
 			virtual PreparedSTMT&										Bind(const int& index, const int& value) noexcept = 0;
 
 			/**
@@ -75,7 +82,7 @@ namespace StormByte::Database {
 			 * @param index parameter index
 			 * @param value Value to be bound
 			 */
-			virtual PreparedSTMT&										Bind(const int& index, bool& value) noexcept = 0;
+			virtual PreparedSTMT&										Bind(const int& index, bool value) noexcept = 0;
 
 			/**
 			 * Binds a value to a prepared statement
@@ -92,11 +99,27 @@ namespace StormByte::Database {
 			/**
 			 * Step into the prepared statement results
 			 */
-			virtual const Row& 											Step() = 0;
+			virtual const Row&											Step() noexcept = 0;
+
+			/**
+			 * Gets the name of the prepared statement
+			 * @return name
+			 */
+			constexpr const std::string&								GetName() const noexcept {
+				return m_name;
+			}
+
+			/**
+			 * Gets the query of the prepared statement
+			 * @return query
+			 */
+			constexpr const std::string&								GetQuery() const noexcept {
+				return m_query;
+			}
 
 		protected:
 			std::string m_name;					///< Name of the prepared statement
 			std::string m_query;				///< Query to prepare
-			std::unique_ptr<Row> m_result;		///< Last result row of the prepared statement
+			std::unique_ptr<Row> m_row;			///< Last result row of the prepared statement
 	};
 }

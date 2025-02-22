@@ -150,40 +150,41 @@ namespace StormByte::Database {
 
 			/**
 			 * Gets the value.
+			 * @throws WrongValueType if value is not of type T
 			 * @return pointer to const reference to value
 			 */
-			template<typename T> expected_type_cref(T, WrongValueType)		Get() throws(WrongValueType) const;
+			template<typename T> const T&					Get() const;
 
 			#ifdef MSVC
 			/**
 			 * Gets the value.
 			 * @return pointer to const reference to value
 			 */
-			template<> expected_type_cref(int, WrongValueType) Value::Get<int>() const;
+			template<> const int& 							Get<int>() const;
 
 			/**
 			 * Gets the value.
 			 * @return pointer to const reference to value
 			 */
-			template<> expected_type_cref(int64_t, WrongValueType) Value::Get<int64_t>() const;
+			template<> const int64_t& 						Get<int64_t>() const;
 
 			/**
 			 * Gets the value.
 			 * @return pointer to const reference to value
 			 */
-			template<> expected_type_cref(double, WrongValueType) Value::Get<double>() const;
+			template<> const double& 						Get<double>() const;
 
 			/**
 			 * Gets the value.
 			 * @return pointer to const reference to value
 			 */
-			template<> expected_type_cref(bool, WrongValueType)	Value::Get<bool>() const;
+			template<> const bool& 							Get<bool>() const;
 
 			/**
 			 * Gets the value.
 			 * @return pointer to const reference to value
 			 */
-			template<> expected_type_cref(std::string, WrongValueType) Value::Get<std::string>() const;
+			template<> const std::string& 					Get<std::string>() const;
 			#endif
 
 			/**

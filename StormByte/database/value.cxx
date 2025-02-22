@@ -4,42 +4,42 @@
 using namespace StormByte::Database;
 
 
-template<> expected_type_cref(int, WrongValueType) Value::Get<int>() const {
+template<> const int& Value::Get<int>() const {
 	try {
-		return expected_value_cref(std::get<int>(m_value));
+		return std::get<int>(m_value);
 	} catch (const std::bad_variant_access&) {
-		return unexpected_value(WrongValueType("Integer"));
+		throw WrongValueType("Integer");
 	}
 }
 
-template<> expected_type_cref(int64_t, WrongValueType) Value::Get<int64_t>() const {
+template<> const int64_t& Value::Get<int64_t>() const {
 	try {
-		return expected_value_cref(std::get<int64_t>(m_value));
+		return std::get<int64_t>(m_value);
 	} catch (const std::bad_variant_access&) {
-		return unexpected_value(WrongValueType("Integer64"));
+		throw WrongValueType("Integer64");
 	}
 }
 
-template<> expected_type_cref(double, WrongValueType) Value::Get<double>() const {
+template<> const double& Value::Get<double>() const {
 	try {
 		return expected_value_cref(std::get<double>(m_value));
 	} catch (const std::bad_variant_access&) {
-		return unexpected_value(WrongValueType("Integer64"));
+		throw WrongValueType("Double");
 	}
 }
 
-template<> expected_type_cref(bool, WrongValueType)	Value::Get<bool>() const {
+template<> const bool& Value::Get<bool>() const {
 	try {
-		return expected_value_cref(std::get<bool>(m_value));
+		return std::get<bool>(m_value);
 	} catch (const std::bad_variant_access&) {
-		return unexpected_value(WrongValueType("Integer64"));
+		throw WrongValueType("Bool");
 	}
 }
 
-template<> expected_type_cref(std::string, WrongValueType) Value::Get<std::string>() const {
+template<> const std::string& Value::Get<std::string>() const {
 	try {
-		return expected_value_cref(std::get<std::string>(m_value));
+		return std::get<std::string>(m_value);
 	} catch (const std::bad_variant_access&) {
-		return unexpected_value(WrongValueType("Integer64"));
+		throw WrongValueType("String");
 	}
 }

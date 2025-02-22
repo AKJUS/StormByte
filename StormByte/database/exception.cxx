@@ -11,3 +11,6 @@ Exception("Value requested is not a " + targettype) {}
 
 ColumnNotFound::ColumnNotFound(const std::string& name):
 Exception("Column name " + name + " do not exist") {}
+
+OutOfBounds::OutOfBounds(const size_t& index):
+Exception("Index " + std::to_string(index) + " is out of bounds") {}

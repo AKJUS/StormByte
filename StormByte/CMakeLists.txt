@@ -12,9 +12,8 @@ set(STORMBYTE_SOURCES
 	${STORMBYTE_DIR}/StormByte/config/list.cxx
 	${STORMBYTE_DIR}/StormByte/config/serializable.cxx
 	${STORMBYTE_DIR}/StormByte/database/sqlite/exception.cxx
-	${STORMBYTE_DIR}/StormByte/database/sqlite/prepared_stmt.cxx
-	${STORMBYTE_DIR}/StormByte/database/sqlite/result.cxx
-	${STORMBYTE_DIR}/StormByte/database/sqlite/row.cxx
+	${STORMBYTE_DIR}/StormByte/database/sqlite/preparedSTMT.cxx
+	${STORMBYTE_DIR}/StormByte/database/sqlite/query.cxx
 	${STORMBYTE_DIR}/StormByte/database/sqlite/sqlite3.cxx
 	${STORMBYTE_DIR}/StormByte/database/database.cxx
 	${STORMBYTE_DIR}/StormByte/database/exception.cxx

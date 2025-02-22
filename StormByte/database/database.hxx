@@ -3,6 +3,8 @@
 #include <StormByte/database/preparedSTMT.hxx>
 #include <StormByte/database/query.hxx>
 
+#include <map>
+
 /**
  * @namespace Database
  * @brief Contains classes and functions for database operations.
@@ -50,21 +52,18 @@ namespace StormByte::Database {
 			 */
 			virtual void 										Disconnect()	= 0;
 
-		protected:
-			std::map<std::string, std::unique_ptr<PreparedSTMT>> m_prepared_stmts;	///< Prepared statements
-
 			/**
 			 * Executes a query
 			 * @param query The query to execute.
 			 * @return The created query
 			 */
-			virtual std::unique_ptr<Query>						Query(const std::string& query) = 0;
+			std::unique_ptr<Query>								Query(const std::string& query);
 
 			/**
 			 * Executes a query without returning any result
 			 * @param query The query to execute.
 			 */
-			void 												SilentQuery(const std::string& query);
+			virtual void 										SilentQuery(const std::string& query) = 0;
 
 			/**
 			 * Prepares a statement
@@ -72,7 +71,7 @@ namespace StormByte::Database {
 			 * @param query The query to prepare
 			 * @return The created prepared statement
 			 */
-			virtual void 										Prepare(const std::string& name, const std::string& query) = 0;
+			void 												Prepare(const std::string& name, const std::string& query);
 
 			/**
 			 * Prepares all the statements
@@ -90,21 +89,45 @@ namespace StormByte::Database {
 			/**
 			 * Begins a transaction
 			 */
-			virtual void 										BeginTransaction() = 0;
+			virtual void 										BeginTransaction();
 
 			/**
 			 * Begins an exclusive transaction
 			 */
-			virtual void 										BeginExclusiveTransaction() = 0;
+			virtual void 										BeginExclusiveTransaction();
 
 			/**
 			 * Commits the transaction
 			 */
-			virtual void 										CommitTransaction() = 0;
+			virtual void 										CommitTransaction();
 
 			/**
 			 * Rolls back the transaction
 			 */
-			virtual void 										RollbackTransaction() = 0;
+			virtual void 										RollbackTransaction();
+
+			/**
+			 * Gets the last error
+			 * @return The last error
+			 */
+			virtual const std::string							LastError() const = 0;
+
+		protected:
+			std::map<std::string, std::unique_ptr<PreparedSTMT>> m_prepared_stmts;	///< Prepared statements
+
+			/**
+			 * Prepares a statement
+			 * @param name The name of the prepared statement
+			 * @param query The query to prepare
+			 * @return The created prepared statement
+			 */
+			virtual std::unique_ptr<PreparedSTMT>				InternalPrepare(const std::string& name, const std::string& query) = 0;
+
+			/**
+			 * Executes a query
+			 * @param query The query to execute.
+			 * @return The created query
+			 */
+			virtual std::unique_ptr<StormByte::Database::Query>	InternalQuery(const std::string& query) = 0;
 	};
 }

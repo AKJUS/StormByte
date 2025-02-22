@@ -126,4 +126,42 @@ namespace StormByte::Database {
 			 */
 			~ColumnNotFound() noexcept override						= default;
 	};
+
+	/**
+	 * @class OutOfBounds
+	 * @brief Exception when accessing an out of bounds column
+	 */
+	class STORMBYTE_PUBLIC OutOfBounds: public Exception {
+		public:
+			/**
+			 * Constructor
+			 * @param index index
+			 */
+			OutOfBounds(const size_t& index);
+
+			/**
+			 * Copy constructor
+			 */
+			OutOfBounds(const OutOfBounds&)							= default;
+
+			/**
+			 * Move constructor
+			 */
+			OutOfBounds(OutOfBounds&&) noexcept						= default;
+
+			/**
+			 * Assignment operator
+			 */
+			OutOfBounds& operator=(const OutOfBounds&)				= default;
+
+			/**
+			 * Move operator
+			 */
+			OutOfBounds& operator=(OutOfBounds&&) noexcept 			= default;
+
+			/**
+			 * Destructor
+			 */
+			~OutOfBounds() noexcept override						= default;
+	};
 }

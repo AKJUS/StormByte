@@ -3,7 +3,7 @@
 #include <StormByte/database/value.hxx>
 #include <StormByte/util/iterator.hxx>
 
-#include <map>
+#include <vector>
 
 /**
  * @namespace Database
@@ -16,9 +16,10 @@ namespace StormByte::Database {
 	 */
 	class STORMBYTE_PUBLIC Row {
 		public:
-			using Storage = std::map<std::string, std::unique_ptr<Value>>;	///< Shortcut alias for internal storage
-			using Iterator = Util::Iterator<Storage>;						///< Iterator for Row
-			using ConstIterator = Util::ConstIterator<Storage>;				///< ConstIterator for Row
+			using Pair = std::pair<std::string, std::shared_ptr<Value>>;					///< Shortcut alias for pair
+			using Storage = std::vector<Pair>;												///< Shortcut alias for internal storage
+			using Iterator = Util::Iterator<Storage>;										///< Iterator for Row
+			using ConstIterator = Util::ConstIterator<Storage>;								///< ConstIterator for Row
 
 			/**
 			 * Constructor
@@ -51,19 +52,36 @@ namespace StormByte::Database {
 			virtual ~Row() noexcept								= default;
 
 			/**
-			 * Adds a value to the row (or gets a non const reference to it)
+			 * Gets value for column by name
 			 * @param columnName column name
-			 * @param value value
+			 * @throw ColumnNotFound if column is not found
+			 * @return Value
 			 */
 			Value& 												operator[](const std::string& columnName);
 
 			/**
-			 * Gets value for column
+			 * Gets value for column by name
 			 * @param columnName column name
 			 * @throw ColumnNotFound if column is not found
 			 * @return Value
 			 */
 			const Value& 										operator[](const std::string& columnName) const;
+
+			/**
+			 * Gets value for column by index
+			 * @param columnIndex column index
+			 * @throw OutOfBounds if index is out of bounds
+			 * @return Value
+			 */
+			Value& 												operator[](const size_t& columnIndex);
+
+			/**
+			 * Gets value for column by index
+			 * @param columnIndex column index
+			 * @throw OutOfBounds if index is out of bounds
+			 * @return Value
+			 */
+			const Value& 										operator[](const size_t& columnIndex) const;
 
 			/**
 			 * Checks if result is empty
@@ -95,6 +113,19 @@ namespace StormByte::Database {
 			 * @return ConstIterator
 			 */
 			ConstIterator 										End() const noexcept;
+
+			/**
+			 * Adds a value to the row
+			 * @param columnName column name
+			 * @param value value
+			 */
+			void												Add(const std::string& columnName, std::unique_ptr<Value>&& value);
+
+			/**
+			 * Gets the number of columns
+			 * @return number of columns
+			 */
+			size_t												Columns() const noexcept;
 
 		protected:
 			/**
