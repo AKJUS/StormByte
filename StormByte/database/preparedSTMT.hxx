@@ -8,6 +8,10 @@
  * @brief Contains classes and functions for database operations.
  */
 namespace StormByte::Database {
+	/**
+	 * @class PreparedSTMT
+	 * @brief Prepared statement for databases
+	 */
 	class STORMBYTE_PUBLIC PreparedSTMT {
 		public:
 			/**

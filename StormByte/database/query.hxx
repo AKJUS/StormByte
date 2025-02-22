@@ -7,6 +7,10 @@
  * @brief Contains classes and functions for database operations.
  */
 namespace StormByte::Database {
+	/**
+	 * @class Query
+	 * @brief Represents a query to be executed in a database.
+	 */
 	class STORMBYTE_PUBLIC Query {
 		public:
 			/**

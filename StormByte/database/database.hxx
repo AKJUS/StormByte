@@ -10,6 +10,10 @@
  * @brief Contains classes and functions for database operations.
  */
 namespace StormByte::Database {
+	/**
+	 * @class Database
+	 * @brief Abstract database class for database handling
+	 */
 	class STORMBYTE_PUBLIC Database {
 		public:
 			/**
