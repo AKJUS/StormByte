@@ -6,9 +6,9 @@
 
 using namespace StormByte::Database::SQLite;
 
-PreparedSTMT::PreparedSTMT(const std::string& name, const std::string& query):Database::PreparedSTMT(name, query), m_stmt(nullptr) {}
+PreparedSTMT::PreparedSTMT(const std::string& name, const std::string& query):Database::PreparedSTMT<Row>(name, query), m_stmt(nullptr) {}
 
-PreparedSTMT::PreparedSTMT(std::string&& name, std::string&& query) noexcept:Database::PreparedSTMT(std::move(name), std::move(query)), m_stmt(nullptr) {}
+PreparedSTMT::PreparedSTMT(std::string&& name, std::string&& query) noexcept:Database::PreparedSTMT<Row>(std::move(name), std::move(query)), m_stmt(nullptr) {}
 
 PreparedSTMT::~PreparedSTMT() noexcept {
 	if (m_stmt) {
@@ -17,7 +17,7 @@ PreparedSTMT::~PreparedSTMT() noexcept {
 	}
 }
 
-PreparedSTMT& PreparedSTMT::Bind(const int& column, const nullptr_t&) noexcept {
+PreparedSTMT& PreparedSTMT::Bind(const int& column, const std::nullptr_t&) noexcept {
 	sqlite3_bind_null(m_stmt, column + 1);
 	return *this;
 }
@@ -52,7 +52,7 @@ void PreparedSTMT::Reset() noexcept {
 	sqlite3_reset(m_stmt);
 }
 
-const StormByte::Database::Row& PreparedSTMT::Step() noexcept {
+const Row& PreparedSTMT::Step() noexcept {
 	m_row = std::make_unique<Row>();
 	if (sqlite3_step(m_stmt) == SQLITE_ROW) {
 		for (auto i = 0; i < sqlite3_column_count(m_stmt); i++) {
@@ -70,7 +70,7 @@ const StormByte::Database::Row& PreparedSTMT::Step() noexcept {
 					break;
 
 				case SQLITE_NULL:
-					m_row->Add(column_name, std::make_unique<Value>());
+					m_row->Add(column_name, std::make_unique<Value>(nullptr));
 					break;
 
 				case SQLITE_FLOAT:

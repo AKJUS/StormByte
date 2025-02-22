@@ -1,7 +1,14 @@
-#include <StormByte/database/sqlite/exception.hxx>
 #include <StormByte/database/sqlite/sqlite3.hxx>
 
 #include <sqlite3.h>
+
+#ifdef MSVC
+/** WINDOWS NEEDS EXPLICIT INSTANTIATION TO AVOID LINKER ERRORS **/
+namespace StormByte::Database {
+	template class Database<SQLite::Query, SQLite::PreparedSTMT>;
+	template class Row<SQLite::Value>;
+}
+#endif
 
 using namespace StormByte::Database::SQLite;
 
@@ -48,7 +55,7 @@ void SQLite3::InternalDisconnect() {
 	}
 }
 
-std::unique_ptr<StormByte::Database::PreparedSTMT> SQLite3::InternalPrepare(const std::string& name, const std::string& query) {
+std::unique_ptr<PreparedSTMT> SQLite3::InternalPrepare(const std::string& name, const std::string& query) {
 	std::unique_ptr<PreparedSTMT> stmt = std::make_unique<PreparedSTMT>(PreparedSTMT(name, query));
 	sqlite3_prepare_v2( m_database, stmt->GetQuery().c_str(), static_cast<int>(stmt->GetQuery().length()), &(stmt->m_stmt), nullptr);
 	if (!stmt->m_stmt) {
@@ -58,8 +65,8 @@ std::unique_ptr<StormByte::Database::PreparedSTMT> SQLite3::InternalPrepare(cons
 		return stmt;
 }
 
-std::unique_ptr<StormByte::Database::Query> SQLite3::InternalQuery(const std::string& query) {
-	auto q = std::make_unique<SQLite::Query>(SQLite::Query(query));
+std::unique_ptr<Query> SQLite3::InternalQuery(const std::string& query) {
+	auto q = std::make_unique<Query>(SQLite::Query(query));
 	q->m_stmt = InternalPrepare("Query", query);
 	return q;
 }

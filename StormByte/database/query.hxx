@@ -11,7 +11,7 @@ namespace StormByte::Database {
 	 * @class Query
 	 * @brief Represents a query to be executed in a database.
 	 */
-	class STORMBYTE_PUBLIC Query {
+	template<class Row> class STORMBYTE_PUBLIC Query {
 		public:
 			/**
 			 * Default constructor

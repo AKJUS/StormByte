@@ -1,8 +1,11 @@
 #pragma once
 
-#include <StormByte/database/value.hxx>
-#include <StormByte/util/iterator.hxx>
+#include <StormByte/util/templates/variadic_value.hxx>
+#include <StormByte/util/templates/iterator.hxx>
+#include <StormByte/database/exception.hxx>
 
+#include <algorithm>
+#include <memory>
 #include <vector>
 
 /**
@@ -14,12 +17,12 @@ namespace StormByte::Database {
 	 * @class Row
 	 * @brief Row class for databases
 	 */
-	class STORMBYTE_PUBLIC Row {
+	template<class Value> class STORMBYTE_PUBLIC Row {
+		using NamedValue = std::pair<std::string, std::shared_ptr<Value>>;		///< Shortcut alias for pair
+		using Storage = std::vector<NamedValue>;								///< Shortcut alias for internal storage
 		public:
-			using Pair = std::pair<std::string, std::shared_ptr<Value>>;					///< Shortcut alias for pair
-			using Storage = std::vector<Pair>;												///< Shortcut alias for internal storage
-			using Iterator = Util::Iterator<Storage>;										///< Iterator for Row
-			using ConstIterator = Util::ConstIterator<Storage>;								///< ConstIterator for Row
+			using Iterator = Util::Templates::Iterator<Storage>;				///< Iterator for Row
+			using ConstIterator = Util::Templates::ConstIterator<Storage>;		///< ConstIterator for Row
 
 			/**
 			 * Constructor
@@ -57,7 +60,9 @@ namespace StormByte::Database {
 			 * @throw ColumnNotFound if column is not found
 			 * @return Value
 			 */
-			Value& 												operator[](const std::string& columnName);
+			Value& 												operator[](const std::string& columnName) {
+				return const_cast<Value&>(static_cast<const Row*>(this)->operator[](columnName));
+			}
 
 			/**
 			 * Gets value for column by name
@@ -65,7 +70,12 @@ namespace StormByte::Database {
 			 * @throw ColumnNotFound if column is not found
 			 * @return Value
 			 */
-			const Value& 										operator[](const std::string& columnName) const;
+			const Value& 										operator[](const std::string& columnName) const {
+				auto it = std::find_if(m_values.begin(), m_values.end(), [&columnName](const NamedValue& item ) { return item.first == columnName; });
+				if (it == m_values.end())
+					throw ColumnNotFound(columnName);
+				return *(it->second);
+			}
 
 			/**
 			 * Gets value for column by index
@@ -73,7 +83,9 @@ namespace StormByte::Database {
 			 * @throw OutOfBounds if index is out of bounds
 			 * @return Value
 			 */
-			Value& 												operator[](const size_t& columnIndex);
+			Value& 												operator[](const size_t& columnIndex) {
+				return const_cast<Value&>(static_cast<const Row*>(this)->operator[](columnIndex));
+			}
 
 			/**
 			 * Gets value for column by index
@@ -81,12 +93,16 @@ namespace StormByte::Database {
 			 * @throw OutOfBounds if index is out of bounds
 			 * @return Value
 			 */
-			const Value& 										operator[](const size_t& columnIndex) const;
+			const Value& 										operator[](const size_t& columnIndex) const {
+				if (columnIndex >= m_values.size())
+					throw OutOfBounds(columnIndex);
+				return *m_values[columnIndex].second;
+			}
 
 			/**
 			 * Checks if result is empty
 			 */
-			inline 												operator bool() const noexcept {
+			constexpr											operator bool() const noexcept {
 				return m_values.size() > 0;
 			}
 
@@ -94,38 +110,50 @@ namespace StormByte::Database {
 			 * Gets an iterator pointing to the first element
 			 * @return Iterator
 			 */
-			Iterator 											Begin() noexcept;
+			Iterator 											Begin() noexcept {
+				return Iterator::Begin(m_values);
+			}
 
 			/**
 			 * Gets a ConstIterator pointing to the first element
 			 * @return ConstIterator
 			 */
-			ConstIterator 										Begin() const noexcept;
+			ConstIterator 										Begin() const noexcept {
+				return ConstIterator::Begin(m_values);
+			}
 
 			/**
 			 * Gets an iterator pointing to past last element
 			 * @return Iterator
 			 */
-			Iterator 											End() noexcept;
+			Iterator 											End() noexcept {
+				return Iterator::End(m_values);
+			}
 
 			/**
 			 * Gets a ConstIterator pointing to past last element
 			 * @return ConstIterator
 			 */
-			ConstIterator 										End() const noexcept;
+			ConstIterator 										End() const noexcept {
+				return ConstIterator::End(m_values);
+			}
 
 			/**
 			 * Adds a value to the row
 			 * @param columnName column name
 			 * @param value value
 			 */
-			void												Add(const std::string& columnName, std::unique_ptr<Value>&& value);
+			void												Add(const std::string& columnName, std::unique_ptr<Value>&& value) {
+				m_values.push_back({columnName, std::move(value)});
+			}
 
 			/**
 			 * Gets the number of columns
 			 * @return number of columns
 			 */
-			size_t												Columns() const noexcept;
+			constexpr size_t									Columns() const noexcept {
+				return m_values.size();
+			}
 
 		protected:
 			/**

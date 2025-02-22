@@ -1,6 +1,7 @@
 #pragma once
 
 #include <StormByte/database/preparedSTMT.hxx>
+#include <StormByte/database/sqlite/alias.hxx>
 
 class sqlite3_stmt; // Forward declaration so we don't have to depend on sqlite3 headers
 /**
@@ -12,7 +13,7 @@ namespace StormByte::Database::SQLite {
 	 * @class PreparedSTMT
 	 * @brief Prepared statement for SQLite
 	 */
-	class STORMBYTE_PUBLIC PreparedSTMT final: public StormByte::Database::PreparedSTMT {
+	class STORMBYTE_PUBLIC PreparedSTMT final: public StormByte::Database::PreparedSTMT<Row> {
 		friend class SQLite3;
 		public:
 			/**
@@ -23,7 +24,7 @@ namespace StormByte::Database::SQLite {
 			/**
 			 * Move constructor
 			 */
-			constexpr PreparedSTMT(PreparedSTMT&&) noexcept				= default;
+			PreparedSTMT(PreparedSTMT&&) noexcept						= default;
 
 			/**
 			 * Assignment operator
@@ -33,7 +34,7 @@ namespace StormByte::Database::SQLite {
 			/**
 			 * Move operator
 			 */
-			constexpr PreparedSTMT& operator=(PreparedSTMT&&) noexcept	= default;
+			PreparedSTMT& operator=(PreparedSTMT&&) noexcept			= default;
 
 			/**
 			 * Destructor
@@ -45,7 +46,7 @@ namespace StormByte::Database::SQLite {
 			 * @param index parameter index
 			 * @param value Value to be bound
 			 */
-			PreparedSTMT&												Bind(const int& index, const nullptr_t& value) noexcept override;
+			PreparedSTMT&												Bind(const int& index, const std::nullptr_t& value) noexcept override;
 
 			/**
 			 * Binds a value to a prepared statement
@@ -92,7 +93,7 @@ namespace StormByte::Database::SQLite {
 			 * Executes the prepared statement
 			 * @return row pointer (nullptr if there are no more rows)
 			 */
-			const Row&													Step() noexcept override;
+			const Row&											Step() noexcept override;
 
 		private:
 			/**

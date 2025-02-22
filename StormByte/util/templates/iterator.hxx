@@ -4,7 +4,7 @@
  * @namespace Util
  * @brief All the utility classes and functions
  */
-namespace StormByte::Util {
+namespace StormByte::Util::Templates {
 	/**
 	 * @class Iterator
 	 * @brief iterator to Storage

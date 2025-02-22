@@ -15,18 +15,14 @@ set(STORMBYTE_SOURCES
 	${STORMBYTE_DIR}/StormByte/database/sqlite/preparedSTMT.cxx
 	${STORMBYTE_DIR}/StormByte/database/sqlite/query.cxx
 	${STORMBYTE_DIR}/StormByte/database/sqlite/sqlite3.cxx
-	${STORMBYTE_DIR}/StormByte/database/database.cxx
 	${STORMBYTE_DIR}/StormByte/database/exception.cxx
-	${STORMBYTE_DIR}/StormByte/database/preparedSTMT.cxx
-	${STORMBYTE_DIR}/StormByte/database/query.cxx
-	${STORMBYTE_DIR}/StormByte/database/row.cxx
-	${STORMBYTE_DIR}/StormByte/database/value.cxx
 	${STORMBYTE_DIR}/StormByte/log/logger.cxx
 	${STORMBYTE_DIR}/StormByte/system/exception.cxx
 	${STORMBYTE_DIR}/StormByte/system/pipe.cxx
 	${STORMBYTE_DIR}/StormByte/system/process.cxx
 	${STORMBYTE_DIR}/StormByte/system/variable.cxx
 	${STORMBYTE_DIR}/StormByte/system/system.cxx
+	${STORMBYTE_DIR}/StormByte/util/exception.cxx
 	${STORMBYTE_DIR}/StormByte/util/string/string.cxx
 )
 

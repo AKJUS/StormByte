@@ -1,16 +1,15 @@
 #include <StormByte/database/sqlite/sqlite3.hxx>
-#include <StormByte/database/row.hxx>
-#include <StormByte/database/sqlite/exception.hxx>
 #include <StormByte/system/system.hxx>
+
 #include <memory>
 #include <iostream>
 #include <vector>
 
 #include "test_handlers.h"
 
-using namespace StormByte::Database;
+using namespace StormByte::Database::SQLite;
 
-class TestDatabase : public SQLite::SQLite3 {
+class TestDatabase : public SQLite3 {
 	public:
 		TestDatabase() : SQLite3() {
 			post_init_action();
@@ -31,13 +30,13 @@ class TestDatabase : public SQLite::SQLite3 {
 			SilentQuery("INSERT INTO orders (user_id, product_id, quantity) VALUES (2, 2, 2);");
 
 			// Prepare statements
-			Prepare("select_users", "SELECT name, email FROM users;");
-			Prepare("select_products", "SELECT name, price FROM products;");
-			Prepare("select_orders", "SELECT user_id, product_id, quantity FROM orders;");
-			Prepare("select_join", "SELECT users.name, products.name, orders.quantity FROM orders JOIN users ON orders.user_id = users.id JOIN products ON orders.product_id = products.id;");
+			PrepareSTMT("select_users", "SELECT name, email FROM users;");
+			PrepareSTMT("select_products", "SELECT name, price FROM products;");
+			PrepareSTMT("select_orders", "SELECT user_id, product_id, quantity FROM orders;");
+			PrepareSTMT("select_join", "SELECT users.name, products.name, orders.quantity FROM orders JOIN users ON orders.user_id = users.id JOIN products ON orders.product_id = products.id;");
 		}
 
-		const std::vector<StormByte::Database::Row> get_users() const {
+		const std::vector<Row> get_users() const {
 			auto& stmt = GetPreparedSTMT("select_users");
 			std::vector<Row> rows;
 			while (const Row& r = stmt.Step())
@@ -45,7 +44,7 @@ class TestDatabase : public SQLite::SQLite3 {
 			return rows;
 		}
 	
-		const std::vector<StormByte::Database::Row> get_products() const {
+		const std::vector<Row> get_products() const {
 			auto& stmt = GetPreparedSTMT("select_products");
 			std::vector<Row> rows;
 			while (const Row& r = stmt.Step())
@@ -53,7 +52,7 @@ class TestDatabase : public SQLite::SQLite3 {
 			return rows;
 		}
 	
-		const std::vector<StormByte::Database::Row> get_orders() const {
+		const std::vector<Row> get_orders() const {
 			auto& stmt = GetPreparedSTMT("select_orders");
 			std::vector<Row> rows;
 			while (const Row& r = stmt.Step())
@@ -61,7 +60,7 @@ class TestDatabase : public SQLite::SQLite3 {
 			return rows;
 		}
 	
-		const std::vector<StormByte::Database::Row> get_joined_data() const {
+		const std::vector<Row> get_joined_data() const {
 			auto& stmt = GetPreparedSTMT("select_join");
 			std::vector<Row> rows;
 			while (const Row& r = stmt.Step())
@@ -147,12 +146,25 @@ int query_test() {
 	TestDatabase db;
 
 	// 5. Verify that the query method works correctly
-	auto query = db.Query("SELECT COUNT(*) FROM users;");
+	auto query = db.PrepareQuery("SELECT COUNT(*) FROM users;");
 	auto row = query->Step();
 	ASSERT_EQUAL("query_test", 1, row.Columns());
 	ASSERT_EQUAL("query_test", 2, row[0].Get<int>());
 
 	RETURN_TEST("query_test", 0);
+}
+
+int bool_test() {
+	// Create an in-memory database for testing
+	TestDatabase db;
+
+	// 6. Verify that the query method works correctly
+	auto query = db.PrepareQuery("SELECT COUNT(*) > 0 FROM users;");
+	auto row = query->Step();
+	ASSERT_EQUAL("bool_test", 1, row.Columns());
+	ASSERT_EQUAL("bool_test", true, (bool)row[0].Get<int>());
+
+	RETURN_TEST("bool_test", 0);
 }
 
 int main() {
@@ -163,6 +175,7 @@ int main() {
 		result += verify_inserted_orders();
 		result += verify_relationships();
 		result += query_test();
+		result += bool_test();
         std::cout << "All tests passed successfully.\n";
     } catch (const StormByte::Database::SQLite::Exception& ex) {
 		std::cerr << "Exception: " << ex.what() << std::endl;

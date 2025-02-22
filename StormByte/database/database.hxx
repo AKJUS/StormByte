@@ -1,9 +1,10 @@
 #pragma once
 
-#include <StormByte/database/preparedSTMT.hxx>
-#include <StormByte/database/query.hxx>
+#include <StormByte/visibility.h>
 
 #include <map>
+#include <memory>
+#include <string>
 
 /**
  * @namespace Database
@@ -14,7 +15,7 @@ namespace StormByte::Database {
 	 * @class Database
 	 * @brief Abstract database class for database handling
 	 */
-	class STORMBYTE_PUBLIC Database {
+	template<class Query, class PreparedSTMT> class STORMBYTE_PUBLIC Database {
 		public:
 			/**
 			 * Default constructor.
@@ -61,7 +62,9 @@ namespace StormByte::Database {
 			 * @param query The query to execute.
 			 * @return The created query
 			 */
-			std::unique_ptr<Query>								Query(const std::string& query);
+			std::unique_ptr<Query>								PrepareQuery(const std::string& query) {
+				return InternalQuery(query);
+			}
 
 			/**
 			 * Executes a query without returning any result
@@ -75,40 +78,56 @@ namespace StormByte::Database {
 			 * @param query The query to prepare
 			 * @return The created prepared statement
 			 */
-			void 												Prepare(const std::string& name, const std::string& query);
+			void 												PrepareSTMT(const std::string& name, const std::string& query) {
+				m_prepared_stmts.insert({name, InternalPrepare(name, query)});
+			}
 
 			/**
 			 * Prepares all the statements
 			 * @param queries The queries to prepare
 			 */
-			void 												PrepareAll(const std::map<std::string, std::string>& queries);
+			void 												PrepareAll(const std::map<std::string, std::string>& queries) {
+				for (const auto& [name, query]: queries) {
+					PrepareSTMT(name, query);
+				}
+			}
 
 			/**
 			 * Gets a prepared statement
 			 * @param name The name of the prepared statement
 			 * @return The prepared statement
 			 */
-			PreparedSTMT& 										GetPreparedSTMT(const std::string& name) const;
+			PreparedSTMT& 										GetPreparedSTMT(const std::string& name) const {
+				return *m_prepared_stmts.at(name);
+			}
 
 			/**
 			 * Begins a transaction
 			 */
-			virtual void 										BeginTransaction();
+			virtual void 										BeginTransaction() {
+				SilentQuery("BEGIN TRANSACTION;");
+			}
 
 			/**
 			 * Begins an exclusive transaction
 			 */
-			virtual void 										BeginExclusiveTransaction();
+			virtual void 										BeginExclusiveTransaction() {
+				SilentQuery("BEGIN EXCLUSIVE TRANSACTION;");
+			}
 
 			/**
 			 * Commits the transaction
 			 */
-			virtual void 										CommitTransaction();
+			virtual void 										CommitTransaction() {
+				SilentQuery("COMMIT;");
+			}
 
 			/**
 			 * Rolls back the transaction
 			 */
-			virtual void 										RollbackTransaction();
+			virtual void 										RollbackTransaction() {
+				SilentQuery("ROLLBACK;");
+			}
 
 			/**
 			 * Gets the last error
@@ -132,6 +151,6 @@ namespace StormByte::Database {
 			 * @param query The query to execute.
 			 * @return The created query
 			 */
-			virtual std::unique_ptr<StormByte::Database::Query>	InternalQuery(const std::string& query) = 0;
+			virtual std::unique_ptr<Query>						InternalQuery(const std::string& query) = 0;
 	};
 }

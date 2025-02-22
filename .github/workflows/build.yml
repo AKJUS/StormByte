@@ -38,7 +38,10 @@ jobs:
         if [ "${{ matrix.compiler }}" == "gcc" ]; then
           sudo apt install -y gcc g++
         elif [ "${{ matrix.compiler }}" == "clang" ]; then
-          sudo apt install -y clang libc++-dev libc++abi-dev
+          sudo apt install -y clang-19 libc++-19-dev libc++abi-19-dev
+          sudo update-alternatives --remove-all clang
+          sudo update-alternatives --remove-all clang++
+          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-19 190 --slave /usr/bin/clang++ clang++ /usr/bin/clang++-19
         fi
 
     - name: Install CMake
@@ -58,7 +61,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
           -DCMAKE_C_COMPILER=/usr/bin/${{ matrix.compiler }} \
           -DCMAKE_CXX_COMPILER=$([[ ${{ matrix.compiler }} == 'gcc' ]] && echo '/usr/bin/g++' || echo '/usr/bin/clang++') \
-          -DCMAKE_CXX_FLAGS="${{ matrix.stdlib == 'libc++' && matrix.compiler == 'clang' && '-stdlib=libc++' || '' }}" \
+          -DCMAKE_CXX_FLAGS="${{ matrix.stdlib == 'libc++' && matrix.compiler == 'clang' && '--stdlib=libc++' || '' }}" \
           -DWITH_SYSTEM_SQLITE=${{ matrix.system_sqlite }} \
           -DENABLE_TEST=ON
     - name: Build

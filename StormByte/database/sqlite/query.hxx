@@ -1,7 +1,8 @@
 #pragma once
 
-#include <StormByte/database/preparedSTMT.hxx>
 #include <StormByte/database/query.hxx>
+#include <StormByte/database/sqlite/preparedSTMT.hxx>
+#include <StormByte/database/sqlite/alias.hxx>
 
 /**
  * @namespace SQLite3
@@ -13,7 +14,7 @@ namespace StormByte::Database::SQLite {
 	 * @brief Represents a query to be executed in a SQLite3 database.
 	 * In SQLite3 a query is a Prepared Statement so we wrap it
 	 */
-	class STORMBYTE_PUBLIC Query final: public StormByte::Database::Query {
+	class STORMBYTE_PUBLIC Query final: public StormByte::Database::Query<Row> {
 		friend class SQLite3;
 		public:
 			/**
@@ -36,7 +37,7 @@ namespace StormByte::Database::SQLite {
 			/**
 			 * Default move constructor
 			 */
-			constexpr Query(Query&&)						= default;
+			Query(Query&&)									= default;
 
 			/**
 			 * Default copy assignment operator (deleted)
@@ -46,7 +47,7 @@ namespace StormByte::Database::SQLite {
 			/**
 			 * Default move assignment operator
 			 */
-			constexpr Query& operator=(Query&&)				= default;
+			Query& operator=(Query&&)						= default;
 
 			/**
 			 * Default destructor.
@@ -56,12 +57,12 @@ namespace StormByte::Database::SQLite {
 			/**
 			 * Step into the query results
 			 */
-			const Row&										Step() noexcept override;
+			const Row&								Step() noexcept override;
 
 		private:
 			/**
 			 * The SQLite3 statement
 			 */
-			std::unique_ptr<StormByte::Database::PreparedSTMT> m_stmt; //< The SQLite3 statement
+			std::unique_ptr<PreparedSTMT> m_stmt; //< The SQLite3 statement
 	};
 }

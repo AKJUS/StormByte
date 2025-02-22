@@ -2,8 +2,8 @@
 
 using namespace StormByte::Database::SQLite;
 
-Query::Query(const std::string& query):StormByte::Database::Query(query) {}
+Query::Query(const std::string& query):Database::Query<Row>(query) {}
 
-const StormByte::Database::Row& Query::Step() noexcept {
+const Row& Query::Step() noexcept {
 	return m_stmt->Step();
 }

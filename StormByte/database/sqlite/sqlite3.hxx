@@ -3,6 +3,7 @@
 #include <StormByte/database/database.hxx>
 #include <StormByte/database/sqlite/preparedSTMT.hxx>
 #include <StormByte/database/sqlite/query.hxx>
+#include <StormByte/database/sqlite/exception.hxx>
 
 #include <filesystem>
 #include <list>
@@ -19,7 +20,7 @@ namespace StormByte::Database::SQLite {
 	 * @class SQLite3
 	 * @brief SQLite3 database class
 	 */
-	class STORMBYTE_PUBLIC SQLite3: public Database {
+	class STORMBYTE_PUBLIC SQLite3: public Database<Query, PreparedSTMT> {
 		public:
 			/**
 			 * Copy constructor
@@ -29,7 +30,7 @@ namespace StormByte::Database::SQLite {
 			/**
 			 * Move constructor
 			 */
-			constexpr SQLite3(SQLite3&& db) noexcept				= default;
+			SQLite3(SQLite3&& db) noexcept							= default;
 
 			/**
 			 * Assignment operator
@@ -39,7 +40,7 @@ namespace StormByte::Database::SQLite {
 			/**
 			 * Move operator
 			 */
-			constexpr SQLite3& operator=(SQLite3&& db) noexcept 	= default;
+			SQLite3& operator=(SQLite3&& db) noexcept 				= default;
 
 			/**
 			 * Destructor
@@ -114,13 +115,13 @@ namespace StormByte::Database::SQLite {
 			 * @param query The query to prepare
 			 * @return The created prepared statement
 			 */
-			std::unique_ptr<StormByte::Database::PreparedSTMT>	InternalPrepare(const std::string& name, const std::string& query) override;
+			std::unique_ptr<PreparedSTMT>						InternalPrepare(const std::string& name, const std::string& query) override;
 
 			/**
 			 * Executes a query
 			 * @param query The query to execute.
 			 * @return The created query
 			 */
-			std::unique_ptr<StormByte::Database::Query>			InternalQuery(const std::string& query) override;
+			std::unique_ptr<Query>								InternalQuery(const std::string& query) override;
 	};
 }

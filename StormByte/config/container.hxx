@@ -4,7 +4,7 @@
 #include <StormByte/config/comment.hxx>
 #include <StormByte/config/item.hxx>
 #include <StormByte/config/exception.hxx>
-#include <StormByte/util/iterator.hxx>
+#include <StormByte/util/templates/iterator.hxx>
 #include <StormByte/util/string/string.hxx>
 
 /**
@@ -21,19 +21,19 @@ namespace StormByte::Config {
 			/**
 			 * Shortcut alias for internal storage
 			 */
-			using Storage = std::vector<Item>;					///< Shortcut alias for internal storage
+			using Storage = std::vector<Item>;								///< Shortcut alias for internal storage
 
 			/**
 			 * @class Iterator
 			 * @brief Iterator for Container
 			 */
-			using Iterator = Util::Iterator<Storage>;			///< Iterator for Container
+			using Iterator = Util::Templates::Iterator<Storage>;			///< Iterator for Container
 
 			/**
 			 * @class ConstIterator
 			 * @brief Const iterator for Container
 			 */
-			using ConstIterator = Util::ConstIterator<Storage>;	///< ConstIterator for Container
+			using ConstIterator = Util::Templates::ConstIterator<Storage>;	///< ConstIterator for Container
 
 			/**
 			 * @enum OnExistingAction
@@ -293,7 +293,7 @@ namespace StormByte::Config {
 			 * @return Iterator
 			 */
 			virtual constexpr Iterator 							Begin() noexcept {
-				return Util::Iterator<Storage>::Begin(m_items);
+				return Util::Templates::Iterator<Storage>::Begin(m_items);
 			}
 
 			/**
@@ -301,7 +301,7 @@ namespace StormByte::Config {
 			 * @return ConstIterator
 			 */
 			virtual constexpr ConstIterator						Begin() const noexcept {
-				return Util::ConstIterator<Storage>::Begin(m_items);
+				return Util::Templates::ConstIterator<Storage>::Begin(m_items);
 			}
 
 			/**
@@ -309,7 +309,7 @@ namespace StormByte::Config {
 			 * @return Iterator
 			 */
 			virtual constexpr Iterator 							End() noexcept {
-				return Util::Iterator<Storage>::End(m_items);
+				return Util::Templates::Iterator<Storage>::End(m_items);
 			}
 
 			/**
@@ -317,7 +317,7 @@ namespace StormByte::Config {
 			 * @return ConstIterator
 			 */
 			virtual constexpr ConstIterator						End() const noexcept {
-				return Util::ConstIterator<Storage>::End(m_items);
+				return Util::Templates::ConstIterator<Storage>::End(m_items);
 			}
 
 			/**

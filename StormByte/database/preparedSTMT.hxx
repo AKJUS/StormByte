@@ -12,7 +12,7 @@ namespace StormByte::Database {
 	 * @class PreparedSTMT
 	 * @brief Prepared statement for databases
 	 */
-	class STORMBYTE_PUBLIC PreparedSTMT {
+	template<class Row> class STORMBYTE_PUBLIC PreparedSTMT {
 		public:
 			/**
 			 * Default constructor
@@ -58,7 +58,7 @@ namespace StormByte::Database {
 			 * @param index parameter index
 			 * @param value Value to be bound
 			 */
-			virtual PreparedSTMT&										Bind(const int& index, const nullptr_t& value) noexcept = 0;
+			virtual PreparedSTMT&										Bind(const int& index, const std::nullptr_t& value) noexcept = 0;
 
 			/**
 			 * Binds a value to a prepared statement
