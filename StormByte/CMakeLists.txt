@@ -10,11 +10,11 @@ set(STORMBYTE_SOURCES
 	${STORMBYTE_DIR}/StormByte/config/group.cxx
 	${STORMBYTE_DIR}/StormByte/config/item.cxx
 	${STORMBYTE_DIR}/StormByte/config/list.cxx
+	${STORMBYTE_DIR}/StormByte/database/exception.cxx
 	${STORMBYTE_DIR}/StormByte/database/sqlite/exception.cxx
 	${STORMBYTE_DIR}/StormByte/database/sqlite/preparedSTMT.cxx
 	${STORMBYTE_DIR}/StormByte/database/sqlite/query.cxx
 	${STORMBYTE_DIR}/StormByte/database/sqlite/sqlite3.cxx
-	${STORMBYTE_DIR}/StormByte/database/exception.cxx
 	${STORMBYTE_DIR}/StormByte/log/logger.cxx
 	${STORMBYTE_DIR}/StormByte/system/exception.cxx
 	${STORMBYTE_DIR}/StormByte/system/pipe.cxx
