@@ -78,9 +78,9 @@ const Item& Container::LookUp(std::queue<std::string>& path) const {
 	else {
 		// Recursive LookUp path
 		if (Util::String::IsNumeric(item_path))
-			return operator[](std::stoi(item_path)).Value<Container>().LookUp(path);
+			return operator[](std::stoi(item_path)).Value().Get<ContainerPTR>()->LookUp(path);
 		else
-			return Child(item_path).Value<Container>().LookUp(path);
+			return Child(item_path).Value().Get<ContainerPTR>()->LookUp(path);
 	}
 }
 
@@ -99,6 +99,6 @@ void Container::Remove(std::queue<std::string>& path) {
 	}
 	else {
 		// Recursive Remove path
-		Child(item_path).Value<Container>().Remove(path);
+		Child(item_path).Value().Get<ContainerPTR>()->Remove(path);
 	}
 }

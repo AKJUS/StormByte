@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 /**
  * @namespace SQLite
  * @brief All the classes for handling SQLite databases

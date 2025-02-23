@@ -77,6 +77,40 @@ namespace StormByte::Util::Templates {
 			}
 
 			/**
+			 * Gets the value
+			 * @return reference to value
+			 */
+			template<typename T> operator T() {
+				return Get<T>();
+			}
+
+			/**
+			 * Gets the value
+			 * @return const reference to value
+			 */
+			template<typename T> operator T() const {
+				return Get<T>();
+			}
+
+			/**
+			 * Equality operator
+			 * @param other value to compare
+			 * @return bool equal?
+			 */
+			constexpr bool operator==(const VariadicValue& other) const {
+				return m_values == other.m_values;
+			}
+
+			/**
+			 * Inequality operator
+			 * @param other value to compare
+			 * @return bool not equal?
+			 */
+			constexpr bool operator!=(const VariadicValue& other) const {
+				return m_values != other.m_values;
+			}
+
+			/**
 			 * Checks if the value is of a certain type
 			 * @return true if the value is of the type
 			 */

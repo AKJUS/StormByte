@@ -2,11 +2,11 @@
 
 using namespace StormByte::Config;
 
-std::shared_ptr<Serializable> List::Clone() const {
+std::shared_ptr<Container> List::Clone() const {
 	return std::make_shared<List>(*this);
 }
 
-std::shared_ptr<Serializable> List::Move() {
+std::shared_ptr<Container> List::Move() {
 	return std::make_shared<List>(std::move(*this));
 }
 

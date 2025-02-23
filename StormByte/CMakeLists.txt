@@ -10,7 +10,6 @@ set(STORMBYTE_SOURCES
 	${STORMBYTE_DIR}/StormByte/config/group.cxx
 	${STORMBYTE_DIR}/StormByte/config/item.cxx
 	${STORMBYTE_DIR}/StormByte/config/list.cxx
-	${STORMBYTE_DIR}/StormByte/config/serializable.cxx
 	${STORMBYTE_DIR}/StormByte/database/sqlite/exception.cxx
 	${STORMBYTE_DIR}/StormByte/database/sqlite/preparedSTMT.cxx
 	${STORMBYTE_DIR}/StormByte/database/sqlite/query.cxx

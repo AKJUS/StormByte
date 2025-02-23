@@ -1,6 +1,6 @@
 #pragma once
 
-#include <StormByte/config/serializable.hxx>
+#include <StormByte/config/alias.hxx>
 #include <StormByte/config/comment.hxx>
 #include <StormByte/config/item.hxx>
 #include <StormByte/config/exception.hxx>
@@ -16,24 +16,10 @@ namespace StormByte::Config {
 	 * @class Container
 	 * @brief Base abstract class for a container of configuration items
 	 */
-	class STORMBYTE_PUBLIC Container: public Serializable {
+	class STORMBYTE_PUBLIC Container: public Util::Templates::Clonable<Container> {
 		public:
-			/**
-			 * Shortcut alias for internal storage
-			 */
-			using Storage = std::vector<Item>;								///< Shortcut alias for internal storage
-
-			/**
-			 * @class Iterator
-			 * @brief Iterator for Container
-			 */
-			using Iterator = Util::Templates::Iterator<Storage>;			///< Iterator for Container
-
-			/**
-			 * @class ConstIterator
-			 * @brief Const iterator for Container
-			 */
-			using ConstIterator = Util::Templates::ConstIterator<Storage>;	///< ConstIterator for Container
+			using Iterator = Util::Templates::Iterator<ContainerStorage>;			///< Iterator for Container
+			using ConstIterator = Util::Templates::ConstIterator<ContainerStorage>;	///< ConstIterator for Container
 
 			/**
 			 * @enum OnExistingAction
@@ -216,18 +202,6 @@ namespace StormByte::Config {
 			}
 
 			/**
-			 * Clones the container
-			 * @return shared pointer to cloned container
-			 */
-			virtual std::shared_ptr<Serializable> 				Clone() const = 0;
-
-			/**
-			 * Moves the container
-			 * @return shared pointer to moved container
-			 */
-			virtual std::shared_ptr<Serializable>				Move() = 0;
-
-			/**
 			 * Checks if item exists by path
 			 * @param path path to item
 			 * @return bool exists?
@@ -293,7 +267,7 @@ namespace StormByte::Config {
 			 * @return Iterator
 			 */
 			virtual constexpr Iterator 							Begin() noexcept {
-				return Util::Templates::Iterator<Storage>::Begin(m_items);
+				return Util::Templates::Iterator<ContainerStorage>::Begin(m_items);
 			}
 
 			/**
@@ -301,7 +275,7 @@ namespace StormByte::Config {
 			 * @return ConstIterator
 			 */
 			virtual constexpr ConstIterator						Begin() const noexcept {
-				return Util::Templates::ConstIterator<Storage>::Begin(m_items);
+				return Util::Templates::ConstIterator<ContainerStorage>::Begin(m_items);
 			}
 
 			/**
@@ -309,7 +283,7 @@ namespace StormByte::Config {
 			 * @return Iterator
 			 */
 			virtual constexpr Iterator 							End() noexcept {
-				return Util::Templates::Iterator<Storage>::End(m_items);
+				return Util::Templates::Iterator<ContainerStorage>::End(m_items);
 			}
 
 			/**
@@ -317,7 +291,7 @@ namespace StormByte::Config {
 			 * @return ConstIterator
 			 */
 			virtual constexpr ConstIterator						End() const noexcept {
-				return Util::Templates::ConstIterator<Storage>::End(m_items);
+				return Util::Templates::ConstIterator<ContainerStorage>::End(m_items);
 			}
 
 			/**
@@ -340,7 +314,7 @@ namespace StormByte::Config {
 			 * Gets the number of items in the current level
 			 * @return size_t number of items
 			 */
-			virtual constexpr size_t 							Size() const noexcept override {
+			virtual constexpr size_t 							Size() const noexcept {
 				return m_items.size();
 			}
 
@@ -348,18 +322,11 @@ namespace StormByte::Config {
 			 * Gets the full number of items
 			 * @return size_t number of items
 			 */
-			virtual size_t 										Count() const noexcept override;
+			virtual size_t 										Count() const noexcept;
 
 		protected:
-			/**
-			 * Container type
-			 */
-			Type 												m_type;
-
-			/**
-			 * Internal items storage
-			 */
-			std::vector<Item> 									m_items;
+			Type 												m_type;		///< Container type
+			std::vector<Item> 									m_items;	///< Items in container
 
 			/**
 			 * Constructor

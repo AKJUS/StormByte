@@ -1,20 +1,16 @@
 #pragma once
 
-#include <StormByte/config/serializable.hxx>
 #include <StormByte/config/exception.hxx>
+#include <StormByte/config/alias.hxx>
 
 #include <optional>
-#include <variant>
 
 /**
  * @namespace Config
  * @brief All the classes for handling configuration files and items
  */
 namespace StormByte::Config {
-	class Group; // Needed for MSVC template specializations
-	class List; // Needed for MSVC template specializations
-	class Container; // Needed for MSVC template specializations
-	// Forward declaration needed for MSVC template specializations
+	class Container;
 	namespace Comment {
 		class Comment;
 	}
@@ -22,12 +18,7 @@ namespace StormByte::Config {
 	 * @class Item
 	 * @brief Class for a configuration item
 	 */
-	class STORMBYTE_PUBLIC Item: public Serializable {
-		/**
-		 * Shortcut alias for internal storage
-		 */
-		using ItemStorage = std::variant<std::string, int, double, bool, std::shared_ptr<Serializable>>;
-
+	class STORMBYTE_PUBLIC Item {
 		public:
 			/**
 			 * @enum Type
@@ -181,7 +172,7 @@ namespace StormByte::Config {
 			/**
 			 * Copy constructor
 			 */
-			Item(const Item&);
+			Item(const Item&)							= default;
 
 			/**
 			 * Move constructor
@@ -191,7 +182,7 @@ namespace StormByte::Config {
 			/**
 			 * Assignment operator
 			 */
-			Item& operator=(const Item&);
+			Item& operator=(const Item&)				= default;
 
 			/**
 			 * Move operator
@@ -208,14 +199,16 @@ namespace StormByte::Config {
 			 * @param other item to compare
 			 * @return bool equal?
 			 */
-			bool 										operator==(const Item& other) const noexcept;
+			constexpr bool 								operator==(const Item& other) const noexcept {
+				return m_name == other.m_name && m_type == other.m_type && m_value == other.m_value;
+			}
 
 			/**
 			 * Inequality operator
 			 * @param other item to compare
 			 * @return bool not equal?
 			 */
-			inline bool 								operator!=(const Item& other) const noexcept {
+			constexpr bool 								operator!=(const Item& other) const noexcept {
 				return !(*this == other);
 			}
 
@@ -269,6 +262,22 @@ namespace StormByte::Config {
 			 * Value getter as reference
 			 * @return value reference
 			 */
+			constexpr ItemStorage&						Value() {
+				return m_value;
+			}
+
+			/**
+			 * Value getter as const reference
+			 * @return value const reference
+			 */
+			constexpr const ItemStorage&				Value() const {
+				return m_value;
+			}
+
+			/**
+			 * Value getter as reference
+			 * @return value reference
+			 */
 			template<typename T> T&						Value();
 
 			/**
@@ -282,109 +291,13 @@ namespace StormByte::Config {
 			 * Value getter as reference
 			 * @return value reference
 			 */
-			template<> Serializable&					Value<Serializable>();
+			template<> Container& Value<Container>();
 
 			/**
 			 * Value getter as const reference
 			 * @return value const reference
 			 */
-			template<> const Serializable&				Value<Serializable>() const;
-			
-			/**
-			 * Value getter as reference
-			 * @return value reference
-			 */
-			template<> Group&							Value<Group>();
-
-			/**
-			 * Value getter as const reference
-			 * @return value const reference
-			 */
-			template<> const Group&						Value<Group>() const;
-
-			/**
-			 * Value getter as reference
-			 * @return value reference
-			 */
-			template<> List&							Value<List>();
-
-			/**
-			 * Value getter as const reference
-			 * @return value const reference
-			 */
-			template<> const List&						Value<List>() const;
-
-			/**
-			 * Value getter as reference
-			 * @return value reference
-			 */
-			template<> Container&						Value<Container>();
-
-			/**
-			 * Value getter as const reference
-			 * @return value const reference
-			 */
-			template<> const Container&					Value<Container>() const;
-
-			/**
-			 * Value getter as reference
-			 * @return value reference
-			 */
-			template<> Comment::Comment&				Value<Comment::Comment>();
-
-			/**
-			 * Value getter as const reference
-			 * @return value const reference
-			 */
-			template<> const Comment::Comment&			Value<Comment::Comment>() const;
-
-			/**
-			 * Value getter as reference
-			 * @return value reference
-			 */
-			template<> std::string&						Value<std::string>();
-
-			/**
-			 * Value getter as const reference
-			 * @return value const reference
-			 */
-			template<> const std::string&				Value<std::string>() const;
-
-			/**
-			 * Value getter as reference
-			 * @return value reference
-			 */
-			template<> int&								Value<int>();
-
-			/**
-			 * Value getter as const reference
-			 * @return value const reference
-			 */
-			template<> const int&						Value<int>() const;
-
-			/**
-			 * Value getter as reference
-			 * @return value reference
-			 */
-			template<> double&							Value<double>();
-
-			/**
-			 * Value getter as const reference
-			 * @return value const reference
-			 */
-			template<> const double&					Value<double>() const;
-
-			/**
-			 * Value getter as reference
-			 * @return value reference
-			 */
-			template<> bool&							Value<bool>();
-
-			/**
-			 * Value getter as const reference
-			 * @return value const reference
-			 */
-			template<> const bool&						Value<bool>() const;
+			template<> const Container& Value<Container>() const;
 			#endif
 
 			/**
@@ -392,7 +305,7 @@ namespace StormByte::Config {
 			 * @param indent_level intentation level
 			 * @return serialized string
 			 */
-			virtual inline std::string					Serialize(const int& indent_level) const noexcept override {
+			virtual inline std::string					Serialize(const int& indent_level) const noexcept {
 				return ContentsToString(indent_level);
 			}
 
@@ -400,7 +313,7 @@ namespace StormByte::Config {
 			 * Gets the number of items in the current level
 			 * @return size_t number of items
 			 */
-			virtual constexpr size_t					Size() const noexcept override {
+			virtual constexpr size_t					Size() const noexcept {
 				return 1;
 			}
 
@@ -408,23 +321,23 @@ namespace StormByte::Config {
 			 * Gets the full number of items
 			 * @return size_t number of items
 			 */
-			virtual size_t								Count() const noexcept override;
+			virtual size_t								Count() const noexcept;
 
 		protected:
 			/**
 			 * Item optional name
 			 */
-			std::optional<std::string>					m_name;
+			std::optional<std::string>					m_name;	//< Item name
 
 			/**
 			 * Item type
 			 */
-			Type										m_type;
+			Type										m_type;	//< Item type
 
 			/**
-			 * Internal value (it is a pointer to avoid cyclic references Item->Group->Item or Item->List->Item so it is enough with a forward declarations)
+			 * Internal value
 			 */
-			std::unique_ptr<ItemStorage>				m_value;
+			ItemStorage										m_value; //< Item value
 
 			/**
 			 * Internal function to get item contents as string
@@ -442,17 +355,5 @@ namespace StormByte::Config {
 					result += *m_name + " = ";
 				return result;
 			}
-
-			/**
-			 * Clones item
-			 * @return shared pointer to cloned item
-			 */
-			std::shared_ptr<Serializable>				Clone() const override;
-
-			/**
-			 * Moves item
-			 * @return shared pointer to moved item
-			 */
-			std::shared_ptr<Serializable>				Move() override;
 	};
 }

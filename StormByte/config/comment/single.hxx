@@ -64,12 +64,12 @@ namespace StormByte::Config::Comment {
 			 * Clones the object
 			 * @return cloned object
 			 */
-			std::shared_ptr<Serializable>						Clone() const override;
+			std::shared_ptr<Comment>							Clone() const override;
 
 			/**
 			 * Moves the object
 			 * @return moved object
 			 */
-			std::shared_ptr<Serializable>						Move() override;
+			std::shared_ptr<Comment>							Move() override;
 	};
 }

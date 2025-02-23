@@ -3,8 +3,6 @@
 #include <StormByte/database/sqlite/type.hxx>
 #include <StormByte/exception.hxx>
 
-#include <cstdint>
-
 /**
  * @namespace Database::SQLite
  * @brief All the classes for handling SQLite databases
