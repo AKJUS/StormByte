@@ -1,29 +1,11 @@
 option(ENABLE_TEST "Enable Unit Tests" OFF)
 if(ENABLE_TEST)
 	enable_testing()
+
+	include_directories(${CMAKE_CURRENT_LIST_DIR})
 	
-	# Process Tests
-	add_executable(ProcessTests process_test.cxx)
-	target_link_libraries(ProcessTests StormByte)
-	add_test(NAME ProcessTests COMMAND ProcessTests)
-
-	# Config Tests
-	add_executable(ConfigTests config_test.cxx)
-	target_link_libraries(ConfigTests StormByte)
-	add_test(NAME ConfigTests COMMAND ConfigTests)
-
-	# Database Tests
-	add_executable(DatabaseTests database_test.cxx)
-	target_link_libraries(DatabaseTests StormByte)
-	add_test(NAME DatabaseTests COMMAND DatabaseTests)
-
-	# Logger Tests
-	add_executable(LoggerTests logger_test.cxx)
-	target_link_libraries(LoggerTests StormByte)
-	add_test(NAME LoggerTests COMMAND LoggerTests)
-
-	# Exception Tests
-	add_executable(ExceptionTests exception_test.cxx)
-	target_link_libraries(ExceptionTests StormByte)
-	add_test(NAME ExceptionTests COMMAND ExceptionTests)
+	add_subdirectory(config)
+	add_subdirectory(database)
+	add_subdirectory(logger)
+	add_subdirectory(system)
 endif()
