@@ -81,12 +81,6 @@ namespace StormByte::Database::SQLite {
 			 */
 			const std::string 									LastError() const override;
 
-			/**
-			 * Executes a query without returning any result
-			 * @param query The query to execute
-			 */
-			void 												SilentQuery(const std::string& query) override;
-
 		private:
 			/**
 			 * Database file

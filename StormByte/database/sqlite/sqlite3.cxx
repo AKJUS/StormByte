@@ -70,12 +70,3 @@ std::unique_ptr<Query> SQLite3::InternalQuery(const std::string& query) {
 	q->m_stmt = InternalPrepare("Query", query);
 	return q;
 }
-
-void SQLite3::SilentQuery(const std::string& query) {
-	char* error_message;
-	if (sqlite3_exec(m_database, query.c_str(), nullptr, nullptr, &error_message) != SQLITE_OK) {
-		std::string message = "Query failed: " + std::string(error_message); // SQLite3 handles internally freeing message's memory
-		sqlite3_free(error_message);
-		throw QueryError(std::move(message));
-	}
-}

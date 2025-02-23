@@ -70,7 +70,9 @@ namespace StormByte::Database {
 			 * Executes a query without returning any result
 			 * @param query The query to execute.
 			 */
-			virtual void 										SilentQuery(const std::string& query) = 0;
+			void 												SilentQuery(const std::string& query) {
+				InternalQuery(query)->Step();
+			}
 
 			/**
 			 * Prepares a statement
