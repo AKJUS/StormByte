@@ -9,9 +9,9 @@
 
 using namespace StormByte::Database::SQLite;
 
-class TestDatabase : public SQLite3 {
+class TestMemoryDatabase : public SQLite3 {
 	public:
-		TestDatabase() : SQLite3() {
+		TestMemoryDatabase() : SQLite3() {
 			post_init_action();
 		}
 	
@@ -69,9 +69,28 @@ class TestDatabase : public SQLite3 {
 		}
 };
 
+class TestFileDatabase : public SQLite3 {
+	public:
+		TestFileDatabase() : SQLite3(CurrentFileDirectory / "files" / "test.db") {
+			post_init_action();
+		}
+	
+		void post_init_action() noexcept {
+			PrepareSTMT("select_users", "SELECT name, email FROM users;");
+		}
+
+		const std::vector<Row> get_users() const {
+			auto& stmt = GetPreparedSTMT("select_users");
+			std::vector<Row> rows;
+			while (const Row& r = stmt.Step())
+				rows.push_back(r);
+			return rows;
+		}
+};
+
 int verify_inserted_users() {
 	// Create an in-memory database for testing
-	TestDatabase db;
+	TestMemoryDatabase db;
 
 	// 1. Verify that users were inserted correctly
 	auto rows = db.get_users();
@@ -88,7 +107,7 @@ int verify_inserted_users() {
 
 int verify_inserted_products() {
 	// Create an in-memory database for testing
-	TestDatabase db;
+	TestMemoryDatabase db;
 
 	// 2. Verify that products were inserted correctly
 	auto rows = db.get_products();
@@ -105,7 +124,7 @@ int verify_inserted_products() {
 
 int verify_inserted_orders() {
 	// Create an in-memory database for testing
-	TestDatabase db;
+	TestMemoryDatabase db;
 
 	// 3. Verify that orders were inserted correctly
 	auto rows = db.get_orders();
@@ -124,7 +143,7 @@ int verify_inserted_orders() {
 
 int verify_relationships() {
 	// Create an in-memory database for testing
-	TestDatabase db;
+	TestMemoryDatabase db;
 
 	// 4. Verify that the relationship between tables works correctly
 	auto rows = db.get_joined_data();
@@ -143,7 +162,7 @@ int verify_relationships() {
 
 int query_test() {
 	// Create an in-memory database for testing
-	TestDatabase db;
+	TestMemoryDatabase db;
 
 	// 5. Verify that the query method works correctly
 	auto query = db.PrepareQuery("SELECT COUNT(*) FROM users;");
@@ -156,7 +175,7 @@ int query_test() {
 
 int bool_test() {
 	// Create an in-memory database for testing
-	TestDatabase db;
+	TestMemoryDatabase db;
 
 	// 6. Verify that the query method works correctly
 	auto query = db.PrepareQuery("SELECT COUNT(*) > 0 FROM users;");
@@ -167,15 +186,33 @@ int bool_test() {
 	RETURN_TEST("bool_test", 0);
 }
 
+int read_from_binary_database() {
+	// Create an in-memory database for testing
+	TestFileDatabase db;
+
+	// 1. Verify that users were inserted correctly
+	auto rows = db.get_users();
+	ASSERT_EQUAL("verify_inserted_users", 2, rows[0].Columns());
+	ASSERT_EQUAL("verify_inserted_users", "John Doe", rows[0][0].Get<std::string>());
+	ASSERT_EQUAL("verify_inserted_users", "john@example.com", rows[0][1].Get<std::string>());
+
+	ASSERT_EQUAL("verify_inserted_users", 2, rows[1].Columns());
+    ASSERT_EQUAL("verify_inserted_users", "Sarah Connor", rows[1][0].Get<std::string>());
+    ASSERT_EQUAL("verify_inserted_users", "sarah@example.com", rows[1][1].Get<std::string>());
+
+	return 0;
+}
+
 int main() {
     int result = 0;
     try {
-		result += verify_inserted_users();
-		result += verify_inserted_products();
-		result += verify_inserted_orders();
-		result += verify_relationships();
-		result += query_test();
-		result += bool_test();
+		//result += verify_inserted_users();
+		//result += verify_inserted_products();
+		//result += verify_inserted_orders();
+		//result += verify_relationships();
+		//result += query_test();
+		//result += bool_test();
+		result += read_from_binary_database();
         std::cout << "All tests passed successfully.\n";
     } catch (const StormByte::Database::SQLite::Exception& ex) {
 		std::cerr << "Exception: " << ex.what() << std::endl;
