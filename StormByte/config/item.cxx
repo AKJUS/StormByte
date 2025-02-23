@@ -2,7 +2,7 @@
 #include <StormByte/config/group.hxx>
 #include <StormByte/config/list.hxx>
 #include <StormByte/config/exception.hxx>
-#include <StormByte/util/string/string.hxx>
+#include <StormByte/util/string.hxx>
 
 #include <regex>
 

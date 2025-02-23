@@ -5,7 +5,7 @@
 #include <StormByte/config/item.hxx>
 #include <StormByte/config/exception.hxx>
 #include <StormByte/util/templates/iterator.hxx>
-#include <StormByte/util/string/string.hxx>
+#include <StormByte/util/string.hxx>
 
 /**
  * @namespace Config

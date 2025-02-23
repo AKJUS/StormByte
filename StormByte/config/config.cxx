@@ -78,7 +78,7 @@ void Config::StartParse(std::istream& istream) {
 	}
 }
 
-template<> Comment::Multi Config::ParseValue<Comment::Multi>(std::istream& istream) {
+template<> Comment::MultiLine Config::ParseValue<Comment::MultiLine>(std::istream& istream) {
 	bool comment_closed = false;
 	char c;
 	std::string buffer;
@@ -104,14 +104,14 @@ template<> Comment::Multi Config::ParseValue<Comment::Multi>(std::istream& istre
 	if (!comment_closed || istream.eof() || istream.fail())
 		throw ParseError(m_current_line, "Unclosed multiline comment");
 
-	return Comment::Multi(std::move(buffer));
+	return Comment::MultiLine(std::move(buffer));
 }
 
-template<> Comment::Single Config::ParseValue<Comment::Single>(std::istream& istream) {
+template<> Comment::SingleLine Config::ParseValue<Comment::SingleLine>(std::istream& istream) {
 	std::string line;
 	std::getline(istream, line);
 	m_current_line++;
-	return Comment::Single(std::move(line));
+	return Comment::SingleLine(std::move(line));
 }
 
 template<> double Config::ParseValue<double>(std::istream& istream) {
@@ -248,10 +248,10 @@ void Config::FindAndParseComments(std::istream& istream, Container& container) {
 	while ((type = FindComment(istream)) != Parser::CommentType::None) {
 		switch (type) {
 			case Parser::CommentType::SingleLine:
-				container.Add(Item(ParseValue<Comment::Single>(istream)));
+				container.Add(Item(ParseValue<Comment::SingleLine>(istream)));
 				break;
 			case Parser::CommentType::MultiLine:
-			container.Add(Item(ParseValue<Comment::Multi>(istream)));
+			container.Add(Item(ParseValue<Comment::MultiLine>(istream)));
 				break;
 			case Parser::CommentType::None:
 				return;

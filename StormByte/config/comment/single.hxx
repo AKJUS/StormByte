@@ -8,16 +8,16 @@
  */
 namespace StormByte::Config::Comment {
 	/**
-	 * @class Single
+	 * @class SingleLine
 	 * @brief Class for a single line comment item starting with #
 	 */
-	class STORMBYTE_PUBLIC Single final: public Comment {
+	class STORMBYTE_PUBLIC SingleLine final: public Comment {
 		public:
 			/**
 			 * Constructor
 			 * @param comment comment string
 			 */
-			constexpr Single(const std::string& comment):Comment(comment) {
+			constexpr SingleLine(const std::string& comment):Comment(comment) {
 				m_type = Type::SingleLine;
 			}
 
@@ -25,34 +25,34 @@ namespace StormByte::Config::Comment {
 			 * Move Constructor
 			 * @param comment comment string
 			 */
-			constexpr Single(std::string&& comment):Comment(std::move(comment)) {
+			constexpr SingleLine(std::string&& comment):Comment(std::move(comment)) {
 				m_type = Type::SingleLine;
 			}
 
 			/**
 			 * Copy constructor
 			 */
-			constexpr Single(const Single&)						= default;
+			constexpr SingleLine(const SingleLine&)						= default;
 
 			/**
 			 * Move constructor
 			 */
-			constexpr Single(Single&&)							= default;
+			constexpr SingleLine(SingleLine&&)							= default;
 
 			/**
 			 * Assignment operator
 			 */
-			constexpr Single& operator=(const Single&)			= default;
+			constexpr SingleLine& operator=(const SingleLine&)			= default;
 
 			/**
 			 * Move assignment operator
 			 */
-			constexpr Single& operator=(Single&&)				= default;
+			constexpr SingleLine& operator=(SingleLine&&)				= default;
 
 			/**
 			 * Destructor
 			 */
-			constexpr ~Single() noexcept override				= default;
+			constexpr ~SingleLine() noexcept override				= default;
 
 			/**
 			 * Gets the comment string

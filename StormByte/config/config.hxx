@@ -29,15 +29,15 @@ namespace StormByte::Config {
 		 */
 		enum class CommentType: unsigned short {
 			None, 		///< No comment
-			SingleLine, ///< Single line comment
-			MultiLine 	///< Multi line comment
+			SingleLine, ///< SingleLine line comment
+			MultiLine 	///< MultiLine line comment
 		};
 	};
 
 	// Forward declaration
 	namespace Comment {
-		class Multi;
-		class Single;
+		class MultiLine;
+		class SingleLine;
 	}
 
 	/**
@@ -49,8 +49,8 @@ namespace StormByte::Config {
 	 * - Double
 	 * - Integer
 	 * - String
-	 * - Single line comment (starting with #)
-	 * - Multiple line comment (like C/C++ multiline comments)
+	 * - SingleLine line comment (starting with #)
+	 * - MultiLineple line comment (like C/C++ multiline comments)
 	 * - Group
 	 * - List
 	 */
@@ -397,14 +397,14 @@ namespace StormByte::Config {
 			 * @param istream input stream
 			 * @return parsed value
 			 */
-			template<> Comment::Multi						ParseValue<Comment::Multi>(std::istream& istream);
+			template<> Comment::MultiLine						ParseValue<Comment::MultiLine>(std::istream& istream);
 
 			/**
 			 * Parses a value
 			 * @param istream input stream
 			 * @return parsed value
 			 */
-			template<> Comment::Single						ParseValue<Comment::Single>(std::istream& istream);
+			template<> Comment::SingleLine						ParseValue<Comment::SingleLine>(std::istream& istream);
 
 			/**
 			 * Parses a value

@@ -8,16 +8,16 @@
  */
 namespace StormByte::Config::Comment {
 	/**
-	 * @class Multi
+	 * @class MultiLine
 	 * @brief Class for a multiline comment item in C/C++ style
 	 */
-	class STORMBYTE_PUBLIC Multi final: public Comment {
+	class STORMBYTE_PUBLIC MultiLine final: public Comment {
 		public:
 			/**
 			 * Constructor
 			 * @param comment comment string
 			 */
-			constexpr Multi(const std::string& comment):Comment(comment) {
+			constexpr MultiLine(const std::string& comment):Comment(comment) {
 				m_type = Type::MultiLine;
 			}
 
@@ -25,34 +25,34 @@ namespace StormByte::Config::Comment {
 			 * Move Constructor
 			 * @param comment comment string
 			 */
-			constexpr Multi(std::string&& comment):Comment(std::move(comment)) {
+			constexpr MultiLine(std::string&& comment):Comment(std::move(comment)) {
 				m_type = Type::MultiLine;
 			}
 
 			/**
 			 * Copy constructor
 			 */
-			constexpr Multi(const Multi&)						= default;
+			constexpr MultiLine(const MultiLine&)						= default;
 
 			/**
 			 * Move constructor
 			 */
-			constexpr Multi(Multi&&)							= default;
+			constexpr MultiLine(MultiLine&&)							= default;
 
 			/**
 			 * Assignment operator
 			 */
-			constexpr Multi& operator=(const Multi&)			= default;
+			constexpr MultiLine& operator=(const MultiLine&)			= default;
 
 			/**
 			 * Move assignment operator
 			 */
-			constexpr Multi& operator=(Multi&&)					= default;
+			constexpr MultiLine& operator=(MultiLine&&)					= default;
 
 			/**
 			 * Destructor
 			 */
-			constexpr ~Multi() noexcept override				= default;
+			constexpr ~MultiLine() noexcept override				= default;
 
 			/**
 			 * Gets the comment string

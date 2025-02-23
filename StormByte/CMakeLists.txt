@@ -22,7 +22,7 @@ set(STORMBYTE_SOURCES
 	${STORMBYTE_DIR}/StormByte/system/variable.cxx
 	${STORMBYTE_DIR}/StormByte/system/system.cxx
 	${STORMBYTE_DIR}/StormByte/util/exception.cxx
-	${STORMBYTE_DIR}/StormByte/util/string/string.cxx
+	${STORMBYTE_DIR}/StormByte/util/string.cxx
 )
 
 if (NOT STORMBYTE_AS_SUBPROJECT OR WIN32)

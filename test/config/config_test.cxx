@@ -798,7 +798,7 @@ int config_list_test() {
 	Config cfg;
 	cfg.Add(Item("testList", List()));
 	Item& list = cfg["testList"];
-	list.Value<Container>().Add(Item(Comment::Single("List comment")));
+	list.Value<Container>().Add(Item(Comment::SingleLine("List comment")));
 	list.Value<Container>().Add(Item(66));
 	list.Value<Container>().Add(Item("Test string"));
 	cfg.Add(Item("testGroup", Group()));
@@ -807,7 +807,7 @@ int config_list_test() {
 	group.Value<Container>().Add(Item("testString2", "Group String"));
 	group.Value<Container>().Add(Item("testList2", List()));
 	Item& list2 = group.Value<Container>()["testList2"];
-	list2.Value<Container>().Add(Item(Comment::Single("List comment 2")));
+	list2.Value<Container>().Add(Item(Comment::SingleLine("List comment 2")));
 	list2.Value<Container>().Add(Item(11));
 
 	const std::string expected = "testList = [\n"
