@@ -1,5 +1,6 @@
 #pragma once
 
+#include <StormByte/visibility.h>
 #include <StormByte/util/templates/clonable.hxx>
 
 #include <string>

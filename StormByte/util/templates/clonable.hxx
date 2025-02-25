@@ -1,7 +1,5 @@
 #pragma once
 
-#include <StormByte/visibility.h>
-
 #include <memory>
 
 namespace StormByte::Util::Templates {
@@ -9,7 +7,7 @@ namespace StormByte::Util::Templates {
 	 * @class Clonable
 	 * @brief A class that can be cloned
 	 */
-	template<class T> class STORMBYTE_PUBLIC Clonable {
+	template<class T> class Clonable {
 		public:
 			/**
 			 * Constructor

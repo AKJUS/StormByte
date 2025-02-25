@@ -1,5 +1,3 @@
-#include <StormByte/visibility.h>
-
 /**
  * @namespace Util
  * @brief All the utility classes and functions
@@ -9,7 +7,7 @@ namespace StormByte::Util::Templates {
 	 * @class Iterator
 	 * @brief iterator to Storage
 	 */
-	template<typename Storage> class STORMBYTE_PUBLIC Iterator {
+	template<typename Storage> class Iterator {
 		public:
 			/**
 			 * Constructor

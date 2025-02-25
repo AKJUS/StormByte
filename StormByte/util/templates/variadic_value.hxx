@@ -14,7 +14,7 @@ namespace StormByte::Util::Templates {
 	 * @class VariadicValue
 	 * @brief A class that can hold multiple types of values
 	 */
-	template<typename... Types> class STORMBYTE_PUBLIC VariadicValue {
+	template<typename... Types> class VariadicValue {
 		public:
 			/**
 			 * Constructor
