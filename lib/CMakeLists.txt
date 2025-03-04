@@ -4,12 +4,11 @@ include(GNUInstallDirs)
 file(GLOB_RECURSE STORMBYTE_SOURCES "${CMAKE_CURRENT_LIST_DIR}/*.cxx")
 
 # Library
-add_library(StormByte++ SHARED ${STORMBYTE_SOURCES})
-set_target_properties(StormByte++ PROPERTIES
+add_library(StormByte SHARED ${STORMBYTE_SOURCES})
+set_target_properties(StormByte PROPERTIES
 	LINKER_LANGUAGE CXX
 	SOVERSION		${CMAKE_PROJECT_VERSION}
 	VERSION 		${CMAKE_PROJECT_VERSION}
-	DEFINE_SYMBOL 	"StormBytePP_EXPORTS"
 )
 
 # Compile options
@@ -18,26 +17,26 @@ if(MSVC)
 	add_compile_definitions(UNICODE) # Create problems if disabled
 else()
 	set(CMAKE_CXX_FLAGS_DEBUG "-pipe -g -ggdb -Wall -Wextra -Wnon-virtual-dtor -pedantic -pedantic-errors -O0")
-	target_compile_options(StormByte++ PRIVATE -fvisibility=hidden $<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>)
+	target_compile_options(StormByte PRIVATE -fvisibility=hidden $<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>)
 endif()
 
 # Include directories
-target_include_directories(StormByte++
+target_include_directories(StormByte
 	SYSTEM BEFORE PUBLIC "${CMAKE_CURRENT_LIST_DIR}"
 )
 
 # Install
 if (NOT STORMBYTE_AS_DEPENDENCY)
-	install(TARGETS StormByte++
+	install(TARGETS StormByte
 		ARCHIVE 		DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 		LIBRARY 		DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 		RUNTIME 		DESTINATION ${CMAKE_INSTALL_BINDIR}
 	)
 	install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/"
-		DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/StormByte++"
+		DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/StormByte"
 		FILES_MATCHING
 		PATTERN "*.h"
 		PATTERN "*.hxx"
 	)
-	install(FILES "${CMAKE_SOURCE_DIR}/cmake/FindStormByte++.cmake" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/cmake/Modules")
+	install(FILES "${CMAKE_SOURCE_DIR}/cmake/FindStormByte.cmake" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/cmake/Modules")
 endif()

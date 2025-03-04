@@ -1,3 +1,5 @@
+#include <visibility.h>
+
 /**
  * @namespace Util
  * @brief All the utility classes and functions

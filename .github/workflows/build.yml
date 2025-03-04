@@ -17,11 +17,10 @@ jobs:
       matrix:
         compiler: [gcc, clang]
         stdlib: [libstdc++, libc++]
-        system_sqlite: [ON, OFF]
         exclude:
         - compiler: gcc
           stdlib: libc++
-    name: ${{ matrix.compiler }}-${{ matrix.stdlib }}-system_sqlite(${{ matrix.system_sqlite }})
+    name: ${{ matrix.compiler }}-${{ matrix.stdlib }})
 
     steps:
     - name: Checkout repository and submodules
@@ -47,14 +46,6 @@ jobs:
     - name: Install CMake
       run: sudo apt install -y cmake
 
-    - name: Install SQLite if needed
-      run: |
-          if [ "${{ matrix.system_sqlite }}" == "ON" ]; then
-            sudo apt install -y sqlite3 libsqlite3-dev
-          else
-            sudo apt remove -y --purge sqlite3 libsqlite3-dev
-          fi
-
     - name: Configure CMake
       run: |
         cmake -B ${{ github.workspace }}/build \
@@ -62,7 +53,6 @@ jobs:
           -DCMAKE_C_COMPILER=/usr/bin/${{ matrix.compiler }} \
           -DCMAKE_CXX_COMPILER=$([[ ${{ matrix.compiler }} == 'gcc' ]] && echo '/usr/bin/g++' || echo '/usr/bin/clang++') \
           -DCMAKE_CXX_FLAGS="${{ matrix.stdlib == 'libc++' && matrix.compiler == 'clang' && '--stdlib=libc++' || '' }}" \
-          -DWITH_SYSTEM_SQLITE=${{ matrix.system_sqlite }} \
           -DENABLE_TEST=ON
     - name: Build
       run: cmake --build ${{ github.workspace }}/build --config ${{ env.BUILD_TYPE }}
@@ -93,14 +83,7 @@ jobs:
 
       - name: Copy DLLs
         run: |
-          copy ${{ github.workspace }}\build\StormByte\StormByte.dll ${{ github.workspace }}\build\test\config
-          copy ${{ github.workspace }}\build\thirdparty\sqlite3\sqlite3.dll ${{ github.workspace }}\build\test\config
-          copy ${{ github.workspace }}\build\StormByte\StormByte.dll ${{ github.workspace }}\build\test\database
-          copy ${{ github.workspace }}\build\thirdparty\sqlite3\sqlite3.dll ${{ github.workspace }}\build\test\database
-          copy ${{ github.workspace }}\build\StormByte\StormByte.dll ${{ github.workspace }}\build\test\logger
-          copy ${{ github.workspace }}\build\thirdparty\sqlite3\sqlite3.dll ${{ github.workspace }}\build\test\logger
-          copy ${{ github.workspace }}\build\StormByte\StormByte.dll ${{ github.workspace }}\build\test\system
-          copy ${{ github.workspace }}\build\thirdparty\sqlite3\sqlite3.dll ${{ github.workspace }}\build\test\system
+          copy ${{ github.workspace }}\build\lib\StormByte.dll ${{ github.workspace }}\build\test
 
       - name: Run unit tests
         run: ctest --output-on-failure --test-dir ${{ github.workspace }}\build\test

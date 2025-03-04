@@ -21,7 +21,7 @@ if(ENABLE_DOC)
 	set(DOXYGEN_GENERATE_LATEX NO)
 
 	doxygen_add_docs(
-		StormByte++Doc
+		StormByteDoc
 		"${CMAKE_SOURCE_DIR}"
 		COMMENT "Generate HTML pages"
 		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
