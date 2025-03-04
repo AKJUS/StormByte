@@ -136,7 +136,7 @@ namespace StormByte::Util::Templates {
 	 * @class ConstIterator
 	 * @brief Constant iterator to Storage
 	 */
-	template<typename Storage> class STORMBYTE_PUBLIC ConstIterator {
+	template<typename Storage> class ConstIterator {
 		public:
 			/**
 			 * Constructor
