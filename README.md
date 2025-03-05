@@ -11,6 +11,7 @@ StormByte is a comprehensive, cross-platform C++ library aimed at easing system 
 
 ## Table of Contents
 
+- [Repository](#Repository)
 - [Installation](#Installation)
 - [Modules](#Modules)
 	- **Base**
@@ -20,6 +21,10 @@ StormByte is a comprehensive, cross-platform C++ library aimed at easing system 
 	- [System](https://dev.stormbyte.org/StormByte-System)
 - [Contributing](#Contributing)
 - [License](#License)
+
+## Repository
+
+You can visit the code repository at [GitHub](https://github.com/StormBytePP/StormByte)
 
 ## Installation
 
