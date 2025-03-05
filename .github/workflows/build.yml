@@ -58,7 +58,7 @@ jobs:
       run: cmake --build ${{ github.workspace }}/build --config ${{ env.BUILD_TYPE }}
 
     - name: Run unit tests
-      run: ctest --output-on-failure --test-dir ${{ github.workspace }}/build/test
+      run: ctest --output-on-failure
 
   build-windows:
     runs-on: windows-latest
@@ -86,4 +86,4 @@ jobs:
           copy ${{ github.workspace }}\build\lib\StormByte.dll ${{ github.workspace }}\build\test
 
       - name: Run unit tests
-        run: ctest --output-on-failure --test-dir ${{ github.workspace }}\build\test
+        run: ctest --output-on-failure

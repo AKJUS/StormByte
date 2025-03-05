@@ -15,8 +15,12 @@ endif()
 # Find the necessary headers and libraries for each optional subcomponent
 include(FeatureSummary)
 
-if(NOT StormByte_FIND_COMPONENTS)
+# Check if components were specified
+if(NOT DEFINED StormByte_FIND_COMPONENTS OR StormByte_FIND_COMPONENTS STREQUAL "")
     set(StormByte_FIND_COMPONENTS Config Database Logger System)
+    set(_stormbyte_default_components TRUE)
+else()
+    set(_stormbyte_default_components FALSE)
 endif()
 
 foreach(component IN LISTS StormByte_FIND_COMPONENTS)
@@ -35,7 +39,10 @@ foreach(component IN LISTS StormByte_FIND_COMPONENTS)
         set(StormByte${component}_FOUND FALSE)
     endif()
 
-    add_feature_info("StormByte::${component}" StormByte${component}_FOUND "Found the ${component} subcomponent of StormByte.")
+    # Add feature info only if components were specified
+    if(NOT _stormbyte_default_components)
+        add_feature_info("StormByte::${component}" StormByte${component}_FOUND "Found the ${component} subcomponent of StormByte.")
+    endif()
 endforeach()
 
 include(FindPackageHandleStandardArgs)
@@ -61,7 +68,7 @@ foreach(component IN LISTS StormByte_FIND_COMPONENTS)
                 INTERFACE_INCLUDE_DIRECTORIES     "${StormByte${component}_INCLUDE_DIRS}"
             )
         endif()
-		target_link_libraries(StormByte PUBLIC StormByte${component})
+        target_link_libraries(StormByte PUBLIC StormByte${component})
         add_library(StormByte::${component} ALIAS StormByte${component})
     endif()
 endforeach()

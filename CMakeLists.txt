@@ -10,6 +10,7 @@ project("StormByte C++ Library"
 	HOMEPAGE_URL "https://github.com/StormBytePP/StormByte"
 )
 
+enable_testing()
 add_subdirectory(thirdparty)
 add_subdirectory(doc)
 add_subdirectory(lib)
