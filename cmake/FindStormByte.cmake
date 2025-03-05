@@ -15,6 +15,9 @@ endif()
 # Find the necessary headers and libraries for each optional subcomponent
 include(FeatureSummary)
 
+# Set dependencies
+set(Database_DEPENDENCIES sqlite3)
+
 # Check if components were specified
 if(NOT DEFINED StormByte_FIND_COMPONENTS OR StormByte_FIND_COMPONENTS STREQUAL "")
     set(StormByte_FIND_COMPONENTS Config Database Logger System)
@@ -70,5 +73,12 @@ foreach(component IN LISTS StormByte_FIND_COMPONENTS)
         endif()
         target_link_libraries(StormByte PUBLIC StormByte${component})
         add_library(StormByte::${component} ALIAS StormByte${component})
+
+        # Specify dependencies for each component
+        if(${component}_DEPENDENCIES)
+            foreach(dep IN LISTS ${component}_DEPENDENCIES)
+                target_link_libraries(StormByte${component} PUBLIC ${dep})
+            endforeach()
+        endif()
     endif()
 endforeach()
