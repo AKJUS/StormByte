@@ -1,5 +1,5 @@
 # Find the main base component library and header
-find_path(StormByte_INCLUDE_DIR NAMES "StormByte/visibility.h")
+find_path(StormByte_INCLUDE_DIR NAMES "visibility.h" PATH_SUFFIXES "StormByte")
 mark_as_advanced(StormByte_INCLUDE_DIR)
 find_library(StormByte_LIBRARY NAMES StormByte)
 mark_as_advanced(StormByte_LIBRARY)
@@ -26,7 +26,7 @@ endif()
 foreach(component IN LISTS StormByte_FIND_COMPONENTS)
     string(TOUPPER ${component} COMPONENT_UPPER)
 
-    find_path(StormByte${component}_INCLUDE_DIR NAMES "${component}/visibility.h")
+    find_path(StormByte${component}_INCLUDE_DIR NAMES "visibility.h" PATH_SUFFIXES "${component}")
     mark_as_advanced(StormByte${component}_INCLUDE_DIR)
     find_library(StormByte${component}_LIBRARY NAMES "StormByte${component}")
     mark_as_advanced(StormByte${component}_LIBRARY)
