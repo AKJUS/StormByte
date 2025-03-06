@@ -1,84 +1,109 @@
-# Find the main base component library and header
-find_path(StormByte_INCLUDE_DIR NAMES "visibility.h" PATH_SUFFIXES "StormByte")
-mark_as_advanced(StormByte_INCLUDE_DIR)
-find_library(StormByte_LIBRARY NAMES StormByte)
-mark_as_advanced(StormByte_LIBRARY)
-
-if(StormByte_INCLUDE_DIR AND StormByte_LIBRARY)
-    set(StormByte_FOUND TRUE)
-    set(StormByte_INCLUDE_DIRS "${StormByte_INCLUDE_DIR}")
-    set(StormByte_LIBRARIES "${StormByte_LIBRARY}")
-else()
-    set(StormByte_FOUND FALSE)
-endif()
-
-# Find the necessary headers and libraries for each optional subcomponent
+# FindStormByte.cmake
 include(FeatureSummary)
 
-# Set dependencies
-set(Database_DEPENDENCIES sqlite3)
+# Locate visibility.h to find the include directory
+find_path(STORMBYTE_INCLUDE_DIR
+          NAMES visibility.h
+          PATH_SUFFIXES StormByte
+          PATHS ${CMAKE_PREFIX_PATH} /usr/include /usr/local/include
+)
 
-# Check if components were specified
-if(NOT DEFINED StormByte_FIND_COMPONENTS OR StormByte_FIND_COMPONENTS STREQUAL "")
-    set(StormByte_FIND_COMPONENTS Config Database Logger System)
-    set(_stormbyte_default_components TRUE)
+# Locate the main library
+find_library(STORMBYTE_LIBRARY
+             NAMES StormByte
+             PATH_SUFFIXES lib lib64
+             PATHS ${CMAKE_PREFIX_PATH} /usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64
+)
+
+# Mark internal variables as advanced
+mark_as_advanced(STORMBYTE_LIBRARY)
+
+# List of all known components
+set(_available_components Config Database Logger System)
+
+# Use StormByte_FIND_COMPONENTS to determine requested components
+if (DEFINED StormByte_FIND_COMPONENTS)
+    set(_requested_components "${StormByte_FIND_COMPONENTS}")
 else()
-    set(_stormbyte_default_components FALSE)
+    set(_requested_components "")
 endif()
 
-foreach(component IN LISTS StormByte_FIND_COMPONENTS)
-    string(TOUPPER ${component} COMPONENT_UPPER)
-
-    find_path(StormByte${component}_INCLUDE_DIR NAMES "visibility.h" PATH_SUFFIXES "${component}")
-    mark_as_advanced(StormByte${component}_INCLUDE_DIR)
-    find_library(StormByte${component}_LIBRARY NAMES "StormByte${component}")
-    mark_as_advanced(StormByte${component}_LIBRARY)
-
-    if(StormByte${component}_INCLUDE_DIR AND StormByte${component}_LIBRARY)
-        set(StormByte${component}_FOUND TRUE)
-        set(StormByte${component}_INCLUDE_DIRS "${StormByte${component}_INCLUDE_DIR}")
-        set(StormByte${component}_LIBRARIES "${StormByte${component}_LIBRARY}")
-    else()
-        set(StormByte${component}_FOUND FALSE)
-    endif()
-
-    # Add feature info only if components were specified
-    if(NOT _stormbyte_default_components)
-        add_feature_info("StormByte::${component}" StormByte${component}_FOUND "Found the ${component} subcomponent of StormByte.")
+# Check for invalid components
+foreach(component IN LISTS _requested_components)
+    if (NOT component IN_LIST _available_components)
+        message(FATAL_ERROR "Requested component '${component}' is not a valid component. Available components: ${_available_components}.")
     endif()
 endforeach()
 
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(StormByte REQUIRED_VARS StormByte_INCLUDE_DIR StormByte_LIBRARY HANDLE_COMPONENTS)
+# Variables to track found and missing components
+unset(_found_components)
+unset(_missing_components)
 
-# Create imported targets and aliases for the base and optional subcomponents
-if(StormByte_FOUND)
-    if(NOT TARGET StormByte)
-        add_library(StormByte UNKNOWN IMPORTED GLOBAL)
-        set_target_properties(StormByte PROPERTIES
-            IMPORTED_LOCATION                 "${StormByte_LIBRARY}"
-            INTERFACE_INCLUDE_DIRECTORIES     "${StormByte_INCLUDE_DIRS}"
+# Iterate through requested components only
+foreach(component IN LISTS _requested_components)
+    find_library(STORMBYTE_${component}_LIBRARY
+                 NAMES StormByte-${component}
+                 PATH_SUFFIXES lib lib64
+                 PATHS ${CMAKE_PREFIX_PATH} /usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64
+    )
+    
+    if (STORMBYTE_${component}_LIBRARY)
+        set(${component}_FOUND TRUE)
+        set(STORMBYTE_${component}_LIBRARIES ${STORMBYTE_${component}_LIBRARY})
+        add_library(StormByte-${component} UNKNOWN IMPORTED GLOBAL)
+        add_library(StormByte::${component} ALIAS StormByte-${component})
+        set_target_properties(StormByte-${component} PROPERTIES
+            IMPORTED_LOCATION ${STORMBYTE_${component}_LIBRARIES}
+            INTERFACE_INCLUDE_DIRECTORIES ${STORMBYTE_INCLUDE_DIR}
+            INTERFACE_LINK_LIBRARIES StormByte
         )
+        list(APPEND _found_components ${component})
+    else()
+        set(${component}_FOUND FALSE)
+        list(APPEND _missing_components ${component})
+    endif()
+
+    # Mark internal component variables as advanced
+    mark_as_advanced(STORMBYTE_${component}_LIBRARY)
+endforeach()
+
+# Define the main library target
+if (STORMBYTE_LIBRARY)
+    add_library(StormByte UNKNOWN IMPORTED GLOBAL)
+    set_target_properties(StormByte PROPERTIES
+        IMPORTED_LOCATION ${STORMBYTE_LIBRARY}
+        INTERFACE_INCLUDE_DIRECTORIES ${STORMBYTE_INCLUDE_DIR}
+    )
+else()
+    set(STORMBYTE_FOUND FALSE)
+endif()
+
+# Generate error or status messages
+set(_error_message "")
+if (NOT STORMBYTE_LIBRARY)
+    set(_error_message "StormByte library not found.")
+endif()
+if (_missing_components)
+    string(JOIN ", " _missing_components_text ${_missing_components})
+    set(_error_message "${_error_message}\nSome requested components were not found: ${_missing_components_text}.")
+endif()
+
+if (_error_message)
+    message(FATAL_ERROR "${_error_message}")
+else()
+    if (_found_components)
+        string(JOIN ", " _found_components_text ${_found_components})
+        message(STATUS "StormByte library found. Enabled components: ${_found_components_text}.")
+    else()
+        message(STATUS "StormByte library found.")
     endif()
 endif()
 
-foreach(component IN LISTS StormByte_FIND_COMPONENTS)
-    if(StormByte${component}_FOUND)
-        if(NOT TARGET StormByte${component})
-            add_library(StormByte${component} UNKNOWN IMPORTED GLOBAL)
-            set_target_properties(StormByte${component} PROPERTIES
-                IMPORTED_LOCATION                 "${StormByte${component}_LIBRARY}"
-                INTERFACE_INCLUDE_DIRECTORIES     "${StormByte${component}_INCLUDE_DIRS}"
-            )
-        endif()
-        target_link_libraries(StormByte PUBLIC StormByte${component})
-        add_library(StormByte::${component} ALIAS StormByte${component})
-
-        # Specify dependencies for each component
-        if(${component}_DEPENDENCIES)
-            foreach(dep IN LISTS ${component}_DEPENDENCIES)
-                target_link_libraries(StormByte${component} PUBLIC ${dep})
-            endforeach()
-        endif()
+# Make transitive link dependencies configurable
+foreach(component IN LISTS _requested_components)
+    if (${component}_FOUND AND DEFINED STORMBYTE_${component}_TRANSITIVE_LIBRARIES)
+        target_link_libraries(StormByte-${component} INTERFACE ${STORMBYTE_${component}_TRANSITIVE_LIBRARIES})
     endif()
 endforeach()
+
+mark_as_advanced(STORMBYTE_INCLUDE_DIR STORMBYTE_LIBRARIES)
