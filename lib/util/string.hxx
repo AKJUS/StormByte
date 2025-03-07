@@ -3,9 +3,9 @@
 #include <visibility.h>
 
 #include <algorithm>
+#include <cstdint>
 #include <queue>
 #include <string>
-#include <sstream>
 
 /**
  * @namespace Util
