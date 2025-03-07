@@ -6,8 +6,8 @@
 #include <variant>
 
 /**
- * @namespace Util
- * @brief Contains utility classes and functions.
+ * @namespace Templates
+ * @brief All the utility templates
  */
 namespace StormByte::Util::Templates {
 	/**

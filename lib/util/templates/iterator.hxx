@@ -1,8 +1,8 @@
 #include <visibility.h>
 
 /**
- * @namespace Util
- * @brief All the utility classes and functions
+ * @namespace Templates
+ * @brief All the utility templates
  */
 namespace StormByte::Util::Templates {
 	/**

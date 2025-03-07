@@ -1,14 +1,49 @@
 #pragma once
 
+#include <concepts>
 #include <memory>
 
+/**
+ * @namespace Templates
+ * @brief All the utility templates
+ */
 namespace StormByte::Util::Templates {
+	/**
+	 * @brief Concept to check if a type is a valid smart pointer
+	 * @tparam SmartPointer smart pointer type
+	 * @tparam T type
+	 */
+	template<typename SmartPointer, typename T>
+    concept ValidSmartPointer = 
+        std::same_as<SmartPointer, std::shared_ptr<T>> || 
+        std::same_as<SmartPointer, std::unique_ptr<T>>;
+
 	/**
 	 * @class Clonable
 	 * @brief A class that can be cloned
 	 */
-	template<class T> class Clonable {
+	template<class T, typename SmartPointer = std::shared_ptr<T>>
+	requires ValidSmartPointer<SmartPointer, T> class Clonable {
 		public:
+			using PointerType	= SmartPointer;	///< Pointer type
+			/**
+			 * Makes a pointer
+			 * @tparam Target The type of the object to create a pointer for (can be `T` or a derived type).
+			 * @tparam Args The constructor arguments for `Target`.
+			 * @param args Arguments to forward to `Target`'s constructor.
+			 * @return A smart pointer of type `PointerType` managing the newly created `Target`.
+			 */
+			template<class Target, typename... Args>
+			static PointerType MakePointer(Args&&... args) {
+				if constexpr (std::is_same_v<PointerType, std::shared_ptr<T>>) {
+					return std::make_shared<Target>(std::forward<Args>(args)...);
+				} else if constexpr (std::is_same_v<PointerType, std::unique_ptr<T>>) {
+					return std::make_unique<Target>(std::forward<Args>(args)...);
+				} else {
+					static_assert(false, "Unsupported smart pointer type");
+				}
+			}
+			
 			/**
 			 * Constructor
 			 */
@@ -43,12 +78,12 @@ namespace StormByte::Util::Templates {
 			 * Clones the object
 			 * @return cloned object
 			 */
-			virtual std::shared_ptr<T> Clone() const 			= 0;
+			virtual PointerType Clone() const 					= 0;
 
 			/**
 			 * Moves the object
 			 * @return moved object
 			 */
-			virtual std::shared_ptr<T> Move() 					= 0;
+			virtual PointerType Move() 							= 0;
 	};
 }
