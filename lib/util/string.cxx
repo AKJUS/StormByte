@@ -1,10 +1,10 @@
 #include <util/string.hxx>
 
-#include <iomanip> // For std::setprecision
-#include <sstream> // For std::ostringstream
-#include <algorithm> // For std::transform
-#include <cctype> // For std::tolower, std::toupper
 #include <format> // For std::format
+#include <ranges>
+#include <string>
+#include <vector>
+#include <queue>
 
 #ifdef WINDOWS
 #include <windows.h> // For MAX_PATH
@@ -14,16 +14,16 @@
 
 using namespace StormByte::Util;
 
-std::queue<std::string> String::Explode(const std::string& str, const char& delimiter) {
-	std::queue<std::string> result;
-	std::stringstream ss(str);
-	std::string item;
+std::queue<std::string> String::Explode(const std::string& str, const char delimiter) {
+    std::queue<std::string> result;
 
-	while (std::getline(ss, item, delimiter)) {
-		result.push(item);
-	}
+    // Use ranges to split the string by the delimiter and iterate over parts
+    for (auto part : std::string_view(str) | std::views::split(delimiter)) {
+        // Convert each part into a std::string and push it to the queue
+        result.emplace(part.begin(), part.end());
+    }
 
-	return result;
+    return result;
 }
 
 std::string String::HumanReadableByteSize(const uint64_t& bytes) noexcept {

@@ -55,7 +55,7 @@ namespace StormByte::Util {
 		 * @param delimiter delimiter character
 		 * @return queue of strings
 		 */
-		static std::queue<std::string>  			Explode(const std::string& str, const char& delimiter);
+		static std::queue<std::string>  			Explode(const std::string& str, const char delimiter);
 
 		/**
 		 * @brief Gets a string from a number of bytes (example: 10.52 GiB)
