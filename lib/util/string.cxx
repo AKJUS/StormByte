@@ -44,6 +44,18 @@ std::string String::HumanReadableByteSize(const uint64_t& bytes) noexcept {
     return result.str();
 }
 
+std::string String::ToLower(const std::string& str) noexcept {
+	std::string result = str;
+	std::transform(result.begin(), result.end(), result.begin(), ::tolower);
+	return result;
+}
+
+std::string String::ToUpper(const std::string& str) noexcept {
+	std::string result = str;
+	std::transform(result.begin(), result.end(), result.begin(), ::toupper);
+	return result;
+}
+
 #ifdef WINDOWS
 std::string String::UTF8Encode(const std::wstring& wstr) {
 	if (wstr.empty()) return std::string();

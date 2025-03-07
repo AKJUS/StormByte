@@ -36,6 +36,20 @@ namespace StormByte::Util {
 		}
 
 		/**
+		 * Converts a string to lower case
+		 * @param str string to convert
+		 * @return lower case string
+		 */
+		static std::string							ToLower(const std::string& str) noexcept;
+
+		/**
+		 * Converts a string to upper case
+		 * @param str string to convert
+		 * @return upper case string
+		 */
+		static std::string							ToUpper(const std::string& str) noexcept;
+
+		/**
 		 * Explodes a string into a queue of strings
 		 * @param str string to explode
 		 * @param delimiter delimiter character
