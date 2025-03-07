@@ -2,6 +2,9 @@
 
 #include <iomanip> // For std::setprecision
 #include <sstream> // For std::ostringstream
+#include <algorithm> // For std::transform
+#include <cctype> // For std::tolower, std::toupper
+#include <format> // For std::format
 
 #ifdef WINDOWS
 #include <windows.h> // For MAX_PATH
@@ -24,25 +27,16 @@ std::queue<std::string> String::Explode(const std::string& str, const char& deli
 }
 
 std::string String::HumanReadableByteSize(const uint64_t& bytes) noexcept {
-	constexpr uint64_t KB = 1024;
-	constexpr uint64_t MB = KB * 1024;
-	constexpr uint64_t GB = MB * 1024;
+    constexpr uint64_t KB = 1024;
+    constexpr uint64_t MB = KB * 1024;
+    constexpr uint64_t GB = MB * 1024;
 
-	std::ostringstream result;
-    result << std::fixed << std::setprecision(2); // Set precision to 2 decimals
-
-    if (bytes >= GB) {
-        result << (static_cast<double>(bytes) / GB) << " GiB";
-    } else if (bytes >= MB) {
-        result << (static_cast<double>(bytes) / MB) << " MiB";
-    } else if (bytes >= KB) {
-        result << (static_cast<double>(bytes) / KB) << " KiB";
-    } else {
-        result << bytes << " Bytes";
-    }
-
-    return result.str();
+    if (bytes >= GB) return std::format("{:.2f} GiB", static_cast<double>(bytes) / GB);
+    if (bytes >= MB) return std::format("{:.2f} MiB", static_cast<double>(bytes) / MB);
+    if (bytes >= KB) return std::format("{:.2f} KiB", static_cast<double>(bytes) / KB);
+    return std::format("{} Bytes", bytes);
 }
+
 
 std::string String::ToLower(const std::string& str) noexcept {
 	std::string result = str;
