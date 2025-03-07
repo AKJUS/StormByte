@@ -50,42 +50,4 @@ namespace StormByte::Util {
 			 */
 			virtual ~Exception() noexcept				= default;
 	};
-
-	/**
-	 * @class ValueTypeMissmatch
-	 * @brief Exception thrown when value type requested is not correct
-	 */
-	class STORMBYTE_PUBLIC ValueTypeMissmatch: public Exception {
-		public:
-			/**
-			 * Constructor
-			 * @param targettype
-			 */
-			ValueTypeMissmatch(const std::string& targettype);
-
-			/**
-			 * Copy constructor
-			 */
-			ValueTypeMissmatch(const ValueTypeMissmatch&)					= default;
-
-			/**
-			 * Move constructor
-			 */
-			ValueTypeMissmatch(ValueTypeMissmatch&&) noexcept				= default;
-
-			/**
-			 * Assignment operator
-			 */
-			ValueTypeMissmatch& operator=(const ValueTypeMissmatch&)		= default;
-
-			/**
-			 * Move operator
-			 */
-			ValueTypeMissmatch& operator=(ValueTypeMissmatch&&) noexcept 	= default;
-
-			/**
-			 * Destructor
-			 */
-			virtual ~ValueTypeMissmatch() noexcept override					= default;
-	};
 }
