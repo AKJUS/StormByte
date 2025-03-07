@@ -1,5 +1,8 @@
 #include <util/string.hxx>
 
+#include <iomanip> // For std::setprecision
+#include <sstream> // For std::ostringstream
+
 #ifdef WINDOWS
 #include <windows.h> // For MAX_PATH
 #include <tchar.h>
@@ -18,6 +21,27 @@ std::queue<std::string> String::Explode(const std::string& str, const char& deli
 	}
 
 	return result;
+}
+
+std::string String::HumanReadableByteSize(const uint64_t& bytes) noexcept {
+	constexpr uint64_t KB = 1024;
+	constexpr uint64_t MB = KB * 1024;
+	constexpr uint64_t GB = MB * 1024;
+
+	std::ostringstream result;
+    result << std::fixed << std::setprecision(2); // Set precision to 2 decimals
+
+    if (bytes >= GB) {
+        result << (static_cast<double>(bytes) / GB) << " GiB";
+    } else if (bytes >= MB) {
+        result << (static_cast<double>(bytes) / MB) << " MiB";
+    } else if (bytes >= KB) {
+        result << (static_cast<double>(bytes) / KB) << " KiB";
+    } else {
+        result << bytes << " Bytes";
+    }
+
+    return result.str();
 }
 
 #ifdef WINDOWS

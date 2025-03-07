@@ -42,6 +42,14 @@ namespace StormByte::Util {
 		 * @return queue of strings
 		 */
 		static std::queue<std::string>  			Explode(const std::string& str, const char& delimiter);
+
+		/**
+		 * @brief Gets a string from a number of bytes (example: 10.52 GiB)
+		 * @param bytes number of bytes
+		 * @return string
+		 */
+		static std::string							HumanReadableByteSize(const uint64_t& bytes) noexcept;
+
 		#ifdef WINDOWS
 		/**
 		 * @brief Converts a wide string to a string
