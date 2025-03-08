@@ -74,6 +74,9 @@ if (STORMBYTE_LIBRARY)
         IMPORTED_LOCATION ${STORMBYTE_LIBRARY}
         INTERFACE_INCLUDE_DIRECTORIES ${STORMBYTE_INCLUDE_DIR}
     )
+	if (MSVC)
+		target_compile_definitions(StormByte INTERFACE UNICODE)
+	endif()
 else()
     set(STORMBYTE_FOUND FALSE)
 endif()
