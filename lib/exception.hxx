@@ -4,6 +4,10 @@
 
 #include <string>
 
+/**
+ * @namespace StormByte
+ * @brief Main namespace for the StormByte library and components
+ */
 namespace StormByte {
 	/**
 	 * @class Exception
