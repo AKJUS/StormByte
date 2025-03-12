@@ -38,7 +38,7 @@ const char* Exception::what() const noexcept {
 }
 
 const char* Exception::copy_str(const char* str) noexcept {
-	size_t len = std::strlen(str) + 1;
+	std::size_t len = std::strlen(str) + 1;
 	char* out = new char[len];
 	std::memcpy(out, str, len);
 	return out;
