@@ -1,5 +1,6 @@
-#include <util/system.hxx>
-#include <util/string.hxx>
+#include <StormByte/util/system.hxx>
+#include <StormByte/util/string.hxx>
+
 #ifdef WINDOWS
 #include <windows.h> // For MAX_PATH
 #else

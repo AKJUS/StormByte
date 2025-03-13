@@ -1,6 +1,6 @@
 #pragma once
 
-#include <exception.hxx>
+#include <StormByte/exception.hxx>
 
 /**
  * @namespace Util

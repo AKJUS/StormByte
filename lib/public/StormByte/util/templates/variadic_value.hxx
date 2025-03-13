@@ -1,11 +1,12 @@
 #pragma once
 
+#include <StormByte/util/exception.hxx>
+
 #include <variant>
 #include <memory>
 #include <type_traits>
 #include <stdexcept>
 #include <concepts>
-#include <util/exception.hxx>
 
 /**
  * @namespace Templates

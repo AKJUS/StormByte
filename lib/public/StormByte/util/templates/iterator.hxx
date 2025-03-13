@@ -1,4 +1,4 @@
-#include <visibility.h>
+#include <StormByte/visibility.h>
 
 /**
  * @namespace Templates

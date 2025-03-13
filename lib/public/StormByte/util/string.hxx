@@ -1,6 +1,6 @@
 #pragma once
 
-#include <visibility.h>
+#include <StormByte/visibility.h>
 
 #include <algorithm>
 #include <cstdint>
