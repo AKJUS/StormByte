@@ -19,7 +19,7 @@ find_library(STORMBYTE_LIBRARY
 mark_as_advanced(STORMBYTE_LIBRARY)
 
 # List of all known components
-set(_available_components Config Database Logger System)
+set(_available_components Config Database Multimedia Logger System)
 
 # Use StormByte_FIND_COMPONENTS to determine requested components
 if (DEFINED StormByte_FIND_COMPONENTS)
