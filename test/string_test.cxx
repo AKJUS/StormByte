@@ -1,7 +1,6 @@
 #include <StormByte/exception.hxx>
 #include <StormByte/util/string.hxx>
-
-#include "test_handlers.h"
+#include <StormByte/test_handlers.h>
 
 int test_simple_explode() {
 	int result = 0;
