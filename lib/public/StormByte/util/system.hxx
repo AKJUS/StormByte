@@ -20,5 +20,11 @@ namespace StormByte::Util {
 		 * @return temporary file full path
 		 */
 		static std::filesystem::path	TempFileName();
+
+		/**
+		 * Gets current path
+		 * @return current path
+		 */
+		static std::filesystem::path	CurrentPath();
 	};
 }

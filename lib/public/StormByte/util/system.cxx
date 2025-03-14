@@ -6,6 +6,7 @@
 #else
 #include <cstdlib> // For mkstemp
 #include <unistd.h> // For close
+#define MAX_PATH 256
 #endif
 
 using namespace StormByte::Util;
@@ -35,4 +36,20 @@ std::filesystem::path System::TempFileName() {
     close(fd);
     return std::string(temp_filename);
 #endif
+}
+
+std::filesystem::path System::CurrentPath() {
+	char path[MAX_PATH];
+#ifdef WINDOWS
+	if (GetModuleFileNameA(nullptr, path, MAX_PATH)) {
+		return std::filesystem::path(path).remove_filename();
+	}
+#else
+	ssize_t count = readlink("/proc/self/exe", path, sizeof(path) - 1);
+	if (count != -1) {
+		path[count] = '\0';
+		return std::filesystem::path(path);
+	}
+#endif
+	return "NOPATH";
 }
