@@ -2,6 +2,7 @@
 
 #include <format> // For std::format
 #include <ranges>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <queue>
@@ -24,6 +25,16 @@ std::queue<std::string> String::Explode(const std::string& str, const char delim
         result.emplace(part.begin(), part.end());
     }
 
+    return result;
+}
+
+std::vector<std::string> String::Split(const std::string& str) {
+    std::istringstream iss(str);
+    std::vector<std::string> result;
+    std::string word;
+    while (iss >> word) {
+        result.push_back(word); // Insert each word into the vector
+    }
     return result;
 }
 
