@@ -93,7 +93,7 @@ jobs:
 
       - name: Copy DLLs
         run: |
-          copy ${{ github.workspace }}\build\lib\StormByte.dll ${{ github.workspace }}\build\test
+          Copy-Item -Path "${{ github.workspace }}\build\lib\StormByte.dll" -Destination "${{ github.workspace }}\build\test" -Force
 
       - name: Run unit tests
         run: ctest --output-on-failure --test-dir ${{ github.workspace }}\build
