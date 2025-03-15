@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <regex>
 
 #ifdef WINDOWS
 #include <windows.h> // For MAX_PATH
@@ -67,3 +68,8 @@ std::wstring String::UTF8Decode(const std::string& str) {
 	return wstrTo;
 }
 #endif
+
+std::string String::SanitizeNewlines(const std::string& str) noexcept {
+	std::string result = str;
+	return std::regex_replace(str, std::regex("\r\n"), "\n");
+}

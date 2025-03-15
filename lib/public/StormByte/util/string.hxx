@@ -79,5 +79,12 @@ namespace StormByte::Util {
 		 */
 		static std::wstring							UTF8Decode(const std::string& s);
 		#endif
+
+		/**
+		 * @brief Sanitizes newlines in a string
+		 * @param str string to sanitize
+		 * @return sanitized string
+		 */
+		static std::string 							SanitizeNewlines(const std::string& str) noexcept;
 	};
 }
