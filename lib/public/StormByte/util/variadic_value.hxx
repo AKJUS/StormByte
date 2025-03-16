@@ -12,7 +12,7 @@
  * @namespace Templates
  * @brief All the utility templates
  */
-namespace StormByte::Util::Templates {
+namespace StormByte::Util {
 	/**
 	 * @brief Concept to check if a type is a valid variadic type
 	 * @tparam T type

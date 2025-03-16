@@ -7,7 +7,7 @@
  * @namespace Templates
  * @brief All the utility templates
  */
-namespace StormByte::Util::Templates {
+namespace StormByte::Util {
 	/**
 	 * @brief Concept to check if a type is a valid smart pointer
 	 * @tparam SmartPointer smart pointer type
