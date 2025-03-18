@@ -38,6 +38,39 @@ std::vector<std::string> String::Split(const std::string& str) {
     return result;
 }
 
+StormByte::Expected<std::pair<int, int>, StormByte::Exception> String::SplitFraction(const std::string& fraction) {
+	std::size_t slashPos = fraction.find('/');
+	if (slashPos == std::string::npos)
+        return StormByte::Unexpected<Exception>("Invalid fraction format: '/' not found.");
+    
+	const std::string numeratorStr = fraction.substr(0, slashPos);
+	const std::string denominatorStr = fraction.substr(slashPos + 1);
+
+	if (!IsNumeric(numeratorStr) || !IsNumeric(denominatorStr))
+		return StormByte::Unexpected<Exception>("Invalid fraction format: numerator and denominator must be numeric.");
+
+	if (denominatorStr == "0")
+		return StormByte::Unexpected<Exception>("Invalid fraction format: denominator cannot be zero.");
+
+	return std::make_pair<int, int>(std::stoi(numeratorStr), std::stoi(denominatorStr));
+}
+
+StormByte::Expected<std::pair<int, int>, StormByte::Exception> String::SplitFraction(const std::string& fraction, const int& desired_denominator) {
+	auto expected_fraction = SplitFraction(fraction);
+	if (!expected_fraction)
+		return StormByte::Unexpected(expected_fraction.error());
+
+	auto [numerator, denominator] = expected_fraction.value();
+	if (denominator == desired_denominator)
+		return std::make_pair(numerator, denominator);
+	else if (desired_denominator == 0)
+		return StormByte::Unexpected<Exception>("Invalid desired denominator: cannot be zero.");
+	else {
+		const double factor = static_cast<double>(desired_denominator) / static_cast<double>(denominator);
+		return std::make_pair(numerator * factor, desired_denominator);
+	}
+}
+
 std::string String::HumanReadableByteSize(const uint64_t& bytes) noexcept {
     constexpr uint64_t KB = 1024;
     constexpr uint64_t MB = KB * 1024;
