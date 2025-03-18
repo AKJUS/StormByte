@@ -1,6 +1,6 @@
 #pragma once
 
-#include <StormByte/alias.hxx>
+#include <StormByte/expected.hxx>
 #include <StormByte/exception.hxx>
 
 #include <algorithm>
