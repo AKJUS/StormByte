@@ -1,5 +1,6 @@
 #include <StormByte/exception.hxx>
 #include <StormByte/util/string.hxx>
+#include <StormByte/util/system.hxx>
 #include <StormByte/test_handlers.h>
 
 int test_simple_explode() {
@@ -56,12 +57,27 @@ int test_explode_one_item() {
 	RETURN_TEST("test_explode_one_item", result);
 }
 
+int test_temp_path() {
+	int result = 0;
+	try {
+		const std::filesystem::path path = StormByte::Util::System::TempFileName("something");
+		const bool exists = std::filesystem::exists(path);
+		std::remove(path.string().c_str());
+		ASSERT_TRUE("test_temp_path", exists);
+	} catch (const StormByte::Exception& ex) {
+		std::cerr << ex.what() << std::endl;
+		result++;
+	}
+	RETURN_TEST("test_temp_path", result);
+}
+
 int main() {
     int result = 0;
     try {
 		result += test_simple_explode();
 		result += test_path_explode();
 		result += test_explode_one_item();
+		result += test_temp_path();
     } catch (const StormByte::Exception& ex) {
         std::cerr << ex.what() << std::endl;
         result++;

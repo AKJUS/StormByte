@@ -5,13 +5,14 @@
 #include <windows.h> // For MAX_PATH
 #else
 #include <cstdlib> // For mkstemp
+#include <cstring> // For strncpy
 #include <unistd.h> // For close
 #define MAX_PATH 256
 #endif
 
 using namespace StormByte::Util;
 
-std::filesystem::path System::TempFileName() {
+std::filesystem::path System::TempFileName(const std::string& prefix) {
 #ifdef WINDOWS
     wchar_t tempPath[MAX_PATH];
     wchar_t tempFile[MAX_PATH];
@@ -22,13 +23,16 @@ std::filesystem::path System::TempFileName() {
     }
 
     // Create a unique temporary filename
-    if (GetTempFileNameW(tempPath, L"TMP", 0, tempFile) == 0) {
+    if (GetTempFileNameW(tempPath, String::UTF8Decode(prefix).c_str(), 0, tempFile) == 0) {
         throw std::runtime_error("Error getting temp file name");
     }
 
     return String::UTF8Encode(std::wstring(tempFile));
 #else
-    char temp_filename[] = "/tmp/config_testXXXXXX";
+	const std::string temp_filename_with_prefix = "/tmp/" + prefix + "XXXXXX";
+	char temp_filename[MAX_PATH];
+	strncpy(temp_filename, temp_filename_with_prefix.c_str(), MAX_PATH);
+	temp_filename[MAX_PATH - 1] = '\0';
     int fd = mkstemp(temp_filename);
     if (fd == -1) {
         throw std::runtime_error("Failed to create temporary file");

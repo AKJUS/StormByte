@@ -19,7 +19,7 @@ namespace StormByte::Util {
 		 * Safely gets a temporary file name
 		 * @return temporary file full path
 		 */
-		static std::filesystem::path	TempFileName();
+		static std::filesystem::path	TempFileName(const std::string& prefix = "TMP");
 
 		/**
 		 * Gets current path
