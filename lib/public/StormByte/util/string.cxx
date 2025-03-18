@@ -67,7 +67,7 @@ StormByte::Expected<std::pair<int, int>, StormByte::Exception> String::SplitFrac
 		return StormByte::Unexpected<Exception>("Invalid desired denominator: cannot be zero.");
 	else {
 		const double factor = static_cast<double>(desired_denominator) / static_cast<double>(denominator);
-		return std::make_pair(numerator * factor, desired_denominator);
+		return std::make_pair(static_cast<int>(numerator * factor), desired_denominator);
 	}
 }
 
