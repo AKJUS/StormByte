@@ -3,4 +3,12 @@ if(ENABLE_TEST AND NOT STORMBYTE_AS_DEPENDENCY)
 	add_executable(StringTests string_test.cxx)
 	target_link_libraries(StringTests StormByte)
 	add_test(NAME StringTests COMMAND StringTests)
+
+	add_executable(MutexedTests mutexed_test.cxx)
+	target_link_libraries(MutexedTests StormByte)
+	add_test(NAME MutexedTests COMMAND MutexedTests)
+
+	add_executable(ArithmeticMutexedTests arithmetic_mutexed_test.cxx)
+	target_link_libraries(ArithmeticMutexedTests StormByte)
+	add_test(NAME ArithmeticMutexedTests COMMAND ArithmeticMutexedTests)
 endif()
