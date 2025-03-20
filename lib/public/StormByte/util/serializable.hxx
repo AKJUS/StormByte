@@ -80,7 +80,7 @@ namespace StormByte::Util {
 			 * @param data The data to deserialize.
 			 * @return The deserialized data.
 			 */
-			static StormByte::Expected<T, DeserializeError> 					Deserialize(const char* data, std::size_t length) noexcept {
+			static StormByte::Expected<T, DeserializeError> 				Deserialize(const char* data, std::size_t length) noexcept {
 				if constexpr (std::is_trivially_copyable_v<T>) {
 					return DeserializeTrivial(data, length);
 				} else if constexpr (is_container<T>::value) {
@@ -187,7 +187,7 @@ namespace StormByte::Util {
 			 * @param data Serialized data
 			 * @return The deserialized data.
 			 */
-			static StormByte::Expected<T, DeserializeError>						DeserializeTrivial(const char* data, const std::size_t& length) noexcept {
+			static StormByte::Expected<T, DeserializeError>					DeserializeTrivial(const char* data, const std::size_t& length) noexcept {
 				if (data == nullptr || length < sizeof(T))
 					return StormByte::Unexpected<DeserializeError>("Insufficient data for trivial type deserialization");
 				
@@ -199,14 +199,14 @@ namespace StormByte::Util {
 			 * @param data Serialized data
 			 * @return The deserialized data.
 			 */
-			static StormByte::Expected<T, DeserializeError>						DeserializeComplex(const char* data, const std::size_t& length) noexcept;
+			static StormByte::Expected<T, DeserializeError>					DeserializeComplex(const char* data, const std::size_t& length) noexcept;
 
 			/**
 			 * @brief The function to deserialize the container data.
 			 * @param data Serialized data
 			 * @return The deserialized data.
 			 */
-			static StormByte::Expected<T, DeserializeError> 						DeserializeContainer(const char* data, const std::size_t& length) noexcept {
+			static StormByte::Expected<T, DeserializeError> 				DeserializeContainer(const char* data, const std::size_t& length) noexcept {
 				if (data == nullptr || length < sizeof(std::size_t)) {
 					return StormByte::Unexpected<DeserializeError>("Insufficient data for container size");
 				}
@@ -253,7 +253,7 @@ namespace StormByte::Util {
 			 * @param data Serialized data
 			 * @return The deserialized data.
 			 */
-			static StormByte::Expected<T, DeserializeError>						DeserializePair(const char* data, const std::size_t length) noexcept {
+			static StormByte::Expected<T, DeserializeError>					DeserializePair(const char* data, const std::size_t length) noexcept {
 				if (data == nullptr)
 					return StormByte::Unexpected<DeserializeError>("Null data pointer");
 	
