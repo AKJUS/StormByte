@@ -3,6 +3,7 @@
 
 #include <format>
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -174,6 +175,57 @@ int test_serialize_pair_truncated() {
     RETURN_TEST("test_serialize_pair_truncated", 0);
 }
 
+int test_serialize_optional_notempty() {
+	std::optional<int> data = 42;
+	Serializable<std::optional<int>> serialization(data);
+	StormByte::Util::Buffer buffer = serialization.Serialize();
+	if (buffer.Length() == 0)
+		RETURN_TEST("test_serialize_optional_notempty", 1);
+
+	auto expected_data = Serializable<std::optional<int>>::Deserialize(buffer.Data(), buffer.Length());
+	if (!expected_data) {
+		std::cerr << expected_data.error()->what() << std::endl;
+		RETURN_TEST("test_serialize_optional_notempty", 1);
+	}
+
+	ASSERT_EQUAL("test_serialize_optional_notempty", data.value(), expected_data.value().value());
+	RETURN_TEST("test_serialize_optional_notempty", 0);
+}
+
+int test_serialize_optional_empty() {
+	std::optional<int> data;
+	Serializable<std::optional<int>> serialization(data);
+	StormByte::Util::Buffer buffer = serialization.Serialize();
+	if (buffer.Length() == 0)
+		RETURN_TEST("test_serialize_optional_empty", 1);
+
+	auto expected_data = Serializable<std::optional<int>>::Deserialize(buffer.Data(), buffer.Length());
+	if (!expected_data) {
+		std::cerr << expected_data.error()->what() << std::endl;
+		RETURN_TEST("test_serialize_optional_empty", 1);
+	}
+
+	ASSERT_FALSE("test_serialize_optional_empty", expected_data.value().has_value());
+	RETURN_TEST("test_serialize_optional_empty", 0);
+}
+
+int test_serialize_optional_string() {
+	std::optional<std::string> data = "Hello, World!";
+	Serializable<std::optional<std::string>> serialization(data);
+	StormByte::Util::Buffer buffer = serialization.Serialize();
+	if (buffer.Length() == 0)
+		RETURN_TEST("test_serialize_optional_string", 1);
+
+	auto expected_data = Serializable<std::optional<std::string>>::Deserialize(buffer.Data(), buffer.Length());
+	if (!expected_data) {
+		std::cerr << expected_data.error()->what() << std::endl;
+		RETURN_TEST("test_serialize_optional_string", 1);
+	}
+
+	ASSERT_EQUAL("test_serialize_optional_string", data.value(), expected_data.value().value());
+	RETURN_TEST("test_serialize_optional_string", 0);
+}
+
 int main() {
     int result = 0;
 	result += test_serialize_int();
@@ -186,6 +238,9 @@ int main() {
 	result += test_serialize_int_truncated();
 	result += test_serialize_string_vector_truncated();
 	result += test_serialize_pair_truncated();
+	result += test_serialize_optional_notempty();
+	result += test_serialize_optional_empty();
+	result += test_serialize_optional_string();
 
     if (result == 0) {
         std::cout << "All tests passed!" << std::endl;

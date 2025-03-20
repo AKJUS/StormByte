@@ -5,6 +5,7 @@
 #include <StormByte/util/buffer.hxx>
 #include <StormByte/util/exception.hxx>
 
+#include <optional>
 #include <utility>
 
 /**
@@ -70,6 +71,8 @@ namespace StormByte::Util {
 					return SerializeContainer();
 				} else if constexpr (is_pair<T>::value) {
 					return SerializePair();
+				} else if constexpr (is_optional<T>::value) {
+					return SerializeOptional();
 				} else {
 					return SerializeComplex();
 				}
@@ -87,6 +90,8 @@ namespace StormByte::Util {
 					return DeserializeContainer(data, length);
 				} else if constexpr (is_pair<T>::value) {
 					return DeserializePair(data, length);
+				} else if constexpr (is_optional<T>::value) {
+					return DeserializeOptional(data, length);
 				} else {
 					return DeserializeComplex(data, length);
 				}
@@ -99,6 +104,8 @@ namespace StormByte::Util {
 					return SizeContainer(data);
 				} else if constexpr (is_pair<T>::value) {
 					return SizePair(data);
+				} else if constexpr (is_optional<T>::value) {
+					return SizeOptional(data);
 				} else {
 					return SizeComplex(data);
 				}
@@ -154,6 +161,21 @@ namespace StormByte::Util {
 			}
 
 			/**
+			 * @brief The function to serialize the optional data.
+			 * @param data The data to serialize.
+			 * @return The serialized data.
+			 */
+			Util::Buffer 													SerializeOptional() const noexcept {
+				bool has_value = m_data.has_value();
+				Util::Buffer buffer = Serializable<bool>(has_value).Serialize();
+				if (m_data.has_value()) {
+					Serializable<std::decay_t<decltype(m_data.value())>> value_serial(m_data.value());
+					buffer += value_serial.Serialize();
+				}
+				return buffer;
+			}
+
+			/**
 			 * @brief The function to get the size of the complex data.
 			 * @param data The data to get the size.
 			 * @return The size of the complex data.
@@ -180,6 +202,19 @@ namespace StormByte::Util {
 			 */
 			static std::size_t												SizePair(const DecayedT& data) noexcept {
 				return Serializable<std::decay_t<typename T::first_type>>::Size(data.first) + Serializable<std::decay_t<typename T::second_type>>::Size(data.second);
+			}
+
+			/**
+			 * @brief The function to get the size of the optional data.
+			 * @param data The data to get the size.
+			 * @return The size of the optional data.
+			 */
+			static std::size_t 												SizeOptional(const DecayedT& data) noexcept {
+				std::size_t size = sizeof(bool);
+				if (data.has_value()) {
+					size += Serializable<std::decay_t<decltype(data.value())>>::Size(data.value());
+				}
+				return size;
 			}
 
 			/**
@@ -278,6 +313,33 @@ namespace StormByte::Util {
 				}
 	
 				return T{expected_first.value(), expected_second.value()};
+			}
+
+			static StormByte::Expected<T, DeserializeError>					DeserializeOptional(const char* data, const std::size_t length) noexcept {
+				if (data == nullptr)
+					return StormByte::Unexpected<DeserializeError>("Null data pointer");
+	
+				auto expected_has_value = Serializable<bool>::Deserialize(data, length);
+				if (!expected_has_value) {
+					return StormByte::Unexpected(expected_has_value.error());
+				}
+				std::size_t has_value_size = Serializable<bool>::Size(expected_has_value.value());
+				if (length < has_value_size)
+					return StormByte::Unexpected<DeserializeError>("Insufficient data for optional has_value");
+	
+				const char* value_data = data + has_value_size;
+				std::size_t remaining_length = length - has_value_size;
+	
+				if (expected_has_value.value()) {
+					auto expected_value = Serializable<std::decay_t<decltype(m_data.value())>>::Deserialize(value_data, remaining_length);
+					if (!expected_value) {
+						return StormByte::Unexpected(expected_value.error());
+					}
+	
+					return T{expected_value.value()};
+				} else {
+					return T{};
+				}
 			}
 	};
 }
