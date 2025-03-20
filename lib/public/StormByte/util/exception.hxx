@@ -50,4 +50,54 @@ namespace StormByte::Util {
 			 */
 			virtual ~Exception() noexcept				= default;
 	};
+
+	/**
+	 * @class SerializeError
+	 * @brief Exception class for serialization errors
+	 */
+	class STORMBYTE_PUBLIC DeserializeError: public Exception {
+		public:
+			/**
+			 * Constructor
+			 * @param reason
+			 */
+			DeserializeError(const std::string& reason);
+
+			/**
+			 * Constructor
+			 * @param reason
+			 */
+			DeserializeError(std::string&& reason);
+
+			/**
+			 * Copy constructor
+			 * @param other
+			 */
+			DeserializeError(const DeserializeError& other)					= default;
+
+			/**
+			 * Move constructor
+			 * @param other
+			 */
+			DeserializeError(DeserializeError&& other) noexcept				= default;
+
+			/**
+			 * Assignment operator
+			 * @param other
+			 * @return reference to this
+			 */
+			DeserializeError& operator=(const DeserializeError& other)		= default;
+
+			/**
+			 * Move assignment operator
+			 * @param other
+			 * @return reference to this
+			 */
+			DeserializeError& operator=(DeserializeError&& other) noexcept	= default;
+
+			/**
+			 * Destructor
+			 */
+			virtual ~DeserializeError() noexcept							= default;
+	};
 }
