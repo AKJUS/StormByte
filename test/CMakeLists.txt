@@ -11,4 +11,8 @@ if(ENABLE_TEST AND NOT STORMBYTE_AS_DEPENDENCY)
 	add_executable(ArithmeticMutexedTests arithmetic_mutexed_test.cxx)
 	target_link_libraries(ArithmeticMutexedTests StormByte)
 	add_test(NAME ArithmeticMutexedTests COMMAND ArithmeticMutexedTests)
+
+	add_executable(BufferTests buffer_test.cxx)
+	target_link_libraries(BufferTests StormByte)
+	add_test(NAME BufferTests COMMAND BufferTests)
 endif()

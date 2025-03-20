@@ -9,8 +9,8 @@
 #include <concepts>
 
 /**
- * @namespace Templates
- * @brief All the utility templates
+ * @namespace Util
+ * @brief Contains utility classes and functions.
  */
 namespace StormByte::Util {
 	/**
