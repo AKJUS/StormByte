@@ -1,5 +1,7 @@
 #pragma once
 
+#include <StormByte/type_traits.hxx>
+
 #include <expected>
 #include <memory>
 #include <functional> // For std::reference_wrapper
@@ -9,20 +11,14 @@
  * @brief Main namespace for the StormByte library and components
  */
 namespace StormByte {
-	// Helper to detect reference types at compile time
-	template <typename T>
-	struct IsReference {
-		static constexpr bool value = std::is_reference_v<T>;
-	};
-
 	/**
-	 * @brief Expected type alias that adapts for value or reference types
-	 * @tparam T value or reference type
-	 * @tparam E error type
+	 * @brief Expected type with support for reference types
+	 * @tparam T Expected type
+	 * @tparam E Error type
 	 */
 	template <typename T, class E>
 	using Expected = std::conditional_t<
-		IsReference<T>::value,
+		is_reference<T>::value,
 		std::expected<std::reference_wrapper<std::remove_reference_t<T>>, std::shared_ptr<E>>,
 		std::expected<T, std::shared_ptr<E>>
 	>;
