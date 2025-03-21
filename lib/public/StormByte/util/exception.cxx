@@ -10,8 +10,14 @@ StormByte::Exception(reason) {}
 Exception::Exception(std::string&& reason):
 StormByte::Exception(std::move(reason)) {}
 
-DeserializeError::DeserializeError(const std::string& reason):
-Exception(std::format("Deserialize error: {}", reason)) {}
+BufferException::BufferException(const std::string& reason):
+Exception(std::format("Buffer error {}", reason)) {}
 
-DeserializeError::DeserializeError(std::string&& reason):
-Exception(std::format("Deserialize error: {}", std::move(reason))) {}
+BufferException::BufferException(std::string&& reason):
+Exception(std::format("Buffer error {}", std::move(reason))) {}
+
+BufferOverflow::BufferOverflow(const std::string& reason):
+BufferException(std::format("Overflow: {}", reason)) {}
+
+BufferOverflow::BufferOverflow(std::string&& reason):
+BufferException(std::format("Overflow: {}", std::move(reason))) {}

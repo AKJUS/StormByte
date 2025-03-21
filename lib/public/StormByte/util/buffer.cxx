@@ -1,108 +1,119 @@
 #include <StormByte/util/buffer.hxx>
 
+#include <algorithm>
 #include <cstring>
+#include <format>
 
 using namespace StormByte::Util;
 
-Buffer::Buffer() noexcept: m_buffer(nullptr), m_length(0) {}
-
-Buffer::Buffer(const Buffer& other): m_buffer(nullptr), m_length(0) {
-	Append(other.m_buffer, other.m_length);
-}
-
-Buffer::Buffer(Buffer&& other) noexcept {
-	m_buffer = other.m_buffer;
-	m_length = other.m_length;
-	other.m_buffer = nullptr;
-	other.m_length = 0;
-}
-
-Buffer& Buffer::operator=(const Buffer& other) {
-	if (this != &other) {
-		Clear();
-		Append(other.m_buffer, other.m_length);
+Buffer::Buffer(const char* data, const std::size_t& length): m_data(length), m_position(0) {
+	if (data != nullptr && length > 0) {
+		std::copy(reinterpret_cast<const std::byte*>(data), 
+				reinterpret_cast<const std::byte*>(data) + length, 
+				m_data.begin());
 	}
+}
+
+Buffer::Buffer(const std::string& data): m_data(data.size()), m_position(0) {
+	if (!data.empty())
+		std::copy(reinterpret_cast<const std::byte*>(data.data()), 
+				reinterpret_cast<const std::byte*>(data.data()) + data.size(), 
+				m_data.begin());
+}
+
+Buffer::Buffer(const DataType& data): m_data(data), m_position(0) {}
+
+Buffer::Buffer(DataType&& data): m_data(std::move(data)), m_position(0) {}
+
+Buffer::Buffer(const std::span<const Byte>& data): m_data(data.begin(), data.end()), m_position(0) {}
+
+StormByte::Expected<const Buffer::Byte&, BufferOverflow> Buffer::operator[](const std::size_t& index) const {
+	if (index >= m_data.size())
+		return StormByte::Unexpected<BufferOverflow>(BufferOverflow(std::format("Index {} is out of bounds (size: {})", index, m_data.size())));
+	return m_data[index];
+}
+
+Buffer& Buffer::operator<<(const Buffer& buffer) {
+	if (this != &buffer)
+		m_data.insert(m_data.end(), buffer.m_data.begin(), buffer.m_data.end());
 	return *this;
 }
 
-Buffer& Buffer::operator=(Buffer&& other) noexcept {
-	if (this != &other) {
-		Clear();
-		m_buffer = other.m_buffer;
-		m_length = other.m_length;
-		other.m_buffer = nullptr;
-		other.m_length = 0;
-	}
+Buffer& Buffer::operator<<(Buffer&& buffer) {
+	if (this != &buffer)
+		m_data.insert(m_data.end(), std::make_move_iterator(buffer.m_data.begin()), std::make_move_iterator(buffer.m_data.end()));
 	return *this;
 }
 
-Buffer::~Buffer() noexcept {
-	Clear();
-}
-
-Buffer Buffer::operator+(const Buffer& other) const {
-	Buffer result(*this);
-	result.Append(other.m_buffer, other.m_length);
-	return result;
-}
-
-Buffer& Buffer::operator+=(const Buffer& other) {
-	Append(other.m_buffer, other.m_length);
+Buffer& Buffer::operator<<(const std::string& data) {
+	m_data.insert(m_data.end(), reinterpret_cast<const std::byte*>(data.data()), reinterpret_cast<const std::byte*>(data.data()) + data.size());
 	return *this;
 }
 
-void Buffer::Append(const char* data, const std::size_t& length) {
-	if (data == nullptr || length == 0) {
-		return; // Do nothing if the input is invalid
-	}
-
-	if (m_buffer == nullptr) {
-		// Allocate new buffer if m_buffer is uninitialized
-		m_buffer = new char[length];
-		std::memcpy(m_buffer, data, length);
-		m_length = length; // Update length after initialization
-	} else {
-		// Allocate new buffer for the combined size
-		char* new_buffer = new char[m_length + length];
-
-		// Copy old data into the new buffer
-		std::memcpy(new_buffer, m_buffer, m_length);
-
-		// Append new data
-		std::memcpy(new_buffer + m_length, data, length);
-
-		// Free the old buffer and replace it with the new one
-		delete[] m_buffer;
-		m_buffer = new_buffer;
-
-		// Update the length
-		m_length += length;
-	}
+Buffer& Buffer::operator<<(const DataType& data) {
+	m_data.insert(m_data.end(), data.begin(), data.end());
+	return *this;
 }
 
-void Buffer::Clear() {
-	if (m_buffer != nullptr) {
-		delete[] m_buffer;
-		m_buffer = nullptr;
-		m_length = 0;
+Buffer& Buffer::operator<<(DataType&& data) {
+	m_data.insert(m_data.end(), std::make_move_iterator(data.begin()), std::make_move_iterator(data.end()));
+	return *this;
+}
+
+Buffer& Buffer::operator>>(Buffer& buffer) {
+	if (this != &buffer) {
+		buffer.m_data.insert(buffer.m_data.end(), m_data.begin() + m_position, m_data.end());
+		m_position = m_data.size();
 	}
+	return buffer;
 }
 
-const char* Buffer::Data() const {
-	return m_buffer;
-}
+std::string Buffer::HexData(const std::size_t& column_size) const {
+	std::string hex_data;
+	std::string hex_line, char_line;
+	std::size_t line_char_count = 0;
 
-std::string Buffer::HexData() const {
-	std::string result;
-	if (m_buffer != nullptr) {
-		for (std::size_t i = 0; i < m_length; ++i) {
-			result += "0123456789ABCDEF"[m_buffer[i] >> 4];
-			result += "0123456789ABCDEF"[m_buffer[i] & 0x0F];
+	for (const auto& byte : m_data) {
+		hex_line += std::format("{:02X} ", static_cast<unsigned char>(byte));
+		char_line += std::isprint(static_cast<char>(byte)) ? static_cast<char>(byte) : '.';
+		if (++line_char_count == column_size) {
+			// Calculate padding
+			std::size_t padding = (column_size * 3) - hex_line.size();
+			hex_data += hex_line + std::string(padding, ' ') + "\t" + char_line + "\n";
+			hex_line.clear();
+			char_line.clear();
+			line_char_count = 0;
 		}
 	}
-	return result;
+
+	// Handle any remaining data
+	if (!hex_line.empty()) {
+		// Calculate padding
+		std::size_t padding = (column_size * 3) - hex_line.size();
+		hex_data += hex_line + std::string(padding, ' ') + "\t" + char_line + "\n";
+	}
+
+	return hex_data;
 }
 
-const std::size_t& Buffer::Length() const {
-	return m_length;
+StormByte::Expected<std::span<const Buffer::Byte>, BufferOverflow> Buffer::Read(const std::size_t& length) const {
+	if (m_position + length > m_data.size())
+		return StormByte::Unexpected<BufferOverflow>(std::format("Insufficient data to read {} bytes (only have {} bytes)", length, m_data.size() - m_position));
+	std::span<const Byte> data(m_data.data() + m_position, length);
+	m_position += length;
+	return data;
+}
+
+void Buffer::Seek(const std::ptrdiff_t& position, const ReadPosition& mode) const {
+	if (mode & Begin)
+		m_position = static_cast<std::size_t>(std::max<ptrdiff_t>(0, position));
+
+	if (mode & End)
+		m_position = static_cast<std::size_t>(std::max<ptrdiff_t>(0, static_cast<ptrdiff_t>(m_data.size()) + position));
+
+	if (mode & Relative)
+		m_position = static_cast<std::size_t>(std::max<ptrdiff_t>(0, static_cast<ptrdiff_t>(m_position) + position));
+
+	if (mode & Absolute)
+		m_position = static_cast<std::size_t>(std::max<ptrdiff_t>(0, position));
 }

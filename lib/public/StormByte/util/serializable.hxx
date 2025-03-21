@@ -64,7 +64,7 @@ namespace StormByte::Util {
 			 * @param data The data to serialize.
 			 * @return The serialized data.
 			 */
-			const Util::Buffer												Serialize() const noexcept {
+			Util::Buffer													Serialize() const noexcept {
 				if constexpr (std::is_trivially_copyable_v<T>) {
 					return SerializeTrivial();
 				} else if constexpr (is_container<T>::value) {
@@ -83,17 +83,17 @@ namespace StormByte::Util {
 			 * @param data The data to deserialize.
 			 * @return The deserialized data.
 			 */
-			static StormByte::Expected<T, DeserializeError> 				Deserialize(const char* data, std::size_t length) noexcept {
+			static StormByte::Expected<T, BufferOverflow> 					Deserialize(const Buffer& data) noexcept {
 				if constexpr (std::is_trivially_copyable_v<T>) {
-					return DeserializeTrivial(data, length);
+					return DeserializeTrivial(data);
 				} else if constexpr (is_container<T>::value) {
-					return DeserializeContainer(data, length);
+					return DeserializeContainer(data);
 				} else if constexpr (is_pair<T>::value) {
-					return DeserializePair(data, length);
+					return DeserializePair(data);
 				} else if constexpr (is_optional<T>::value) {
-					return DeserializeOptional(data, length);
+					return DeserializeOptional(data);
 				} else {
-					return DeserializeComplex(data, length);
+					return DeserializeComplex(data);
 				}
 			}
 
@@ -120,9 +120,7 @@ namespace StormByte::Util {
 			 * @return The serialized data.
 			 */
 			Util::Buffer													SerializeTrivial() const noexcept {
-				Util::Buffer buffer;
-				buffer.Append(reinterpret_cast<const char*>(&m_data), sizeof(m_data));
-				return buffer;
+				return { reinterpret_cast<const char*>(&m_data), sizeof(m_data) };
 			}
 
 			/**
@@ -138,13 +136,12 @@ namespace StormByte::Util {
 			 * @return The serialized data.
 			 */
 			Util::Buffer													SerializeContainer() const noexcept {
-				Util::Buffer buffer;
 				std::size_t size = m_data.size();
 				Serializable<std::size_t> size_serial(size);
-				buffer = size_serial.Serialize();
+				Util::Buffer buffer(std::move(size_serial.Serialize()));
 				for (const auto& element: m_data) {
 					Serializable<std::decay_t<decltype(element)>> element_serial(element);
-					buffer += element_serial.Serialize();
+					buffer << std::move(element_serial.Serialize());
 				}
 				return buffer;
 			}
@@ -157,7 +154,7 @@ namespace StormByte::Util {
 			Util::Buffer 													SerializePair() const noexcept {
 				Serializable<std::decay_t<typename T::first_type>> first_serial(m_data.first);
 				Serializable<std::decay_t<typename T::second_type>> second_serial(m_data.second);
-				return first_serial.Serialize() + second_serial.Serialize();
+				return first_serial.Serialize() << std::move(second_serial.Serialize());
 			}
 
 			/**
@@ -167,10 +164,10 @@ namespace StormByte::Util {
 			 */
 			Util::Buffer 													SerializeOptional() const noexcept {
 				bool has_value = m_data.has_value();
-				Util::Buffer buffer = Serializable<bool>(has_value).Serialize();
+				Util::Buffer buffer = std::move(Serializable<bool>(has_value).Serialize());
 				if (m_data.has_value()) {
 					Serializable<std::decay_t<decltype(m_data.value())>> value_serial(m_data.value());
-					buffer += value_serial.Serialize();
+					buffer << std::move(value_serial.Serialize());
 				}
 				return buffer;
 			}
@@ -201,7 +198,9 @@ namespace StormByte::Util {
 			 * @return The size of the pair data.
 			 */
 			static std::size_t												SizePair(const DecayedT& data) noexcept {
-				return Serializable<std::decay_t<typename T::first_type>>::Size(data.first) + Serializable<std::decay_t<typename T::second_type>>::Size(data.second);
+				return
+					Serializable<std::decay_t<typename T::first_type>>::Size(data.first) +
+					Serializable<std::decay_t<typename T::second_type>>::Size(data.second);
 			}
 
 			/**
@@ -222,11 +221,11 @@ namespace StormByte::Util {
 			 * @param data Serialized data
 			 * @return The deserialized data.
 			 */
-			static StormByte::Expected<T, DeserializeError>					DeserializeTrivial(const char* data, const std::size_t& length) noexcept {
-				if (data == nullptr || length < sizeof(T))
-					return StormByte::Unexpected<DeserializeError>("Insufficient data for trivial type deserialization");
-				
-				return T { *reinterpret_cast<const T*>(data) };
+			static StormByte::Expected<T, BufferOverflow>					DeserializeTrivial(const Buffer& data) noexcept {
+				auto expected_value = data.Read(sizeof(T));
+				if (!expected_value)
+					return StormByte::Unexpected(expected_value.error());
+				return T { *reinterpret_cast<const T*>(expected_value.value().data()) };
 			}
 
 			/**
@@ -234,51 +233,27 @@ namespace StormByte::Util {
 			 * @param data Serialized data
 			 * @return The deserialized data.
 			 */
-			static StormByte::Expected<T, DeserializeError>					DeserializeComplex(const char* data, const std::size_t& length) noexcept;
+			static StormByte::Expected<T, BufferOverflow>					DeserializeComplex(const Buffer& data) noexcept;
 
 			/**
 			 * @brief The function to deserialize the container data.
 			 * @param data Serialized data
 			 * @return The deserialized data.
 			 */
-			static StormByte::Expected<T, DeserializeError> 				DeserializeContainer(const char* data, const std::size_t& length) noexcept {
-				if (data == nullptr || length < sizeof(std::size_t)) {
-					return StormByte::Unexpected<DeserializeError>("Insufficient data for container size");
-				}
-	
-				auto expected_container_size = Serializable<std::size_t>::Deserialize(data, length);
-				if (!expected_container_size) {
+			static StormByte::Expected<T, BufferOverflow> 					DeserializeContainer(const Buffer& data) noexcept {	
+				auto expected_container_size = Serializable<std::size_t>::Deserialize(data);
+				if (!expected_container_size)
 					return StormByte::Unexpected(expected_container_size.error());
-				}
 	
 				std::size_t size = expected_container_size.value();
-				std::size_t offset = sizeof(std::size_t);
-				if (length < offset) {
-					return StormByte::Unexpected<DeserializeError>("Insufficient data after container size");
-				}
 	
 				T container;
-				try {
-					const char* current_data = data + offset;
-					std::size_t remaining_length = length - offset;
-	
-					for (std::size_t i = 0; i < size; ++i) {
-						auto expected_element = Serializable<std::decay_t<typename T::value_type>>::Deserialize(current_data, remaining_length);
-						if (!expected_element) {
-							return StormByte::Unexpected(expected_element.error());
-						}
-	
-						std::size_t element_size = Serializable<std::decay_t<typename T::value_type>>::Size(expected_element.value());
-						if (remaining_length < element_size) {
-							return StormByte::Unexpected<DeserializeError>("Insufficient data for container element");
-						}
-	
-						container.insert(container.end(), expected_element.value());
-						current_data += element_size;
-						remaining_length -= element_size;
-					}
-				} catch (const std::bad_alloc& ex) {
-					return StormByte::Unexpected<DeserializeError>(ex.what());
+				for (std::size_t i = 0; i < size; ++i) {
+					auto expected_element = Serializable<std::decay_t<typename T::value_type>>::Deserialize(data);
+					if (!expected_element)
+						return StormByte::Unexpected(expected_element.error());
+
+					container.insert(container.end(), std::move(expected_element.value()));
 				}
 				return container;
 			}
@@ -288,57 +263,34 @@ namespace StormByte::Util {
 			 * @param data Serialized data
 			 * @return The deserialized data.
 			 */
-			static StormByte::Expected<T, DeserializeError>					DeserializePair(const char* data, const std::size_t length) noexcept {
-				if (data == nullptr)
-					return StormByte::Unexpected<DeserializeError>("Null data pointer");
-	
+			static StormByte::Expected<T, BufferOverflow>					DeserializePair(const Buffer& data) noexcept {	
 				using FirstT = std::decay_t<typename T::first_type>;
 				using SecondT = std::decay_t<typename T::second_type>;
 	
-				auto expected_first = Serializable<FirstT>::Deserialize(data, length);
-				if (!expected_first) {
+				auto expected_first = Serializable<FirstT>::Deserialize(data);
+				if (!expected_first)
 					return StormByte::Unexpected(expected_first.error());
-				}
 	
-				std::size_t first_size = Serializable<FirstT>::Size(expected_first.value());
-				if (length < first_size)
-					return StormByte::Unexpected<DeserializeError>("Insufficient data for pair first element");
-	
-				const char* second_data = data + first_size;
-				std::size_t remaining_length = length - first_size;
-	
-				auto expected_second = Serializable<SecondT>::Deserialize(second_data, remaining_length);
-				if (!expected_second) {
+				auto expected_second = Serializable<SecondT>::Deserialize(data);
+				if (!expected_second)
 					return StormByte::Unexpected(expected_second.error());
-				}
 	
-				return T{expected_first.value(), expected_second.value()};
+				return T { expected_first.value(), expected_second.value() };
 			}
 
-			static StormByte::Expected<T, DeserializeError>					DeserializeOptional(const char* data, const std::size_t length) noexcept {
-				if (data == nullptr)
-					return StormByte::Unexpected<DeserializeError>("Null data pointer");
-	
-				auto expected_has_value = Serializable<bool>::Deserialize(data, length);
-				if (!expected_has_value) {
+			static StormByte::Expected<T, BufferOverflow>					DeserializeOptional(const Buffer& data) noexcept {
+				auto expected_has_value = Serializable<bool>::Deserialize(data);
+				if (!expected_has_value)
 					return StormByte::Unexpected(expected_has_value.error());
-				}
-				std::size_t has_value_size = Serializable<bool>::Size(expected_has_value.value());
-				if (length < has_value_size)
-					return StormByte::Unexpected<DeserializeError>("Insufficient data for optional has_value");
-	
-				const char* value_data = data + has_value_size;
-				std::size_t remaining_length = length - has_value_size;
 	
 				if (expected_has_value.value()) {
-					auto expected_value = Serializable<std::decay_t<decltype(m_data.value())>>::Deserialize(value_data, remaining_length);
-					if (!expected_value) {
+					auto expected_value = Serializable<std::decay_t<decltype(m_data.value())>>::Deserialize(data);
+					if (!expected_value)
 						return StormByte::Unexpected(expected_value.error());
-					}
 	
-					return T{expected_value.value()};
+					return T { expected_value.value() };
 				} else {
-					return T{};
+					return T {};
 				}
 			}
 	};
