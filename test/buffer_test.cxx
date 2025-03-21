@@ -38,12 +38,22 @@ int test_buffer_append() {
 	RETURN_TEST("test_buffer_append", 0);
 }
 
+int test_append_string() {
+	Buffer buffer;
+	std::string str = "Hello, World!";
+	buffer << str;
+	std::string expected(reinterpret_cast<const char*>(buffer.Data().data()), buffer.Size());
+	ASSERT_EQUAL("test_append_string", str, expected);
+	RETURN_TEST("test_append_string", 0);
+}
+
 int main() {
     int result = 0;
 	result += test_simple_buffer();
 	result += test_buffer_copy();
 	result += test_buffer_move();
 	result += test_buffer_append();
+	result += test_append_string();
 
     if (result == 0) {
         std::cout << "All tests passed!" << std::endl;
