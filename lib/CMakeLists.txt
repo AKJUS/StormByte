@@ -13,9 +13,12 @@ set_target_properties(StormByte PROPERTIES
 
 # Compile options
 if(MSVC)
-	target_compile_options(StormByte PRIVATE /wd4251 /EHsc /O2 /Gs)
+	target_compile_options(StormByte PRIVATE /EHsc)
+	target_compile_options(StormByte PRIVATE $<$<CONFIG:Release>:/O2>)
+	target_compile_options(StormByte PRIVATE $<$<CONFIG:Debug>:/Od>)
 	target_compile_definitions(StormByte PUBLIC UNICODE) # Create problems if disabled
-	target_link_options(StormByte PRIVATE /LTCG /GL)
+	target_link_options(StormByte PRIVATE $<$<CONFIG:Release>:/LTCG /GL>)
+
 else()
 	set(CMAKE_CXX_FLAGS_DEBUG "-pipe -g -ggdb -Wall -Wextra -Wnon-virtual-dtor -pedantic -pedantic-errors -O0")
 	target_compile_options(StormByte PRIVATE -fvisibility=hidden $<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>)
