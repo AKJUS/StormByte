@@ -92,6 +92,17 @@ const char* Buffer::Data() const {
 	return m_buffer;
 }
 
+std::string Buffer::HexData() const {
+	std::string result;
+	if (m_buffer != nullptr) {
+		for (std::size_t i = 0; i < m_length; ++i) {
+			result += "0123456789ABCDEF"[m_buffer[i] >> 4];
+			result += "0123456789ABCDEF"[m_buffer[i] & 0x0F];
+		}
+	}
+	return result;
+}
+
 const std::size_t& Buffer::Length() const {
 	return m_length;
 }

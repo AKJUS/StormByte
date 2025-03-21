@@ -2,7 +2,7 @@
 
 #include <StormByte/visibility.h>
 
-#include <cstddef>
+#include <string>
 
 /**
  * @namespace Util
@@ -75,6 +75,12 @@ namespace StormByte::Util {
 			 * @return stored value
 			 */
 			const char* 										Data() const;
+
+			/**
+			 * Retrieves the stored value as a hexadecimal string
+			 * @return stored value as a hexadecimal string
+			 */
+			std::string 										HexData() const;
 
 			/**
 			 * Retrieves the length of the buffer
