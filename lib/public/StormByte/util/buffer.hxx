@@ -34,78 +34,78 @@ namespace StormByte::Util {
 			};
 
 			/**
-			 * Default constructor
+			 * @brief Default constructor
 			 */
 			inline Buffer() noexcept: m_data(), m_position(0) {};
 
 			/**
-			 * Constructor reserving initial size
+			 * @brief Constructor reserving initial size
 			 * @param size size of the buffer
 			 */
 			inline Buffer(const std::size_t& size): m_data(size), m_position(0) {};
 
 			/**
-			 * Constructor
+			 * @brief Constructor
 			 * @param data data to set
 			 * @param length length of the data
 			 */
 			Buffer(const char* data, const std::size_t& length);
 
 			/**
-			 * Constructor
+			 * @brief Constructor
 			 * @param data data to set
 			 */
 			Buffer(const std::string& data);
 
 			/**
-			 * Constructor
+			 * @brief Constructor
 			 * @param data data to set
 			 */
 			Buffer(const DataType& data);
 
 			/**
-			 * Constructor
+			 * @brief Constructor
 			 * @param data data to set
 			 */
 			Buffer(DataType&& data);
 
 			/**
-			 * Constructor
+			 * @brief Constructor
 			 * @param data data to set
 			 */
 			Buffer(const std::span<const Byte>& data);
 
 			/**
-			 * Copy constructor
+			 * @brief Copy constructor
 			 * @param value value to set
 			 */
 			Buffer(const Buffer& other)											= default;
 
 			/**
-			 * Move constructor
+			 * @brief Move constructor
 			 * @param value value to set
 			 */
 			Buffer(Buffer&& other) noexcept										= default;
 
 			/**
-			 * Copy assignment operator
+			 * @brief Copy assignment operator
 			 * @param value value to set
 			 */
 			Buffer& operator=(const Buffer& other)								= default;
 
 			/**
-			 * Move assignment operator
+			 * @brief Move assignment operator
 			 * @param value value to set
 			 */
 			Buffer& operator=(Buffer&& other) noexcept							= default;
 
 			/**
-			 * Destructor
+			 * @brief Destructor
 			 */
 			~Buffer() noexcept													= default;
 
 			/**
-			 * Checks if two buffer are equal
+			 * @brief Checks if two buffer are equal
 			 * @param other buffer to compare
 			 * @return true if buffers are equal
 			 */
@@ -114,7 +114,7 @@ namespace StormByte::Util {
 			}
 
 			/**
-			 * Checks if two buffer are not equal
+			 * @brief Checks if two buffer are not equal
 			 * @param other buffer to compare
 			 * @return true if buffers are not equal
 			 */
@@ -123,56 +123,56 @@ namespace StormByte::Util {
 			}
 
 			/**
-			 * Gets a buffer character at a specific index
+			 * @brief Gets a buffer character at a specific index
 			 * @param index index of the character
 			 * @return buffer character at the index
 			 */
 			StormByte::Expected<const Byte&, BufferOverflow>					operator[](const std::size_t& index) const;
 
 			/**
-			 * Appends a buffer to the current buffer
+			 * @brief Appends a buffer to the current buffer
 			 * @param other buffer to append
 			 * @return new buffer
 			 */
 			Buffer&																operator<<(const Buffer& buffer);
 
 			/**
-			 * Moves a buffer and appends to the current buffer
+			 * @brief Moves a buffer and appends to the current buffer
 			 * @param other buffer to append
 			 * @return new buffer
 			 */
 			Buffer&																operator<<(Buffer&& buffer);
 
 			/**
-			 * Appends a string to the current buffer
+			 * @brief Appends a string to the current buffer
 			 * @param data byte to append
 			 * @return new buffer
 			 */
 			Buffer&																operator<<(const std::string& data);
 
 			/**
-			 * Appends a byte vector to the current buffer
+			 * @brief Appends a byte vector to the current buffer
 			 * @param data byte vector to append
 			 * @return new buffer
 			 */
 			Buffer&																operator<<(const DataType& data);
 
 			/**
-			 * Moves a byte vector and appends to the current buffer
+			 * @brief Moves a byte vector and appends to the current buffer
 			 * @param data byte vector to append
 			 * @return new buffer
 			 */
 			Buffer&																operator<<(DataType&& data);
 
 			/**
-			 * Appends current buffer to target buffer
+			 * @brief Appends current buffer to target buffer
 			 * @param other buffer to append
 			 * @return new buffer
 			 */
 			Buffer&																operator>>(Buffer& buffer);
 
 			/**
-			 * Clears buffer
+			 * @brief Clears buffer
 			 */
 			constexpr void 														Clear() {
 				m_data.clear();
@@ -180,7 +180,7 @@ namespace StormByte::Util {
 			}
 
 			/**
-			 * Retrieves the stored value
+			 * @brief Retrieves the stored value
 			 * @return stored value
 			 */
 			inline const std::span<const Byte>									Data() const {
@@ -188,21 +188,14 @@ namespace StormByte::Util {
 			}
 
 			/**
-			 * Retrieves the stored value as a hexadecimal string
+			 * @brief Retrieves the stored value as a hexadecimal string
 			 * @param column_size size of the column
 			 * @return stored value as a hexadecimal string
 			 */
 			std::string 														HexData(const std::size_t& column_size = 16) const;
 
 			/**
-			 * Checks if buffer is empty
-			 */
-			constexpr bool														IsEmpty() const {
-				return m_data.empty();
-			}
-
-			/**
-			 * Retrieves the read position
+			 * @brief Retrieves the read position
 			 * @return read position
 			 */
 			constexpr std::size_t 												Position() const {
@@ -210,14 +203,14 @@ namespace StormByte::Util {
 			}
 
 			/**
-			 * Gets a buffer of a specific length since current read position
+			 * @brief Gets a buffer of a specific length since current read position
 			 * @param length length of the buffer
 			 * @return buffer of a specific length since current read position
 			 */
 			StormByte::Expected<std::span<const Byte>, BufferOverflow>			Read(const size_t& length) const;
 
 			/**
-			 * Reserves buffer size (if it is not empty, it will reserve extra space)
+			 * @brief Reserves buffer size (if it is not empty, it will reserve extra space)
 			 * @return length of the buffer to reserve
 			 */
 			constexpr void 														Reserve(const std::size_t& size) {
@@ -225,24 +218,32 @@ namespace StormByte::Util {
 			}
 
 			/**
-			 * Resets the read position
+			 * @brief Resets the read position
 			 */
 			constexpr void 														ResetPosition() const {
 				m_position = 0;
 			}
 
 			/**
-			 * Moves the read pointer without checking bounds
+			 * @brief Moves the read pointer without checking bounds
 			 * @param position position to move to
 			 */
 			void																Seek(const std::ptrdiff_t& position, const ReadPosition& mode) const;
 
 			/**
-			 * Retrieves the length of the buffer
+			 * @brief Retrieves the length of the buffer
 			 * @return length of the buffer
 			 */
 			constexpr std::size_t 												Size() const {
 				return m_data.size();
+			}
+
+			/**
+			 * @brief Checks if buffer is empty
+			 * @return true if buffer is empty
+			 */
+			constexpr bool 														Empty() const {
+				return m_data.empty();
 			}
 
 		private:
