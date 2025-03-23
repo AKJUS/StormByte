@@ -1,3 +1,7 @@
+Here’s the updated README with references to the Logger module:
+
+---
+
 # StormByte
 
 StormByte is a comprehensive, cross-platform C++ library aimed at easing system programming, configuration management, logging, and database handling tasks. This library provides a unified API that abstracts away the complexities and inconsistencies of different platforms (Windows, Linux).
@@ -6,9 +10,9 @@ StormByte is a comprehensive, cross-platform C++ library aimed at easing system 
 
 - **Configuration Management**: Provides an intuitive API for reading and writing configuration files.
 - **Database Handling**: Includes SQLite support for embedded database management while hiding SQLite3 internals conveniently.
-- **Logging**: Supports various logging levels and outputs, including file-based logging.
-- **Multimedia**: Includes a set of classes to work with multimedia files
-- **Network**: All the needed classes to handle network communication portable to Linux and Windows
+- **Logging**: Offers various logging levels, customizable formats, and supports outputs to files, streams, or other destinations.
+- **Multimedia**: Includes a set of classes to work with multimedia files.
+- **Network**: All the needed classes to handle network communication portable to Linux and Windows.
 - **System Operations**: Handles pipes, processes, and system variables seamlessly across different platforms.
 
 ## Table of Contents
@@ -19,7 +23,6 @@ StormByte is a comprehensive, cross-platform C++ library aimed at easing system 
 	- **Base**
 	- [Config](https://dev.stormbyte.org/StormByte-Config)
 	- [Database](https://dev.stormbyte.org/StormByte-Database)
-	- [Logger](https://dev.stormbyte.org/StormByte-Logger)
 	- [Multimedia](https://dev.stormbyte.org/StormByte-Multimedia)
 	- [Network](https://dev.stormbyte.org/StormByte-Network)
 	- [System](https://dev.stormbyte.org/StormByte-System)
@@ -58,7 +61,68 @@ StormByte Library is composed by several modules:
 
 ### Base
 
-Base component is the most basic part of the library containing only templates, string helpers and base exception framework
+Base component is the most basic part of the library containing only templates, string helpers, and base exception framework.
+
+---
+
+### Logger
+
+#### Overview
+
+The `Logger` module provides robust logging functionalities with support for multiple log levels, customizable formats, and output redirection to various targets. Whether you need basic console logging or advanced logging to files, the `Logger` module is designed for flexibility and ease of use.
+
+#### Features
+- **Log Levels**: Includes levels such as `Info`, `Debug`, `Warning`, `Error`, and `Fatal`.
+- **Custom Formats**: Allows customization of log headers with placeholders like `%T` for timestamps and `%L` for log levels.
+- **Output Targets**: Supports logging to `std::ostream` or any custom output stream.
+- **Thread Safety**: Ensures logs are safely written even in multithreaded applications.
+
+#### Example Usage
+
+##### Basic Logging
+```cpp
+#include <StormByte/logger/log.hxx>
+#include <iostream>
+
+using namespace StormByte::Logger;
+
+int main() {
+    Log logger(std::cout, Level::Info, "%T %L: ");
+    logger << Level::Info << "This is an info message." << std::endl;
+    logger << Level::Error << "An error occurred." << std::endl;
+    return 0;
+}
+```
+
+##### Redirecting Logs to a File
+```cpp
+#include <StormByte/logger/log.hxx>
+#include <fstream>
+
+using namespace StormByte::Logger;
+
+int main() {
+    std::ofstream file("log.txt");
+    Log logger(file, Level::Debug, "%L %T: ");
+    logger << Level::Debug << "Debugging information." << std::endl;
+    logger << Level::Fatal << "Critical error!" << std::endl;
+    return 0;
+}
+```
+
+##### Using Custom Formats
+```cpp
+#include <StormByte/logger/log.hxx>
+#include <iostream>
+
+using namespace StormByte::Logger;
+
+int main() {
+    Log logger(std::cout, Level::Info, "[%L]: ");
+    logger << Level::Notice << "Notice message." << std::endl;
+    return 0;
+}
+```
 
 ### Serializable
 
@@ -117,71 +181,6 @@ int main() {
 	if (deserialized) {
 		MyStruct deserializedStruct = deserialized.value();
 		std::cout << "Deserialized data: a = " << deserializedStruct.a << ", b = " << deserializedStruct.b << std::endl;
-	} else {
-		std::cerr << "Deserialization failed: " << deserialized.error().what() << std::endl;
-	}
-
-	return 0;
-}
-```
-
-#### Example Usage with Standard Library Type
-
-```cpp
-#include <StormByte/util/serializable.hxx>
-#include <iostream>
-#include <string>
-
-using namespace StormByte::Util;
-
-int main() {
-	std::string myString = "Hello, StormByte!";
-	Serializable<std::string> serializable(myString);
-
-	// Serialize
-	Buffer buffer = serializable.Serialize();
-	std::cout << "Serialized data: " << buffer.HexData() << std::endl;
-
-	// Deserialize
-	auto deserialized = Serializable<std::string>::Deserialize(buffer);
-	if (deserialized) {
-		std::string deserializedString = deserialized.value();
-		std::cout << "Deserialized data: " << deserializedString << std::endl;
-	} else {
-		std::cerr << "Deserialization failed: " << deserialized.error().what() << std::endl;
-	}
-
-	return 0;
-}
-```
-
-#### Example Usage with Container
-
-```cpp
-#include <StormByte/util/serializable.hxx>
-#include <iostream>
-#include <vector>
-#include <string>
-
-using namespace StormByte::Util;
-
-int main() {
-	std::vector<std::string> myVector = {"Hello", "StormByte", "Library"};
-	Serializable<std::vector<std::string>> serializable(myVector);
-
-	// Serialize
-	Buffer buffer = serializable.Serialize();
-	std::cout << "Serialized data: " << buffer.HexData() << std::endl;
-
-	// Deserialize
-	auto deserialized = Serializable<std::vector<std::string>>::Deserialize(buffer);
-	if (deserialized) {
-		std::vector<std::string> deserializedVector = deserialized.value();
-		std::cout << "Deserialized data: ";
-		for (const auto& str : deserializedVector) {
-			std::cout << str << " ";
-		}
-		std::cout << std::endl;
 	} else {
 		std::cerr << "Deserialization failed: " << deserialized.error().what() << std::endl;
 	}

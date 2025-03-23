@@ -19,4 +19,8 @@ if(ENABLE_TEST AND NOT STORMBYTE_AS_DEPENDENCY)
 	add_executable(SerializationTests serialization_test.cxx)
 	target_link_libraries(SerializationTests StormByte)
 	add_test(NAME SerializationTests COMMAND SerializationTests)
+
+	add_executable(LoggerTests logger_test.cxx)
+	target_link_libraries(LoggerTests StormByte)
+	add_test(NAME LoggerTests COMMAND LoggerTests)
 endif()
