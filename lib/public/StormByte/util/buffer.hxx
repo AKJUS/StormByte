@@ -183,8 +183,16 @@ namespace StormByte::Util {
 			 * @brief Retrieves the stored value
 			 * @return stored value
 			 */
-			inline const std::span<const Byte>									Data() const {
-				return std::span<const Byte>(m_data);
+			inline const std::span<const Byte>									Data() const noexcept {
+				return std::span<const Byte>(m_data.data(), m_data.size());
+			}
+
+			/**
+			 * @brief Retrieves the stored value
+			 * @return stored value
+			 */
+			inline std::span<Byte>												Data() noexcept {
+				return std::span<Byte>(m_data.data(), m_data.size());
 			}
 
 			/**
