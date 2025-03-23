@@ -105,15 +105,15 @@ StormByte::Expected<std::span<const Buffer::Byte>, BufferOverflow> Buffer::Read(
 }
 
 void Buffer::Seek(const std::ptrdiff_t& position, const ReadPosition& mode) const {
-	if (mode & Begin)
+	if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(ReadPosition::Begin))
 		m_position = static_cast<std::size_t>(std::max<ptrdiff_t>(0, position));
 
-	if (mode & End)
+	if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(ReadPosition::End))
 		m_position = static_cast<std::size_t>(std::max<ptrdiff_t>(0, static_cast<ptrdiff_t>(m_data.size()) + position));
 
-	if (mode & Relative)
+	if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(ReadPosition::Relative))
 		m_position = static_cast<std::size_t>(std::max<ptrdiff_t>(0, static_cast<ptrdiff_t>(m_position) + position));
 
-	if (mode & Absolute)
+	if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(ReadPosition::Absolute))
 		m_position = static_cast<std::size_t>(std::max<ptrdiff_t>(0, position));
 }

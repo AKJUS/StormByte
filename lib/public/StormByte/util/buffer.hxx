@@ -19,14 +19,14 @@ namespace StormByte::Util {
 	 */
 	class STORMBYTE_PUBLIC Buffer {
 		public:
-			using Byte 		= std::byte;										///< The type of the byte.
-			using DataType 	= std::vector<Byte>;								///< The type of the data stored in the buffer.
+			using Byte 		= std::byte;													///< The type of the byte.
+			using DataType 	= std::vector<Byte>;											///< The type of the data stored in the buffer.
 
 			/**
 			 * @enum ReadPosition
 			 * @brief The enumeration to define the read position.
 			 */
-			enum ReadPosition: unsigned char {
+			enum class ReadPosition: unsigned short {
 				Begin 		= 0x01,															///< The read position is at the beginning of the buffer.
 				End			= 0x02,															///< The read position is at the end of the buffer.
 				Relative	= 0x04,															///< The read position is relative to the current position.
@@ -234,7 +234,7 @@ namespace StormByte::Util {
 			 * @brief Retrieves the length of the buffer
 			 * @return length of the buffer
 			 */
-			constexpr std::size_t 												Size() const {
+			constexpr std::size_t 												Size() const noexcept {
 				return m_data.size();
 			}
 
@@ -242,8 +242,16 @@ namespace StormByte::Util {
 			 * @brief Checks if buffer is empty
 			 * @return true if buffer is empty
 			 */
-			constexpr bool 														Empty() const {
+			constexpr bool 														Empty() const noexcept {
 				return m_data.empty();
+			}
+
+			/**
+			 * @brief Checks if the read position is at the end
+			 * @return true if the read position is at the end
+			 */
+			constexpr bool 														End() const noexcept {
+				return m_position == m_data.size();
 			}
 
 		private:
