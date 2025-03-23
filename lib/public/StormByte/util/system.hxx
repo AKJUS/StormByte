@@ -26,5 +26,11 @@ namespace StormByte::Util {
 		 * @return current path
 		 */
 		static std::filesystem::path	CurrentPath();
+
+		/**
+		 * Sleeps for a specific time
+		 * @param seconds time to sleep in microseconds
+		 */
+		static void 					Sleep(const std::size_t& useconds);
 	};
 }

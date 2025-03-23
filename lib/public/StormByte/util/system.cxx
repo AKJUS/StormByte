@@ -10,6 +10,9 @@
 #define MAX_PATH 256
 #endif
 
+#include <thread>
+#include <chrono>
+
 using namespace StormByte::Util;
 
 std::filesystem::path System::TempFileName(const std::string& prefix) {
@@ -56,4 +59,8 @@ std::filesystem::path System::CurrentPath() {
 	}
 #endif
 	return "NOPATH";
+}
+
+void System::Sleep(const std::size_t& useconds) {
+	std::this_thread::sleep_for(std::chrono::microseconds(useconds));
 }
