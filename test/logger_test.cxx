@@ -9,7 +9,7 @@ using namespace StormByte::Logger;
 // Function to test basic logging at different levels
 int test_basic_logging() {
     std::ostringstream output;
-    Log log(output, Level::Debug, "%L: ");
+    Log log(output, Level::Debug, "%L:");
 
     log << Level::Info << "Info message";
     log << Level::Debug << "Debug message";
@@ -23,7 +23,7 @@ int test_basic_logging() {
 // Function to test log level filtering
 int test_log_level_filtering() {
     std::ostringstream output;
-    Log log(output, Level::Error, "%L: ");
+    Log log(output, Level::Error, "%L:");
 
     log << Level::Info << "Info message";
     log << Level::Warning << "Warning message";
@@ -37,7 +37,7 @@ int test_log_level_filtering() {
 // Test several data logging
 int test_log_data() {
     std::ostringstream output;
-    Log log(output, Level::Info, "%L: ");
+    Log log(output, Level::Info, "%L:");
 
     int i = 42;
     bool b = true;
@@ -52,7 +52,7 @@ int test_log_data() {
 
 // Test log to stdout
 int log_to_stdout() {
-    Log log(std::cout, Level::Info, "%L: ");
+    Log log(std::cout, Level::Info, "%L:");
     log << Level::Info << "Info message";
     log << Level::Debug << "Debug message";
     log << Level::Error << "Error message";
@@ -62,7 +62,7 @@ int log_to_stdout() {
 
 int log_as_shared_ptr() {
     std::ostringstream output;
-    std::shared_ptr<Log> log = std::make_shared<Log>(output, Level::Debug, "%L: ");
+    std::shared_ptr<Log> log = std::make_shared<Log>(output, Level::Debug, "%L:");
 
     log << Level::Info << "Info message";
     log << Level::Debug << "Debug message";
@@ -75,7 +75,7 @@ int log_as_shared_ptr() {
 
 int test_log_with_std_endl() {
     std::ostringstream output;
-    Log log(output, Level::Debug, "%L: ");
+    Log log(output, Level::Debug, "%L:");
 
     log << Level::Info << "Info message" << std::endl;
     log << Level::Debug << "Debug message" << std::endl;
@@ -88,7 +88,7 @@ int test_log_with_std_endl() {
 
 int test_log_unique_ptr_with_std_endl() {
     std::ostringstream output;
-    std::unique_ptr<Log> log = std::make_unique<Log>(output, Level::Debug, "%L: ");
+    std::unique_ptr<Log> log = std::make_unique<Log>(output, Level::Debug, "%L:");
 
     log << Level::Info << "Info message" << std::endl;
     log << Level::Debug << "Debug message" << std::endl;

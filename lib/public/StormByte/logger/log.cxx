@@ -65,6 +65,7 @@ void Log::print_header() const noexcept {
                 break;
         }
     }
+	m_out << " ";
 }
 
 void Log::print_message(const std::string& message) noexcept {
