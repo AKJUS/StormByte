@@ -41,7 +41,7 @@ void Log::print_time() const noexcept {
 }
 
 void Log::print_level() const noexcept {
-    constexpr std::size_t fixed_width = 9; // Set a fixed width for all level strings
+    constexpr std::size_t fixed_width = 8; // Set a fixed width for all level strings
     const std::string level_str = LevelToString(m_current_level);
     
     // Pad the level string with spaces to match the fixed width
