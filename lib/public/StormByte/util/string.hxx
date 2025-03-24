@@ -84,7 +84,6 @@ namespace StormByte::Util::String {
 	 */
 	STORMBYTE_PUBLIC std::string											HumanReadableByteSize(const uint64_t& bytes) noexcept;
 
-	#ifdef WINDOWS
 	/**
 	 * @brief Converts a wide string to a string
 	 * @param ws wide string
@@ -98,7 +97,6 @@ namespace StormByte::Util::String {
 	 * @return wide string
 	 */
 	STORMBYTE_PUBLIC std::wstring											UTF8Decode(const std::string& s);
-	#endif
 
 	/**
 	 * @brief Sanitizes newlines in a string

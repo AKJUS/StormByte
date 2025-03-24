@@ -77,3 +77,34 @@ void Log::print_message(const std::string& message) noexcept {
 		m_out << message;
 	}
 }
+
+namespace StormByte::Logger {
+	// Explicit instantiation for normalized (decayed) types
+	template STORMBYTE_PUBLIC Log& Log::operator<<<bool>(const bool& value) noexcept;
+
+	// Numeric types
+	template STORMBYTE_PUBLIC Log& Log::operator<<<short>(const short& value) noexcept;
+	template STORMBYTE_PUBLIC Log& Log::operator<<<unsigned short>(const unsigned short& value) noexcept;
+	template STORMBYTE_PUBLIC Log& Log::operator<<<int>(const int& value) noexcept;
+	template STORMBYTE_PUBLIC Log& Log::operator<<<unsigned int>(const unsigned int& value) noexcept;
+	template STORMBYTE_PUBLIC Log& Log::operator<<<long>(const long& value) noexcept;
+	template STORMBYTE_PUBLIC Log& Log::operator<<<unsigned long>(const unsigned long& value) noexcept;
+	template STORMBYTE_PUBLIC Log& Log::operator<<<long long>(const long long& value) noexcept;
+	template STORMBYTE_PUBLIC Log& Log::operator<<<unsigned long long>(const unsigned long long& value) noexcept;
+
+	// Floating-point types
+	template STORMBYTE_PUBLIC Log& Log::operator<<<float>(const float& value) noexcept;
+	template STORMBYTE_PUBLIC Log& Log::operator<<<double>(const double& value) noexcept;
+	template STORMBYTE_PUBLIC Log& Log::operator<<<long double>(const long double& value) noexcept;
+
+	// Character types
+	template STORMBYTE_PUBLIC Log& Log::operator<<<char>(const char& value) noexcept;
+	template STORMBYTE_PUBLIC Log& Log::operator<<<unsigned char>(const unsigned char& value) noexcept;
+	template STORMBYTE_PUBLIC Log& Log::operator<<<wchar_t>(const wchar_t& value) noexcept;
+
+	// String types
+	template STORMBYTE_PUBLIC Log& Log::operator<<<std::string>(const std::string& value) noexcept;
+	template STORMBYTE_PUBLIC Log& Log::operator<<<std::wstring>(const std::wstring& value) noexcept;
+	template STORMBYTE_PUBLIC Log& Log::operator<<<const char*>(const char* const& value) noexcept;
+	template STORMBYTE_PUBLIC Log& Log::operator<<<const wchar_t*>(const wchar_t* const& value) noexcept;
+}
