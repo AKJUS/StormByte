@@ -21,6 +21,9 @@ mark_as_advanced(STORMBYTE_LIBRARY)
 # List of all known components
 set(_available_components Config Database Multimedia Network System)
 
+# Transitive dependencies
+# Empty for now
+
 # Use StormByte_FIND_COMPONENTS to determine requested components
 if (DEFINED StormByte_FIND_COMPONENTS)
     set(_requested_components "${StormByte_FIND_COMPONENTS}")
