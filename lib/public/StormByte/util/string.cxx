@@ -124,19 +124,13 @@ std::string String::SanitizeNewlines(const std::string& str) noexcept {
 }
 
 namespace StormByte::Util {
-	// Explicit instantiations of HumanReadable for integral types
 	template std::string String::HumanReadable<int>(const int&, const Format&, const std::string&) noexcept;
 	template std::string String::HumanReadable<unsigned int>(const unsigned int&, const Format&, const std::string&) noexcept;
 	template std::string String::HumanReadable<long>(const long&, const Format&, const std::string&) noexcept;
 	template std::string String::HumanReadable<unsigned long>(const unsigned long&, const Format&, const std::string&) noexcept;
 	template std::string String::HumanReadable<long long>(const long long&, const Format&, const std::string&) noexcept;
 	template std::string String::HumanReadable<unsigned long long>(const unsigned long long&, const Format&, const std::string&) noexcept;
-	template std::string String::HumanReadable<short>(const short&, const Format&, const std::string&) noexcept;
-	template std::string String::HumanReadable<unsigned short>(const unsigned short&, const Format&, const std::string&) noexcept;
-
-	// Explicit instantiations of HumanReadable for floating-point types
 	template std::string String::HumanReadable<float>(const float&, const Format&, const std::string&) noexcept;
 	template std::string String::HumanReadable<double>(const double&, const Format&, const std::string&) noexcept;
 	template std::string String::HumanReadable<long double>(const long double&, const Format&, const std::string&) noexcept;
-
-} // namespace StormByte::Util
+}

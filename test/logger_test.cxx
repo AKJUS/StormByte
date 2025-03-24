@@ -99,6 +99,63 @@ int test_log_unique_ptr_with_std_endl() {
     RETURN_TEST("test_log_unique_and_shared_ptr_with_std_endl", 0);
 }
 
+int test_humanreadable_number() {
+    std::ostringstream output;
+    Log log(output, Level::Info, "%L:");
+
+    log << humanreadable_number << Level::Info << 1000;
+
+    std::string expected = "Info    : 1,000"; // Assuming the locale uses commas for thousands
+    ASSERT_EQUAL("test_humanreadable_number", expected, output.str());
+    RETURN_TEST("test_humanreadable_number", 0);
+}
+
+// Test enabling human-readable bytes formatting
+int test_humanreadable_bytes() {
+    std::ostringstream output;
+    Log log(output, Level::Info, "%L:");
+
+    log << humanreadable_bytes << Level::Info << 10240;
+
+    std::string expected = "Info    : 10 KiB"; // Example: 10240 bytes = 10 KiB
+    ASSERT_EQUAL("test_humanreadable_bytes", expected, output.str());
+    RETURN_TEST("test_humanreadable_bytes", 0);
+}
+
+// Test disabling human-readable formatting
+int test_nohumanreadable() {
+    std::ostringstream output;
+    Log log(output, Level::Info, "%L:");
+
+    log << Level::Info << humanreadable_number << 1000 << " " << nohumanreadable << 1000;
+
+    std::string expected = "Info    : 1,000 1000"; // First is formatted, second is raw
+    ASSERT_EQUAL("test_nohumanreadable", expected, output.str());
+    RETURN_TEST("test_nohumanreadable", 0);
+}
+
+int test_humanreadable_enable_and_disable() {
+    std::ostringstream output;
+    Log log(output, Level::Info, "%L:");
+
+    // Enable human-readable number formatting
+    log << Level::Info << humanreadable_number << 1000;
+    std::string expected_enable = "Info    : 1,000"; // Human-readable with thousand separator
+    ASSERT_EQUAL("test_humanreadable_enable_and_disable (enable)", expected_enable, output.str());
+	log << std::endl; // Force line termination
+
+    // Clear the stream for the next test
+    output.str("");
+    output.clear();
+
+    // Disable human-readable formatting (Raw output)
+    log << Level::Info << nohumanreadable << 1000;
+    std::string expected_disable = "Info    : 1000"; // Raw format, no thousand separator
+    ASSERT_EQUAL("test_humanreadable_enable_and_disable (disable)", expected_disable, output.str());
+
+    RETURN_TEST("test_humanreadable_enable_and_disable", 0);
+}
+
 int main() {
     int result = 0;
 
@@ -109,6 +166,10 @@ int main() {
     result += log_as_shared_ptr();
     result += test_log_with_std_endl();
     result += test_log_unique_ptr_with_std_endl();
+	result += test_humanreadable_number();
+	result += test_humanreadable_bytes();
+	result += test_nohumanreadable();
+	result += test_humanreadable_enable_and_disable();
 
     if (result == 0) {
         std::cout << "All tests passed!" << std::endl;

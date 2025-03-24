@@ -100,8 +100,8 @@ namespace StormByte::Util {
 		 * @tparam T number type
 		 * @return string
 		 */
-		template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<std::decay_t<T>>>>
-		static std::string 											HumanReadable(const std::decay_t<T>& number, const Format& format, const std::string& locale = "en_US.UTF-8") noexcept {
+		template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T> && !std::is_same_v<T, wchar_t>>>
+		static std::string HumanReadable(const T& number, const Format& format, const std::string& locale = "en_US.UTF-8") noexcept {
 			switch(format) {
 				case Format::Raw:
 					return std::to_string(number);
@@ -193,8 +193,8 @@ namespace StormByte::Util {
 				}
 			}		
 		
-			template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-			static std::string 										HumanReadableNumber(const T& number, const std::string& locale) noexcept {
+			template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T> && !std::is_same_v<T, wchar_t>>>
+			static std::string HumanReadableNumber(const T& number, const std::string& locale) noexcept {
 				try {
 					std::ostringstream oss;
 
