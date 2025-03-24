@@ -64,16 +64,16 @@ namespace StormByte::Logger {
 			 */
 			template <typename T> Log& 											operator<<(const T& value) noexcept {
 				if constexpr (std::is_same_v<T, bool>) {
-					// For bool, output "true" or "false"
+					// Handle booleans
 					print_message(value ? "true" : "false");
 				} else if constexpr (std::is_integral_v<T> || std::is_floating_point_v<T>) {
-					// For numeric types, use std::to_string
+					// Handle numbers
 					print_message(std::to_string(value));
-				} else if constexpr (std::is_same_v<T, const char*> || std::is_array_v<T>) {
-					// For C-style strings or string literals, pass directly
-					print_message(value);
+				} else if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, const char*> || std::is_array_v<T>) {
+					// Handle std::string, C-style strings, and string literals
+					print_message(std::string(value)); // Convert char[] to std::string
 				} else {
-					// Unsupported type
+					// Unsupported types trigger the static_assert
 					static_assert(!std::is_same_v<T, T>, "Unsupported type for Log::operator<<");
 				}
 				return *this;
