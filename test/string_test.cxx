@@ -73,7 +73,7 @@ int test_temp_path() {
 
 int test_human_readable_byte_size() {
     int result = 0;
-    constexpr const std::string locale = "en_US.UTF-8";
+    const std::string locale = "en_US.UTF-8"; // Can't be a constexpr or gcc complains
     try {
         // Explicitly specify the type of T
         std::string size = StormByte::Util::String::HumanReadable<uint64_t>(1024, StormByte::Util::String::Format::HumanReadableBytes, locale);
