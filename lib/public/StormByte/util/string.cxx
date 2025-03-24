@@ -72,18 +72,6 @@ StormByte::Expected<std::pair<int, int>, StormByte::Exception> String::SplitFrac
 	}
 }
 
-std::string String::HumanReadableByteSize(const uint64_t& bytes) noexcept {
-	constexpr uint64_t KB = 1024;
-	constexpr uint64_t MB = KB * 1024;
-	constexpr uint64_t GB = MB * 1024;
-
-	if (bytes >= GB) return std::format("{:.2f} GiB", static_cast<double>(bytes) / GB);
-	if (bytes >= MB) return std::format("{:.2f} MiB", static_cast<double>(bytes) / MB);
-	if (bytes >= KB) return std::format("{:.2f} KiB", static_cast<double>(bytes) / KB);
-	return std::format("{} Bytes", bytes);
-}
-
-
 std::string String::ToLower(const std::string& str) noexcept {
 	std::string result = str;
 	std::transform(result.begin(), result.end(), result.begin(), ::tolower);
@@ -134,3 +122,21 @@ std::string String::SanitizeNewlines(const std::string& str) noexcept {
 	std::string result = str;
 	return std::regex_replace(str, std::regex("\r\n"), "\n");
 }
+
+namespace StormByte::Util {
+	// Explicit instantiations of HumanReadable for integral types
+	template std::string String::HumanReadable<int>(const int&, const Format&, const std::string&) noexcept;
+	template std::string String::HumanReadable<unsigned int>(const unsigned int&, const Format&, const std::string&) noexcept;
+	template std::string String::HumanReadable<long>(const long&, const Format&, const std::string&) noexcept;
+	template std::string String::HumanReadable<unsigned long>(const unsigned long&, const Format&, const std::string&) noexcept;
+	template std::string String::HumanReadable<long long>(const long long&, const Format&, const std::string&) noexcept;
+	template std::string String::HumanReadable<unsigned long long>(const unsigned long long&, const Format&, const std::string&) noexcept;
+	template std::string String::HumanReadable<short>(const short&, const Format&, const std::string&) noexcept;
+	template std::string String::HumanReadable<unsigned short>(const unsigned short&, const Format&, const std::string&) noexcept;
+
+	// Explicit instantiations of HumanReadable for floating-point types
+	template std::string String::HumanReadable<float>(const float&, const Format&, const std::string&) noexcept;
+	template std::string String::HumanReadable<double>(const double&, const Format&, const std::string&) noexcept;
+	template std::string String::HumanReadable<long double>(const long double&, const Format&, const std::string&) noexcept;
+
+} // namespace StormByte::Util

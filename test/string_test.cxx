@@ -71,6 +71,53 @@ int test_temp_path() {
 	RETURN_TEST("test_temp_path", result);
 }
 
+int test_human_readable_byte_size() {
+    int result = 0;
+    constexpr const std::string locale = "en_US.UTF-8";
+    try {
+        // Explicitly specify the type of T
+        std::string size = StormByte::Util::String::HumanReadable<uint64_t>(1024, StormByte::Util::String::Format::HumanReadableBytes, locale);
+        ASSERT_EQUAL("test_human_readable_byte_size", "1 KiB", size);
+
+        size = StormByte::Util::String::HumanReadable<uint64_t>(1024ULL * 1024, StormByte::Util::String::Format::HumanReadableBytes, locale);
+        ASSERT_EQUAL("test_human_readable_byte_size", "1 MiB", size);
+
+        size = StormByte::Util::String::HumanReadable<uint64_t>(1024ULL * 1024 * 1024, StormByte::Util::String::Format::HumanReadableBytes, locale);
+        ASSERT_EQUAL("test_human_readable_byte_size", "1 GiB", size);
+
+        size = StormByte::Util::String::HumanReadable<uint64_t>(1024ULL * 1024 * 1024 * 1024, StormByte::Util::String::Format::HumanReadableBytes, locale);
+        ASSERT_EQUAL("test_human_readable_byte_size", "1 TiB", size);
+
+        size = StormByte::Util::String::HumanReadable<uint64_t>(1024ULL * 1024 * 1024 * 1024 * 1024, StormByte::Util::String::Format::HumanReadableBytes, locale);
+        ASSERT_EQUAL("test_human_readable_byte_size", "1 PiB", size);
+
+		size = StormByte::Util::String::HumanReadable<double>(1027.65, StormByte::Util::String::Format::HumanReadableBytes, locale);
+		ASSERT_EQUAL("test_human_readable_byte_size", "1 KiB", size);
+
+		size = StormByte::Util::String::HumanReadable<double>(1154.65, StormByte::Util::String::Format::HumanReadableBytes, locale);
+		ASSERT_EQUAL("test_human_readable_byte_size", "1.13 KiB", size);
+    } catch (const StormByte::Exception& ex) {
+        std::cerr << ex.what() << std::endl;
+        result++;
+    }
+    RETURN_TEST("test_human_readable_byte_size", result);
+}
+
+int test_human_readable_number() {
+	int result = 0;
+	try {
+		std::string number = StormByte::Util::String::HumanReadable<int>(1024, StormByte::Util::String::Format::HumanReadableNumber, "en_US.UTF-8");
+		ASSERT_EQUAL("test_human_readable_number", "1,024", number);
+
+		number = StormByte::Util::String::HumanReadable<int>(1024 * 1024, StormByte::Util::String::Format::HumanReadableNumber, "en_US.UTF-8");
+		ASSERT_EQUAL("test_human_readable_number", "1,048,576", number);
+	} catch (const StormByte::Exception& ex) {
+		std::cerr << ex.what() << std::endl;
+		result++;
+	}
+	RETURN_TEST("test_human_readable_number", result);
+}
+
 int main() {
     int result = 0;
     try {
@@ -78,6 +125,9 @@ int main() {
 		result += test_path_explode();
 		result += test_explode_one_item();
 		result += test_temp_path();
+		result += test_human_readable_byte_size();
+		result += test_human_readable_number();
+
     } catch (const StormByte::Exception& ex) {
         std::cerr << ex.what() << std::endl;
         result++;

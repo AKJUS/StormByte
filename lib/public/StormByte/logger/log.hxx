@@ -15,7 +15,7 @@ namespace StormByte::Logger {
 	 * @class Log
 	 * @brief Log class
 	 */
-	class STORMBYTE_PUBLIC Log {
+	class STORMBYTE_PUBLIC Log final {
 		public:
 			/**
 			 * Constructor
@@ -48,7 +48,7 @@ namespace StormByte::Logger {
 			/**
 			 * Destructor
 			 */
-			virtual ~Log() noexcept												= default;
+			~Log() noexcept														= default;
 
 			/**
 			 * Sets the current log level
@@ -90,7 +90,14 @@ namespace StormByte::Logger {
 			// Overload for manipulators like std::endl
 			Log& 																operator<<(std::ostream& (*manip)(std::ostream&)) noexcept;
 
-		protected:
+		private:
+			std::ostream& m_out;
+			Level m_print_level;												///< Print level
+			Level m_current_level;												///< Current level
+			bool m_line_started;												///< Line started
+			const std::string m_format;											///< Custom user format %L for Level and %T for Time
+			bool m_human_readable; 												///< Human readable size
+
 			/**
 			 * Prints the time
 			 */
@@ -110,29 +117,6 @@ namespace StormByte::Logger {
 			 * @param message message
 			 */
 			void 																print_message(const std::string& message) noexcept;
-
-			/**
-			 * Output stream
-			 */
-			std::ostream& m_out;
-
-			/**
-			 * Print level and current level
-			 */
-			Level m_print_level;												///< Print level
-			Level m_current_level;												///< Current level
-
-			/**
-			 * Line started
-			 */
-			bool m_line_started;												///< Line started
-			
-			/**
-			 * Custom user Format
-			 */
-			const std::string m_format;											///< Custom user format %L for Level and %T for Time
-
-			std::string 														ToUTF8(const std::wstring& wstr) const noexcept;
 	};
 
 	/**
