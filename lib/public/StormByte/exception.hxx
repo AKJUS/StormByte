@@ -135,4 +135,20 @@ namespace StormByte {
 			 */
 			using BufferException::BufferException;
 	};
+
+	/**
+	 * @class BufferNotReady
+	 * @brief Exception class for buffer not ready errors
+	 * 
+	 * Represents exceptions specifically caused by buffer not being ready for operations.
+	 * Inherits all functionality from `BufferException`.
+	 */
+	class STORMBYTE_PUBLIC BufferNotReady: public BufferException {
+		public:
+			/**
+			 * Constructor
+			 * @param reason Exception reason as `std::string`
+			 */
+			using BufferException::BufferException;
+	};
 }
