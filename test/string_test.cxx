@@ -1,13 +1,15 @@
 #include <StormByte/exception.hxx>
-#include <StormByte/util/string.hxx>
-#include <StormByte/util/system.hxx>
+#include <StormByte/string.hxx>
+#include <StormByte/system.hxx>
 #include <StormByte/test_handlers.h>
+
+using namespace StormByte::String;
 
 int test_simple_explode() {
 	int result = 0;
 	try {
 		std::string str = "Hello, World!";
-		std::queue<std::string> parts = StormByte::Util::String::Explode(str, ',');
+		std::queue<std::string> parts = Explode(str, ',');
 		ASSERT_EQUAL("test_simple_explode", 2, parts.size());
 		ASSERT_EQUAL("test_simple_explode", "Hello", parts.front());
 		parts.pop();
@@ -25,7 +27,7 @@ int test_path_explode() {
 	int result = 0;
 	try {
 		std::string str = "path/to/items";
-		std::queue<std::string> parts = StormByte::Util::String::Explode(str, '/');
+		std::queue<std::string> parts = Explode(str, '/');
 		ASSERT_EQUAL("test_path_explode", 3, parts.size());
 		ASSERT_EQUAL("test_path_explode", "path", parts.front());
 		parts.pop();
@@ -45,7 +47,7 @@ int test_explode_one_item() {
 	int result = 0;
 	try {
 		std::string str = "Hello";
-		std::queue<std::string> parts = StormByte::Util::String::Explode(str, '/');
+		std::queue<std::string> parts = Explode(str, '/');
 		ASSERT_EQUAL("test_explode_one_item", 1, parts.size());
 		ASSERT_EQUAL("test_explode_one_item", "Hello", parts.front());
 		parts.pop();
@@ -60,7 +62,7 @@ int test_explode_one_item() {
 int test_temp_path() {
 	int result = 0;
 	try {
-		const std::filesystem::path path = StormByte::Util::System::TempFileName("something");
+		const std::filesystem::path path = StormByte::System::TempFileName("something");
 		const bool exists = std::filesystem::exists(path);
 		std::remove(path.string().c_str());
 		ASSERT_TRUE("test_temp_path", exists);
@@ -76,25 +78,25 @@ int test_human_readable_byte_size() {
     const std::string locale = "en_US.UTF-8"; // Can't be a constexpr or gcc complains
     try {
         // Explicitly specify the type of T
-        std::string size = StormByte::Util::String::HumanReadable<uint64_t>(1024, StormByte::Util::String::Format::HumanReadableBytes, locale);
+        std::string size = HumanReadable<uint64_t>(1024, Format::HumanReadableBytes, locale);
         ASSERT_EQUAL("test_human_readable_byte_size", "1 KiB", size);
 
-        size = StormByte::Util::String::HumanReadable<uint64_t>(1024ULL * 1024, StormByte::Util::String::Format::HumanReadableBytes, locale);
+        size = HumanReadable<uint64_t>(1024ULL * 1024, Format::HumanReadableBytes, locale);
         ASSERT_EQUAL("test_human_readable_byte_size", "1 MiB", size);
 
-        size = StormByte::Util::String::HumanReadable<uint64_t>(1024ULL * 1024 * 1024, StormByte::Util::String::Format::HumanReadableBytes, locale);
+        size = HumanReadable<uint64_t>(1024ULL * 1024 * 1024, Format::HumanReadableBytes, locale);
         ASSERT_EQUAL("test_human_readable_byte_size", "1 GiB", size);
 
-        size = StormByte::Util::String::HumanReadable<uint64_t>(1024ULL * 1024 * 1024 * 1024, StormByte::Util::String::Format::HumanReadableBytes, locale);
+        size = HumanReadable<uint64_t>(1024ULL * 1024 * 1024 * 1024, Format::HumanReadableBytes, locale);
         ASSERT_EQUAL("test_human_readable_byte_size", "1 TiB", size);
 
-        size = StormByte::Util::String::HumanReadable<uint64_t>(1024ULL * 1024 * 1024 * 1024 * 1024, StormByte::Util::String::Format::HumanReadableBytes, locale);
+        size = HumanReadable<uint64_t>(1024ULL * 1024 * 1024 * 1024 * 1024, Format::HumanReadableBytes, locale);
         ASSERT_EQUAL("test_human_readable_byte_size", "1 PiB", size);
 
-		size = StormByte::Util::String::HumanReadable<double>(1027.65, StormByte::Util::String::Format::HumanReadableBytes, locale);
+		size = HumanReadable<double>(1027.65, Format::HumanReadableBytes, locale);
 		ASSERT_EQUAL("test_human_readable_byte_size", "1 KiB", size);
 
-		size = StormByte::Util::String::HumanReadable<double>(1154.65, StormByte::Util::String::Format::HumanReadableBytes, locale);
+		size = HumanReadable<double>(1154.65, Format::HumanReadableBytes, locale);
 		ASSERT_EQUAL("test_human_readable_byte_size", "1.13 KiB", size);
     } catch (const StormByte::Exception& ex) {
         std::cerr << ex.what() << std::endl;
@@ -106,10 +108,10 @@ int test_human_readable_byte_size() {
 int test_human_readable_number() {
 	int result = 0;
 	try {
-		std::string number = StormByte::Util::String::HumanReadable<int>(1024, StormByte::Util::String::Format::HumanReadableNumber, "en_US.UTF-8");
+		std::string number = HumanReadable<int>(1024, Format::HumanReadableNumber, "en_US.UTF-8");
 		ASSERT_EQUAL("test_human_readable_number", "1,024", number);
 
-		number = StormByte::Util::String::HumanReadable<int>(1024 * 1024, StormByte::Util::String::Format::HumanReadableNumber, "en_US.UTF-8");
+		number = HumanReadable<int>(1024 * 1024, Format::HumanReadableNumber, "en_US.UTF-8");
 		ASSERT_EQUAL("test_human_readable_number", "1,048,576", number);
 	} catch (const StormByte::Exception& ex) {
 		std::cerr << ex.what() << std::endl;

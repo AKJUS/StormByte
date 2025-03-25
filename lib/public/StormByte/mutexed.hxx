@@ -3,10 +3,10 @@
 #include <mutex>
 
 /**
- * @namespace Util
- * @brief Contains utility classes and functions.
+ * @namespace StormByte
+ * @brief Main namespace for the StormByte library and components
  */
-namespace StormByte::Util {
+namespace StormByte {
 	template<typename T>
 	class Mutexed {
 		public:
@@ -99,7 +99,7 @@ namespace StormByte::Util {
 			 * @param other other value to compare
 			 * @return strong ordering
 			 */
-			std::strong_ordering 						operator<=>(const Mutexed& other) const noexcept {
+			std::strong_ordering 											operator<=>(const Mutexed& other) const noexcept {
 				// Lock both mutexes for thread-safe comparison
 				std::lock_guard<std::mutex> lock_this(m_mutex);
 				std::lock_guard<std::mutex> lock_other(other.m_mutex);
@@ -119,7 +119,7 @@ namespace StormByte::Util {
 			 * @param other other value to compare
 			 * @return false if equal
 			 */
-			bool 										operator!=(const Mutexed& other) const noexcept {
+			bool 															operator!=(const Mutexed& other) const noexcept {
 				return operator<=>(other) != std::strong_ordering::equal;
 			}
 
@@ -127,7 +127,7 @@ namespace StormByte::Util {
 			 * Dereference operator (use with explicit locking)
 			 * @return value
 			 */
-			virtual T& 									operator*() noexcept {
+			virtual T& 														operator*() noexcept {
 				return m_value;
 			}
 
@@ -135,7 +135,7 @@ namespace StormByte::Util {
 			 * Dereference operator (use with explicit locking)
 			 * @return value
 			 */
-			virtual const T& 							operator*() const noexcept {
+			virtual const T& 												operator*() const noexcept {
 				return m_value;
 			}
 
@@ -143,7 +143,7 @@ namespace StormByte::Util {
 			 * Dereference operator (use with explicit locking)
 			 * @return value
 			 */
-			virtual T* 									operator->() noexcept {
+			virtual T* 														operator->() noexcept {
 				return &m_value;
 			}
 
@@ -151,26 +151,26 @@ namespace StormByte::Util {
 			 * Dereference operator (use with explicit locking)
 			 * @return value
 			 */
-			virtual const T* 							operator->() const noexcept {
+			virtual const T* 												operator->() const noexcept {
 				return &m_value;
 			}
 
 			/**
 			 * Locks the mutex
 			 */
-			void 										Lock() const {
+			void 															Lock() const {
 				m_mutex.lock();
 			}
 
 			/**
 			 * Unlocks the mutex
 			 */
-			void 										Unlock() const {
+			void 															Unlock() const {
 				m_mutex.unlock();
 			}
 
 		protected:
-			T 					m_value;				///< Value
-			mutable std::mutex 	m_mutex;				///< Mutex
+			T 					m_value;									///< Value
+			mutable std::mutex 	m_mutex;									///< Mutex
 	};
 }

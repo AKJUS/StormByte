@@ -3,8 +3,9 @@
 #include <StormByte/type_traits.hxx>
 
 #include <expected>
+#include <format>
 #include <memory>
-#include <functional> // For std::reference_wrapper
+#include <string>
 
 /**
  * @namespace StormByte
@@ -15,6 +16,10 @@ namespace StormByte {
 	 * @brief Expected type with support for reference types
 	 * @tparam T Expected type
 	 * @tparam E Error type
+	 * 
+	 * Defines an alias for `std::expected`, with special handling for reference types.
+	 * For reference types, the `std::reference_wrapper` ensures safe and efficient storage,
+	 * while the error type is managed using `std::shared_ptr` to support dynamic allocation.
 	 */
 	template <typename T, class E>
 	using Expected = std::conditional_t<
@@ -24,40 +29,62 @@ namespace StormByte {
 	>;
 
 	/**
-	 * @brief Creates an std::unexpected with a shared_ptr to the error
+	 * @brief Creates an `std::unexpected` with a shared pointer to the error
 	 * @tparam E Error type
 	 * @param error_ptr A shared pointer to the error
-	 * @return unexpected object
+	 * @return An `std::unexpected` object containing the shared pointer to the error
+	 * 
+	 * This overload is used when an existing `std::shared_ptr` to the error instance is available.
 	 */
 	template <typename E>
-	constexpr auto Unexpected(std::shared_ptr<E> error_ptr) {
+	auto Unexpected(std::shared_ptr<E> error_ptr) {
 		return std::unexpected<std::shared_ptr<E>>(std::move(error_ptr));
 	}
 
 	/**
-	 * @brief Creates an std::unexpected with a new error instance
+	 * @brief Creates an `std::unexpected` with a new error instance
 	 * @tparam E Error type
-	 * @param error Error instance
-	 * @return unexpected object
+	 * @param error Error instance to store
+	 * @return An `std::unexpected` object containing a shared pointer to the new error instance
+	 * 
+	 * This overload constructs a new error instance by forwarding the provided argument.
 	 */
 	template <typename E>
-	constexpr auto Unexpected(E&& error) {
+	auto Unexpected(E&& error) {
 		return std::unexpected<std::shared_ptr<std::decay_t<E>>>(
 			std::make_shared<std::decay_t<E>>(std::forward<E>(error))
 		);
 	}
 
 	/**
-	 * @brief Creates an std::unexpected with a new error instance, constructed with arguments
+	 * @brief Creates an `std::unexpected` with a formatted error message
 	 * @tparam E Error type
-	 * @tparam Args Constructor arguments types
-	 * @param args Constructor arguments for the error
-	 * @return unexpected object
+	 * @tparam Args Types of arguments to format the error message
+	 * @param fmt The format string
+	 * @param args Arguments to format the string
+	 * @return An `std::unexpected` object containing a shared pointer to the error
+	 * 
+	 * Dynamically formats the error message using `std::vformat` and constructs the error instance with the formatted message.
+	 * If no arguments are provided, it directly uses the format string as the error message.
 	 */
 	template <typename E, typename... Args>
-	constexpr auto Unexpected(Args&&... args) {
+	auto Unexpected(const std::string& fmt, Args&&... args) {
+		std::string formatted_message;
+
+		if constexpr (sizeof...(Args) == 0) {
+			// No arguments provided, use the format string directly
+			formatted_message = fmt;
+		} else {
+			// Create lvalue references for all arguments
+			auto format_args = std::make_format_args(args...);
+
+			// Use std::vformat for runtime formatting
+			formatted_message = std::vformat(fmt, format_args);
+		}
+
+		// Construct the error instance with the formatted message
 		return std::unexpected<std::shared_ptr<E>>(
-			std::make_shared<E>(std::forward<Args>(args)...)
+			std::make_shared<E>(std::move(formatted_message))
 		);
 	}
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <StormByte/expected.hxx>
-#include <StormByte/util/exception.hxx>
+#include <StormByte/exception.hxx>
 
 #include <cstddef>
 #include <string>
@@ -9,28 +9,30 @@
 #include <vector>
 
 /**
- * @namespace Util
- * @brief Contains utility classes and functions.
+ * @namespace StormByte
+ * @brief Main namespace for the StormByte library and components
  */
-namespace StormByte::Util {
+namespace StormByte {
 	/**
 	 * @class Buffer
 	 * @brief The class to store and manipulate byte buffers.
 	 */
 	class STORMBYTE_PUBLIC Buffer {
 		public:
-			using Byte 		= std::byte;													///< The type of the byte.
-			using DataType 	= std::vector<Byte>;											///< The type of the data stored in the buffer.
+			using Byte 		= std::byte;																///< The type of the byte.
+			using DataType 	= std::vector<Byte>;														///< The type of the data stored in the buffer.
+			using ExpectedConstByte = StormByte::Expected<const Byte&, BufferOverflow>;					///< The type of the expected byte.
+			using ExpectedConstByteSpan = StormByte::Expected<std::span<const Byte>, BufferOverflow>;	///< The type of the expected byte span.
 
 			/**
 			 * @enum ReadPosition
 			 * @brief The enumeration to define the read position.
 			 */
 			enum class ReadPosition: unsigned short {
-				Begin 		= 0x01,															///< The read position is at the beginning of the buffer.
-				End			= 0x02,															///< The read position is at the end of the buffer.
-				Relative	= 0x04,															///< The read position is relative to the current position.
-				Absolute	= 0x08															///< The read position is absolute.
+				Begin 		= 0x01,																		///< The read position is at the beginning of the buffer.
+				End			= 0x02,																		///< The read position is at the end of the buffer.
+				Relative	= 0x04,																		///< The read position is relative to the current position.
+				Absolute	= 0x08																		///< The read position is absolute.
 			};
 
 			/**
@@ -118,7 +120,7 @@ namespace StormByte::Util {
 			 * @param other buffer to compare
 			 * @return true if buffers are not equal
 			 */
-			inline bool operator!=(const Buffer& other) const {
+			inline bool 														operator!=(const Buffer& other) const {
 				return !(*this == other);
 			}
 
@@ -127,7 +129,7 @@ namespace StormByte::Util {
 			 * @param index index of the character
 			 * @return buffer character at the index
 			 */
-			StormByte::Expected<const Byte&, BufferOverflow>					operator[](const std::size_t& index) const;
+			ExpectedConstByte													operator[](const std::size_t& index) const;
 
 			/**
 			 * @brief Appends a buffer to the current buffer
@@ -215,7 +217,7 @@ namespace StormByte::Util {
 			 * @param length length of the buffer
 			 * @return buffer of a specific length since current read position
 			 */
-			StormByte::Expected<std::span<const Byte>, BufferOverflow>			Read(const size_t& length) const;
+			ExpectedConstByteSpan												Read(const size_t& length) const;
 
 			/**
 			 * @brief Reserves buffer size (if it is not empty, it will reserve extra space)

@@ -1,20 +1,22 @@
 #include <StormByte/exception.hxx>
-#include <StormByte/util/mutexed.hxx>
+#include <StormByte/mutexed.hxx>
 #include <StormByte/test_handlers.h>
 #include <thread>
 #include <queue>
 #include <iostream>
 
+using namespace StormByte;
+
 // Test default constructor and assignment
 int test_mutexed_basic() {
     int result = 0;
     try {
-        StormByte::Util::Mutexed<int> m1;
+        Mutexed<int> m1;
         m1 = 10;
 
         ASSERT_EQUAL("test_mutexed_basic", 10, *m1);
 
-        StormByte::Util::Mutexed<int> m2(20);
+        Mutexed<int> m2(20);
         ASSERT_EQUAL("test_mutexed_basic", 20, *m2);
 
         m2 = m1;
@@ -31,7 +33,7 @@ int test_mutexed_basic() {
 int test_mutexed_thread_safety() {
     int result = 0;
     try {
-        StormByte::Util::Mutexed<int> m1(0);
+        Mutexed<int> m1(0);
 
         auto increment = [&m1]() {
             for (int i = 0; i < 1000; ++i) {

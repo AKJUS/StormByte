@@ -1,6 +1,6 @@
 #pragma once
 
-#include <StormByte/util/exception.hxx>
+#include <StormByte/exception.hxx>
 
 #include <variant>
 #include <memory>
@@ -9,10 +9,10 @@
 #include <concepts>
 
 /**
- * @namespace Util
- * @brief Contains utility classes and functions.
+ * @namespace StormByte
+ * @brief Main namespace for the StormByte library and components
  */
-namespace StormByte::Util {
+namespace StormByte {
 	/**
 	 * @brief Concept to check if a type is a valid variadic type
 	 * @tparam T type
@@ -128,7 +128,7 @@ namespace StormByte::Util {
 					if (std::holds_alternative<T>(m_values)) {
 						return std::get<T>(m_values);
 					}
-					throw Util::Exception("Variant does not hold the requested type");
+					throw Exception("Variant does not hold the requested type");
 				}
 	
 				if constexpr (isDereferencedMatch) {
@@ -138,13 +138,13 @@ namespace StormByte::Util {
 							if (value) {
 								return *value;
 							}
-							throw Util::Exception("Pointer is null");
+							throw Exception("Pointer is null");
 						}
-						throw Util::Exception("Invalid type for dereferencing");
+						throw Exception("Invalid type for dereferencing");
 					}, m_values);
 				}
 	
-				throw Util::Exception("Value type mismatch");
+				throw Exception("Value type mismatch");
 			}
 
 			/**

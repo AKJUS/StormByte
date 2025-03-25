@@ -6,6 +6,8 @@ using namespace StormByte;
 
 Exception::Exception(const std::string& message):m_what(copy_str(message.c_str())) {}
 
+Exception::Exception(std::string&& message):m_what(copy_str(message.c_str())) {}
+
 Exception::Exception(const Exception& e):m_what(copy_str(e.m_what)) {}
 
 Exception::Exception(Exception&& e) noexcept:m_what(e.m_what) {

@@ -1,13 +1,13 @@
 #pragma once
 
 #include <StormByte/visibility.h>
-#include <StormByte/util/mutexed.hxx>
+#include <StormByte/mutexed.hxx>
 
 /**
- * @namespace Util
- * @brief Contains utility classes and functions.
+ * @namespace StormByte
+ * @brief Main namespace for the StormByte library and components
  */
-namespace StormByte::Util {
+namespace StormByte {
 	template<typename T>
 	class STORMBYTE_PUBLIC ArithmeticMutexed final: public Mutexed<T> {
 		public:
@@ -83,7 +83,7 @@ namespace StormByte::Util {
 			 * @param other other value to compare
 			 * @return strong ordering
 			 */
-			std::strong_ordering operator<=>(const ArithmeticMutexed& other) const noexcept {
+			std::strong_ordering 													operator<=>(const ArithmeticMutexed& other) const noexcept {
 				return Mutexed<T>::operator<=>(other);
 			}
 
@@ -92,7 +92,7 @@ namespace StormByte::Util {
 			 * @param other other value to compare
 			 * @return false if equal
 			 */
-			bool 										operator!=(const ArithmeticMutexed& other) const noexcept {
+			bool 																	operator!=(const ArithmeticMutexed& other) const noexcept {
 				return operator<=>(other) != std::strong_ordering::equal;
 			}
 
@@ -101,7 +101,7 @@ namespace StormByte::Util {
 			 * @param value value to add
 			 * @return reference to this
 			 */
-			ArithmeticMutexed operator+(const ArithmeticMutexed& value) const noexcept {
+			ArithmeticMutexed 														operator+(const ArithmeticMutexed& value) const noexcept {
 				std::lock_guard<std::mutex> lock(this->m_mutex);
 				std::lock_guard<std::mutex> lock_other(value.m_mutex);
 				return ArithmeticMutexed(this->m_value + value.m_value);
@@ -112,7 +112,7 @@ namespace StormByte::Util {
 			 * @param value value to add
 			 * @return reference to this
 			 */
-			ArithmeticMutexed operator+(ArithmeticMutexed&& value) const noexcept {
+			ArithmeticMutexed 														operator+(ArithmeticMutexed&& value) const noexcept {
 				std::lock_guard<std::mutex> lock(this->m_mutex);
 				std::lock_guard<std::mutex> lock_other(value.m_mutex);
 				return ArithmeticMutexed(this->m_value + std::move(value.m_value));
@@ -123,7 +123,7 @@ namespace StormByte::Util {
 			 * @param value value to add
 			 * @return reference to this
 			 */
-			ArithmeticMutexed& operator+=(ArithmeticMutexed& value) noexcept {
+			ArithmeticMutexed& 														operator+=(ArithmeticMutexed& value) noexcept {
 				std::lock_guard<std::mutex> lock(this->m_mutex);
 				std::lock_guard<std::mutex> lock_other(value.m_mutex);
 				this->m_value += value.m_value;
@@ -135,7 +135,7 @@ namespace StormByte::Util {
 			 * @param value value to add
 			 * @return reference to this
 			 */
-			ArithmeticMutexed& operator+=(ArithmeticMutexed&& value) noexcept {
+			ArithmeticMutexed& 														operator+=(ArithmeticMutexed&& value) noexcept {
 				std::lock_guard<std::mutex> lock(this->m_mutex);
 				std::lock_guard<std::mutex> lock_other(value.m_mutex);
 				this->m_value += std::move(value.m_value);
@@ -147,7 +147,7 @@ namespace StormByte::Util {
 			 * @param value value to add
 			 * @return reference to this
 			 */
-			T operator+(const T& value) const noexcept {
+			T 																		operator+(const T& value) const noexcept {
 				std::lock_guard<std::mutex> lock(this->m_mutex);
 				return this->m_value + value;
 			}
@@ -157,7 +157,7 @@ namespace StormByte::Util {
 			 * @param value value to add
 			 * @return reference to this
 			 */
-			T operator+(T&& value) const noexcept {
+			T 																		operator+(T&& value) const noexcept {
 				std::lock_guard<std::mutex> lock(this->m_mutex);
 				return this->m_value + std::move(value);
 			}
@@ -167,7 +167,7 @@ namespace StormByte::Util {
 			 * @param value value to add
 			 * @return reference to this
 			 */
-			T& operator+=(T& value) noexcept {
+			T& 																		operator+=(T& value) noexcept {
 				std::lock_guard<std::mutex> lock(this->m_mutex);
 				this->m_value += value;
 				return this->m_value;
@@ -178,7 +178,7 @@ namespace StormByte::Util {
 			 * @param value value to add
 			 * @return reference to this
 			 */
-			T& operator+=(T&& value) noexcept {
+			T& 																		operator+=(T&& value) noexcept {
 				std::lock_guard<std::mutex> lock(this->m_mutex);
 				this->m_value += std::move(value);
 				return this->m_value;

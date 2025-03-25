@@ -1,15 +1,17 @@
 #include <StormByte/exception.hxx>
-#include <StormByte/util/arithmetic_mutexed.hxx>
+#include <StormByte/arithmetic_mutexed.hxx>
 #include <StormByte/test_handlers.h>
 #include <iostream>
 #include <thread>
+
+using namespace StormByte;
 
 // Test basic arithmetic operations
 int test_arithmetic_mutexed_operations() {
     int result = 0;
     try {
-        StormByte::Util::ArithmeticMutexed<int> a1(10);
-        StormByte::Util::ArithmeticMutexed<int> a2(20);
+        ArithmeticMutexed<int> a1(10);
+        ArithmeticMutexed<int> a2(20);
 
         auto a3 = a1 + a2;
         ASSERT_EQUAL("test_arithmetic_mutexed_operations", 30, *a3);
@@ -28,8 +30,8 @@ int test_arithmetic_mutexed_operations() {
 int test_arithmetic_mutexed_string() {
     int result = 0;
     try {
-        StormByte::Util::ArithmeticMutexed<std::string> s1("Hello");
-        StormByte::Util::ArithmeticMutexed<std::string> s2(", World!");
+        ArithmeticMutexed<std::string> s1("Hello");
+        ArithmeticMutexed<std::string> s2(", World!");
 
         auto s3 = s1 + s2;
         ASSERT_EQUAL("test_arithmetic_mutexed_string", "Hello, World!", *s3);
@@ -48,8 +50,8 @@ int test_arithmetic_mutexed_string() {
 int test_arithmetic_mutexed_comparisons() {
     int result = 0;
     try {
-        StormByte::Util::ArithmeticMutexed<int> a1(10);
-        StormByte::Util::ArithmeticMutexed<int> a2(20);
+        ArithmeticMutexed<int> a1(10);
+        ArithmeticMutexed<int> a2(20);
 
         ASSERT_TRUE("test_arithmetic_mutexed_comparisons", a1 < a2);
         ASSERT_TRUE("test_arithmetic_mutexed_comparisons", !(a1 > a2));

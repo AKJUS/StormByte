@@ -1,10 +1,10 @@
-#include <StormByte/util/buffer.hxx>
+#include <StormByte/buffer.hxx>
 
 #include <algorithm>
 #include <cstring>
 #include <format>
 
-using namespace StormByte::Util;
+using namespace StormByte;
 
 Buffer::Buffer(const char* data, const std::size_t& length): m_data(length), m_position(0) {
 	if (data != nullptr && length > 0) {
@@ -27,9 +27,9 @@ Buffer::Buffer(DataType&& data): m_data(std::move(data)), m_position(0) {}
 
 Buffer::Buffer(const std::span<const Byte>& data): m_data(data.begin(), data.end()), m_position(0) {}
 
-StormByte::Expected<const Buffer::Byte&, BufferOverflow> Buffer::operator[](const std::size_t& index) const {
+Buffer::ExpectedConstByte Buffer::operator[](const std::size_t& index) const {
 	if (index >= m_data.size())
-		return StormByte::Unexpected<BufferOverflow>(BufferOverflow(std::format("Index {} is out of bounds (size: {})", index, m_data.size())));
+		return StormByte::Unexpected<BufferOverflow>("Index {} is out of bounds (size: {})", index, m_data.size());
 	return m_data[index];
 }
 
@@ -96,9 +96,9 @@ std::string Buffer::HexData(const std::size_t& column_size) const {
 	return hex_data;
 }
 
-StormByte::Expected<std::span<const Buffer::Byte>, BufferOverflow> Buffer::Read(const std::size_t& length) const {
+Buffer::ExpectedConstByteSpan Buffer::Read(const std::size_t& length) const {
 	if (m_position + length > m_data.size())
-		return StormByte::Unexpected<BufferOverflow>(std::format("Insufficient data to read {} bytes (only have {} bytes)", length, m_data.size() - m_position));
+		return StormByte::Unexpected<BufferOverflow>("Insufficient data to read {} bytes (only have {} bytes)", length, m_data.size() - m_position);
 	std::span<const Byte> data(m_data.data() + m_position, length);
 	m_position += length;
 	return data;

@@ -1,8 +1,8 @@
-#include <StormByte/util/buffer.hxx>
+#include <StormByte/buffer.hxx>
 #include <StormByte/test_handlers.h>
 #include <iostream>
 
-using namespace StormByte::Util;
+using namespace StormByte;
 
 // Test comparisons
 int test_simple_buffer() {

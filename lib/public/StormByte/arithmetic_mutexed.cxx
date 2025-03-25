@@ -1,8 +1,8 @@
-#include <StormByte/util/arithmetic_mutexed.hxx>
+#include <StormByte/arithmetic_mutexed.hxx>
 
 #include <string>
 
-namespace StormByte::Util {
+namespace StormByte {
 	template class ArithmeticMutexed<int>;
 	template class ArithmeticMutexed<unsigned int>;
 	template class ArithmeticMutexed<long>;

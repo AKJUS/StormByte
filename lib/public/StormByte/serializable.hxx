@@ -2,17 +2,17 @@
 
 #include <StormByte/expected.hxx>
 #include <StormByte/type_traits.hxx>
-#include <StormByte/util/buffer.hxx>
-#include <StormByte/util/exception.hxx>
+#include <StormByte/buffer.hxx>
+#include <StormByte/exception.hxx>
 
 #include <optional>
 #include <utility>
 
 /**
- * @namespace Util
- * @brief Contains utility classes and functions.
+ * @namespace StormByte
+ * @brief Main namespace for the StormByte library and components
  */
-namespace StormByte::Util {
+namespace StormByte {
 	/**
 	 * @class Serializable
 	 * @brief The class to serialize and deserialize data.
@@ -21,6 +21,7 @@ namespace StormByte::Util {
 	template<typename T>
 	class Serializable {
 		using DecayedT = std::decay_t<T>;	///< The decayed type of the data to serialize and deserialize.
+		
 		public:
 			/**
 			 * @brief The constructor of the Serializable class.
@@ -64,7 +65,7 @@ namespace StormByte::Util {
 			 * @param data The data to serialize.
 			 * @return The serialized data.
 			 */
-			Util::Buffer													Serialize() const noexcept {
+			Buffer															Serialize() const noexcept {
 				if constexpr (std::is_trivially_copyable_v<T>) {
 					return SerializeTrivial();
 				} else if constexpr (is_container<T>::value) {
@@ -119,7 +120,7 @@ namespace StormByte::Util {
 			 * @param data The data to serialize.
 			 * @return The serialized data.
 			 */
-			Util::Buffer													SerializeTrivial() const noexcept {
+			Buffer															SerializeTrivial() const noexcept {
 				return { reinterpret_cast<const char*>(&m_data), sizeof(m_data) };
 			}
 
@@ -128,17 +129,17 @@ namespace StormByte::Util {
 			 * @param data The data to serialize.
 			 * @return The serialized data.
 			 */
-			Util::Buffer													SerializeComplex() const noexcept;
+			Buffer															SerializeComplex() const noexcept;
 
 			/**
 			 * @brief The function to serialize the container data.
 			 * @param data The data to serialize.
 			 * @return The serialized data.
 			 */
-			Util::Buffer													SerializeContainer() const noexcept {
+			Buffer															SerializeContainer() const noexcept {
 				std::size_t size = m_data.size();
 				Serializable<std::size_t> size_serial(size);
-				Util::Buffer buffer(std::move(size_serial.Serialize()));
+				Buffer buffer(std::move(size_serial.Serialize()));
 				for (const auto& element: m_data) {
 					Serializable<std::decay_t<decltype(element)>> element_serial(element);
 					buffer << std::move(element_serial.Serialize());
@@ -151,7 +152,7 @@ namespace StormByte::Util {
 			 * @param data The data to serialize.
 			 * @return The serialized data.
 			 */
-			Util::Buffer 													SerializePair() const noexcept {
+			Buffer 															SerializePair() const noexcept {
 				Serializable<std::decay_t<typename T::first_type>> first_serial(m_data.first);
 				Serializable<std::decay_t<typename T::second_type>> second_serial(m_data.second);
 				return first_serial.Serialize() << std::move(second_serial.Serialize());
@@ -162,9 +163,9 @@ namespace StormByte::Util {
 			 * @param data The data to serialize.
 			 * @return The serialized data.
 			 */
-			Util::Buffer 													SerializeOptional() const noexcept {
+			Buffer 															SerializeOptional() const noexcept {
 				bool has_value = m_data.has_value();
-				Util::Buffer buffer = std::move(Serializable<bool>(has_value).Serialize());
+				Buffer buffer = std::move(Serializable<bool>(has_value).Serialize());
 				if (m_data.has_value()) {
 					Serializable<std::decay_t<decltype(m_data.value())>> value_serial(m_data.value());
 					buffer << std::move(value_serial.Serialize());

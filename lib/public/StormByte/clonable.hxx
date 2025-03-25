@@ -4,19 +4,19 @@
 #include <memory>
 
 /**
- * @namespace Util
- * @brief Contains utility classes and functions.
+ * @namespace StormByte
+ * @brief Main namespace for the StormByte library and components
  */
-namespace StormByte::Util {
+namespace StormByte {
 	/**
 	 * @brief Concept to check if a type is a valid smart pointer
 	 * @tparam SmartPointer smart pointer type
 	 * @tparam T type
 	 */
 	template<typename SmartPointer, typename T>
-    concept ValidSmartPointer = 
-        std::same_as<SmartPointer, std::shared_ptr<T>> || 
-        std::same_as<SmartPointer, std::unique_ptr<T>>;
+	concept ValidSmartPointer = 
+		std::same_as<SmartPointer, std::shared_ptr<T>> || 
+		std::same_as<SmartPointer, std::unique_ptr<T>>;
 
 	/**
 	 * @class Clonable
@@ -47,43 +47,43 @@ namespace StormByte::Util {
 			/**
 			 * Constructor
 			 */
-			constexpr Clonable() 								= default;
+			constexpr Clonable() 											= default;
 
 			/**
 			 * Copy constructor
 			 */
-			constexpr Clonable(const Clonable&) 				= default;
+			constexpr Clonable(const Clonable&) 							= default;
 
 			/**
 			 * Move constructor
 			 */
-			constexpr Clonable(Clonable&&) noexcept				= default;
+			constexpr Clonable(Clonable&&) noexcept							= default;
 
 			/**
 			 * Assignment operator
 			 */
-			constexpr Clonable& operator=(const Clonable&) 		= default;
+			constexpr Clonable& operator=(const Clonable&) 					= default;
 
 			/**
 			 * Move assignment operator
 			 */
-			constexpr Clonable& operator=(Clonable&&) noexcept	= default;
+			constexpr Clonable& operator=(Clonable&&) noexcept				= default;
 
 			/**
 			 * Destructor
 			 */
-			virtual constexpr ~Clonable() noexcept 				= default;
+			virtual constexpr ~Clonable() noexcept 							= default;
 
 			/**
 			 * Clones the object
 			 * @return cloned object
 			 */
-			virtual PointerType Clone() const 					= 0;
+			virtual PointerType Clone() const 								= 0;
 
 			/**
 			 * Moves the object
 			 * @return moved object
 			 */
-			virtual PointerType Move() 							= 0;
+			virtual PointerType Move() 										= 0;
 	};
 }
