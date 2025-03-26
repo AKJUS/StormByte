@@ -25,22 +25,24 @@ namespace {
 			constexpr uint64_t TB = GB * 1024;
 			constexpr uint64_t PB = TB * 1024;
 
+			uint64_t unsigned_bytes = static_cast<uint64_t>(bytes); // Cast to uint64_t
+
 			double value = static_cast<double>(bytes);
 			std::string suffix = "Bytes";
 
-			if (bytes >= PB) {
+			if (unsigned_bytes >= PB) {
 				value /= PB;
 				suffix = "PiB";
-			} else if (bytes >= TB) {
+			} else if (unsigned_bytes >= TB) {
 				value /= TB;
 				suffix = "TiB";
-			} else if (bytes >= GB) {
+			} else if (unsigned_bytes >= GB) {
 				value /= GB;
 				suffix = "GiB";
-			} else if (bytes >= MB) {
+			} else if (unsigned_bytes >= MB) {
 				value /= MB;
 				suffix = "MiB";
-			} else if (bytes >= KB) {
+			} else if (unsigned_bytes >= KB) {
 				value /= KB;
 				suffix = "KiB";
 			}
