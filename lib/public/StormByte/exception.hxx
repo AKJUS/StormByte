@@ -6,16 +6,19 @@
 
 /**
  * @namespace StormByte
- * @brief Main namespace for the StormByte library and components
+ * @brief Main namespace for the StormByte library.
+ *
+ * The `StormByte` namespace serves as the root for all components and utilities in the StormByte library.
+ * It provides foundational classes and tools for building robust, thread-safe, and efficient applications.
  */
 namespace StormByte {
 	/**
 	 * @class Exception
-	 * @brief Exception base class for all the StormByte library
-	 * 
-	 * Handles generic exceptions across library boundaries (Windows/Linux),
-	 * using `const char*` for memory management to avoid `std::string` issues
-	 * across DLL boundaries.
+	 * @brief Base class for exceptions in the StormByte library.
+	 *
+	 * The `Exception` class provides a consistent mechanism for handling errors across library boundaries.
+	 * It ensures compatibility with both Windows and Linux platforms and avoids issues with `std::string`
+	 * across DLL boundaries by using `const char*` for internal storage.
 	 */
 	class STORMBYTE_PUBLIC Exception {
 	public:

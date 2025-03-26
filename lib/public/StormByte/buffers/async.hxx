@@ -9,17 +9,13 @@
  * @namespace Buffers
  * @brief Namespace for buffer-related components in the StormByte library.
  *
- * The `Buffers` namespace provides classes and utilities for managing simple, shared, and producer/consumer
- * buffers in a multi-threaded or single-threaded environment. It supports a variety of use cases, including
- * thread-safe operations and lightweight non-thread-safe buffers.
- *
- * Key features include:
- * - **Simple Buffers**: Lightweight, non-thread-safe buffers designed for single-threaded environments.
- * - **Shared Buffers**: Flexible and efficient storage for byte data with support for concurrent access.
+ * The `StormByte::Buffers` namespace provides classes and utilities for managing simple, shared, and producer/consumer
+ * buffers in both single-threaded and multi-threaded environments. It supports a variety of use cases, including:
+ * - **Simple Buffers**: Lightweight, non-thread-safe buffers for single-threaded environments.
+ * - **Shared Buffers**: Flexible and efficient storage for byte data with concurrent access support.
  * - **Producer/Consumer Buffers**: Advanced models for managing data flow between producers and consumers
  *   with status tracking (e.g., `Ready`, `EoF`, `Error`).
- * - **Thread Safety**: Shared and producer/consumer buffers are designed to be thread-safe, enabling consistent
- *   behavior in multi-threaded environments.
+ * - **Thread Safety**: Shared and producer/consumer buffers are designed to ensure consistent behavior in multi-threaded environments.
  */
 namespace StormByte::Buffers {
 	class Consumer; 																			///< Forward declaration of ConsumerBuffer.
@@ -29,22 +25,18 @@ namespace StormByte::Buffers {
 	 * @class Async
 	 * @brief Manages byte buffers in a multi-threaded producer/consumer model.
 	 *
-	 * The `Async` class enables multiple threads to safely read and write data,
-	 * where `ConsumerBuffer` is responsible for reading data and `ProducerBuffer` handles
-	 * writing data. The `ProducerBuffer` must also update the buffer status to `EoF` (End of File)
-	 * or `Error` to signal the end of operations or any issues encountered during processing.
+	 * The `Async` class enables safe multi-threaded read and write operations on byte buffers.
+	 * It uses `ConsumerBuffer` for reading data and `ProducerBuffer` for writing data. The `ProducerBuffer`
+	 * must update the buffer status to `EoF` (End of File) or `Error` to signal the end of operations or issues encountered.
 	 *
-	 * If the `ProducerBuffer` fails to update the buffer status, the `ConsumerBuffer` may enter
-	 * an infinite wait state after consuming all available data. While this undesired behavior
-	 * is expected in such cases, proper handling of the buffer status can prevent it.
+	 * Proper handling of the buffer status is critical to avoid undesired behavior, such as infinite wait states
+	 * in the `ConsumerBuffer` after consuming all available data.
 	 *
-	 * The class is designed to operate in a multi-threaded environment, including detached threads.
-	 * To ensure safe resource management, it is recommended to work with `std::shared_ptr` when
-	 * interacting with `Async`. The `operator<<` methods transparently accept instances
-	 * of `Buffer` or `Buffer::DataType` to append data seamlessly.
+	 * Designed for multi-threaded environments, including detached threads, the class ensures safe resource management.
+	 * It is recommended to use `std::shared_ptr` when interacting with `Async`. The `operator<<` methods allow seamless
+	 * appending of data using instances of `Buffer` or `Buffer::DataType`.
 	 *
-	 * Note: Any operations performed on a buffer with a status of `Error` will be ignored,
-	 * except for updating the buffer's status.
+	 * Note: Operations on a buffer with a status of `Error` are ignored, except for updating the buffer's status.
 	 */
 	class STORMBYTE_PUBLIC Async {
 		public:
@@ -110,14 +102,22 @@ namespace StormByte::Buffers {
 			Async& 																				operator<<(const Buffers::Status& status);
 
 			/**
-			 * @brief Creates a producer buffer linked to the current buffer.
-			 * @return `ProducerBuffer` instance linked to the current buffer.
+			 * @brief Retrieves a shared pointer to a producer buffer linked to the current buffer.
+			 *
+			 * This method returns a `std::shared_ptr<Producer>` that shares the same underlying buffer as the current `Async` instance.
+			 * The `Producer` can be used to append data to the buffer in a thread-safe manner.
+			 *
+			 * @return Shared pointer to a `Producer` instance linked to the current buffer.
 			 */
 			std::shared_ptr<Producer>															Producer() const noexcept;
 
 			/**
-			 * @brief Creates a consumer buffer linked to the current buffer.
-			 * @return `ConsumerBuffer` instance linked to the current buffer.
+			 * @brief Retrieves a shared pointer to a consumer buffer linked to the current buffer.
+			 *
+			 * This method returns a `std::shared_ptr<Consumer>` that shares the same underlying buffer as the current `Async` instance.
+			 * The `Consumer` can be used to extract data from the buffer in a thread-safe manner.
+			 *
+			 * @return Shared pointer to a `Consumer` instance linked to the current buffer.
 			 */
 			std::shared_ptr<Consumer> 															Consumer() const noexcept;
 

@@ -8,12 +8,19 @@
 
 /**
  * @namespace StormByte
- * @brief Main namespace for the StormByte library and components
+ * @brief Main namespace for the StormByte library.
+ *
+ * The `StormByte` namespace serves as the root for all components and utilities in the StormByte library.
+ * It provides foundational classes and tools for building robust, thread-safe, and efficient applications.
  */
 namespace StormByte {
 	/**
 	 * @class Logger
-	 * @brief Logger class
+	 * @brief A flexible and extensible logging utility.
+	 *
+	 * The `Logger` class provides a robust logging mechanism with support for multiple log levels,
+	 * custom formatting, and human-readable output. It is designed to be lightweight and easy to integrate
+	 * into applications.
 	 */
 	class STORMBYTE_PUBLIC Logger final {
 		// Friend declarations for manipulators

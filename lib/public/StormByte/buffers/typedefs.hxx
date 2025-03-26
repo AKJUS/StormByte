@@ -12,17 +12,9 @@
  * @namespace Buffers
  * @brief Namespace for buffer-related components in the StormByte library.
  *
- * The `Buffers` namespace provides classes and utilities for managing simple, shared, and producer/consumer
- * buffers in a multi-threaded or single-threaded environment. It supports a variety of use cases, including
- * thread-safe operations and lightweight non-thread-safe buffers.
- *
- * Key features include:
- * - **Simple Buffers**: Lightweight, non-thread-safe buffers designed for single-threaded environments.
- * - **Shared Buffers**: Flexible and efficient storage for byte data with support for concurrent access.
- * - **Producer/Consumer Buffers**: Advanced models for managing data flow between producers and consumers
- *   with status tracking (e.g., `Ready`, `EoF`, `Error`).
- * - **Thread Safety**: Shared and producer/consumer buffers are designed to be thread-safe, enabling consistent
- *   behavior in multi-threaded environments.
+ * The `StormByte::Buffers` namespace provides classes and utilities for managing various types of buffers,
+ * including simple, shared, and producer/consumer buffers. These buffers are designed to support
+ * both single-threaded and multi-threaded environments, offering flexibility and efficiency.
  */
 namespace StormByte::Buffers {
 	/**
@@ -92,11 +84,17 @@ namespace StormByte::Buffers {
 
 	/**
 	 * @brief Wrapper for `operator<<` to support `std::shared_ptr` or `std::unique_ptr` as the left-hand parameter.
+	 *
+	 * This template function allows appending data to instances of classes derived from `Simple` or `Async`
+	 * when they are wrapped in smart pointers (`std::shared_ptr` or `std::unique_ptr`). It forwards the call
+	 * to the existing `operator<<` implementation of the underlying object.
+	 *
 	 * @tparam PtrType The type of the smart pointer (e.g., `std::shared_ptr` or `std::unique_ptr`).
 	 * @tparam T The type of the value to append.
 	 * @param ptr Smart pointer to an instance of a class derived from `Simple` or `Async`.
 	 * @param value The value to append to the buffer.
 	 * @return Reference to the updated smart pointer.
+	 * @note If the smart pointer is null, the function does nothing and returns the original pointer.
 	 */
 	template <typename PtrType, typename T,
 		typename = std::enable_if_t<
@@ -111,11 +109,17 @@ namespace StormByte::Buffers {
 
 	/**
 	 * @brief Wrapper for `operator<<` to support `std::shared_ptr` or `std::unique_ptr` as the left-hand parameter (move version).
+	 *
+	 * This template function allows appending data to instances of classes derived from `Simple` or `Async`
+	 * when they are wrapped in smart pointers (`std::shared_ptr` or `std::unique_ptr`). It forwards the call
+	 * to the existing `operator<<` implementation of the underlying object, using move semantics.
+	 *
 	 * @tparam PtrType The type of the smart pointer (e.g., `std::shared_ptr` or `std::unique_ptr`).
 	 * @tparam T The type of the value to append.
 	 * @param ptr Smart pointer to an instance of a class derived from `Simple` or `Async`.
 	 * @param value The value to append to the buffer.
 	 * @return Reference to the updated smart pointer.
+	 * @note If the smart pointer is null, the function does nothing and returns the original pointer.
 	 */
 	template <typename PtrType, typename T,
 		typename = std::enable_if_t<

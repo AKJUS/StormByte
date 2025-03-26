@@ -6,17 +6,9 @@
  * @namespace Buffers
  * @brief Namespace for buffer-related components in the StormByte library.
  *
- * The `Buffers` namespace provides classes and utilities for managing simple, shared, and producer/consumer
- * buffers in a multi-threaded or single-threaded environment. It supports a variety of use cases, including
- * thread-safe operations and lightweight non-thread-safe buffers.
- *
- * Key features include:
- * - **Simple Buffers**: Lightweight, non-thread-safe buffers designed for single-threaded environments.
- * - **Shared Buffers**: Flexible and efficient storage for byte data with support for concurrent access.
- * - **Producer/Consumer Buffers**: Advanced models for managing data flow between producers and consumers
- *   with status tracking (e.g., `Ready`, `EoF`, `Error`).
- * - **Thread Safety**: Shared and producer/consumer buffers are designed to be thread-safe, enabling consistent
- *   behavior in multi-threaded environments.
+ * The `StormByte::Buffers` namespace provides classes and utilities for managing various types of buffers,
+ * including simple, shared, and producer/consumer buffers. These buffers are designed to support
+ * both single-threaded and multi-threaded environments, offering flexibility and efficiency.
  */
 namespace StormByte::Buffers {
 	/**

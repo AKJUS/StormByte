@@ -18,6 +18,9 @@ StormByte is a comprehensive, cross-platform C++ library aimed at easing system 
 - [Installation](#installation)
 - [Modules](#modules)
   - **Base**
+    - [Buffers](#buffers)
+    - [Logger](#logger)
+    - [Serializable](#serializable)
   - [Config](https://dev.stormbyte.org/StormByte-Config)
   - [Database](https://dev.stormbyte.org/StormByte-Database)
   - [Multimedia](https://dev.stormbyte.org/StormByte-Multimedia)
@@ -325,4 +328,3 @@ Contributions are welcome! Please fork the repository and submit pull requests f
 ## License
 
 This project is licensed under GPL v3 License - see the [LICENSE](LICENSE) file for details.
-```

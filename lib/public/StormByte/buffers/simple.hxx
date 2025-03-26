@@ -8,17 +8,9 @@
  * @namespace Buffers
  * @brief Namespace for buffer-related components in the StormByte library.
  *
- * The `Buffers` namespace provides classes and utilities for managing simple, shared, and producer/consumer
- * buffers in a multi-threaded or single-threaded environment. It supports a variety of use cases, including
- * thread-safe operations and lightweight non-thread-safe buffers.
- *
- * Key features include:
- * - **Simple Buffers**: Lightweight, non-thread-safe buffers designed for single-threaded environments.
- * - **Shared Buffers**: Flexible and efficient storage for byte data with support for concurrent access.
- * - **Producer/Consumer Buffers**: Advanced models for managing data flow between producers and consumers
- *   with status tracking (e.g., `Ready`, `EoF`, `Error`).
- * - **Thread Safety**: Shared and producer/consumer buffers are designed to be thread-safe, enabling consistent
- *   behavior in multi-threaded environments.
+ * The `StormByte::Buffers` namespace provides classes and utilities for managing various types of buffers,
+ * including simple, shared, and producer/consumer buffers. These buffers are designed to support
+ * both single-threaded and multi-threaded environments, offering flexibility and efficiency.
  */
 namespace StormByte::Buffers {
 	/**
@@ -194,6 +186,7 @@ namespace StormByte::Buffers {
 			 * span remains valid as long as the buffer is not modified.
 			 * 
 			 * @return A read-only span of the stored value.
+			 * @note Modifying the buffer invalidates the returned span.
 			 */
 			const std::span<const Byte> 											Span() const noexcept;
 
@@ -205,12 +198,17 @@ namespace StormByte::Buffers {
 			 * span remains valid as long as the buffer is not modified.
 			 * 
 			 * @return A mutable span of the stored value.
+			 * @note Modifying the buffer invalidates the returned span.
 			 */
 			std::span<Byte> 														Span() noexcept;
 
 			/**
-			 * @brief Retrieves the stored value as a hexadecimal string
-			 * @param column_size Number of bytes per column in the output.
+			 * @brief Retrieves the stored value as a hexadecimal string.
+			 *
+			 * Converts the buffer's contents into a human-readable hexadecimal string representation.
+			 * This is useful for debugging or logging purposes.
+			 *
+			 * @param column_size Number of bytes per column in the output. Defaults to 16.
 			 * @return Hexadecimal string representation of the stored value.
 			 */
 			virtual std::string 													HexData(const std::size_t& column_size = 16) const;

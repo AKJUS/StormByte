@@ -12,17 +12,9 @@
  * @namespace Buffers
  * @brief Namespace for buffer-related components in the StormByte library.
  *
- * The `Buffers` namespace provides classes and utilities for managing simple, shared, and producer/consumer
- * buffers in a multi-threaded or single-threaded environment. It supports a variety of use cases, including
- * thread-safe operations and lightweight non-thread-safe buffers.
- *
- * Key features include:
- * - **Simple Buffers**: Lightweight, non-thread-safe buffers designed for single-threaded environments.
- * - **Shared Buffers**: Flexible and efficient storage for byte data with support for concurrent access.
- * - **Producer/Consumer Buffers**: Advanced models for managing data flow between producers and consumers
- *   with status tracking (e.g., `Ready`, `EoF`, `Error`).
- * - **Thread Safety**: Shared and producer/consumer buffers are designed to be thread-safe, enabling consistent
- *   behavior in multi-threaded environments.
+ * The `StormByte::Buffers` namespace provides classes and utilities for managing various types of buffers,
+ * including simple, shared, and producer/consumer buffers. These buffers are designed to support
+ * both single-threaded and multi-threaded environments, offering flexibility and efficiency.
  */
 namespace StormByte::Buffers {
 	/**
@@ -189,31 +181,25 @@ namespace StormByte::Buffers {
 
 			/**
 			 * @brief Deleted function to prevent usage of Span in Shared.
-			 * 
-			 * The `Span()` function is deleted in the `Shared` class to
-			 * ensure thread safety. Returning a `std::span` provides a
-			 * lightweight view into the internal buffer, but it does not
-			 * own the data. In a multi-threaded environment, concurrent
-			 * modifications to the buffer could invalidate the span,
-			 * leading to undefined behavior or memory access issues.
-			 * 
-			 * Use the `Data()` method instead to retrieve a thread-safe
-			 * copy of the buffer's contents.
+			 *
+			 * The `Span()` function is deleted in the `Shared` class to ensure thread safety. Returning a `std::span`
+			 * provides a lightweight view into the internal buffer, but it does not own the data. In a multi-threaded
+			 * environment, concurrent modifications to the buffer could invalidate the span, leading to undefined
+			 * behavior or memory access issues.
+			 *
+			 * Use the `Data()` method instead to retrieve a thread-safe copy of the buffer's contents.
 			 */
 			std::span<Byte> 													Span() noexcept = delete;
 
 			/**
 			 * @brief Deleted function to prevent usage of Span in Shared.
-			 * 
-			 * The `Span()` function is deleted in the `Shared` class to
-			 * ensure thread safety. Returning a `std::span` provides a
-			 * lightweight view into the internal buffer, but it does not
-			 * own the data. In a multi-threaded environment, concurrent
-			 * modifications to the buffer could invalidate the span,
-			 * leading to undefined behavior or memory access issues.
-			 * 
-			 * Use the `Data()` method instead to retrieve a thread-safe
-			 * copy of the buffer's contents.
+			 *
+			 * The `Span()` function is deleted in the `Shared` class to ensure thread safety. Returning a `std::span`
+			 * provides a lightweight view into the internal buffer, but it does not own the data. In a multi-threaded
+			 * environment, concurrent modifications to the buffer could invalidate the span, leading to undefined
+			 * behavior or memory access issues.
+			 *
+			 * Use the `Data()` method instead to retrieve a thread-safe copy of the buffer's contents.
 			 */
 			const std::span<const Byte> 										Span() const noexcept = delete;
 

@@ -9,7 +9,10 @@
 
 /**
  * @namespace StormByte
- * @brief Main namespace for the StormByte library and components
+ * @brief Main namespace for the StormByte library.
+ *
+ * The `StormByte` namespace serves as the root for all components and utilities in the StormByte library.
+ * It provides foundational classes and tools for building robust, thread-safe, and efficient applications.
  */
 namespace StormByte {
 	/**
