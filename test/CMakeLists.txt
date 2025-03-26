@@ -1,12 +1,10 @@
 option(ENABLE_TEST "Enable Unit Tests" OFF)
 if(ENABLE_TEST AND NOT STORMBYTE_AS_DEPENDENCY)
+	add_subdirectory(buffers)
+
 	add_executable(ArithmeticMutexedTests arithmetic_mutexed_test.cxx)
 	target_link_libraries(ArithmeticMutexedTests StormByte)
 	add_test(NAME ArithmeticMutexedTests COMMAND ArithmeticMutexedTests)
-
-	add_executable(BufferTests buffer_test.cxx)
-	target_link_libraries(BufferTests StormByte)
-	add_test(NAME BufferTests COMMAND BufferTests)
 
 	add_executable(LoggerTests logger_test.cxx)
 	target_link_libraries(LoggerTests StormByte)
@@ -15,10 +13,6 @@ if(ENABLE_TEST AND NOT STORMBYTE_AS_DEPENDENCY)
 	add_executable(MutexedTests mutexed_test.cxx)
 	target_link_libraries(MutexedTests StormByte)
 	add_test(NAME MutexedTests COMMAND MutexedTests)
-
-	add_executable(ProducerConsumerTests producer_consumer_test.cxx)
-	target_link_libraries(ProducerConsumerTests StormByte)
-	add_test(NAME ProducerConsumerTests COMMAND ProducerConsumerTests)
 
 	add_executable(SerializationTests serialization_test.cxx)
 	target_link_libraries(SerializationTests StormByte)

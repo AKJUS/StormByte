@@ -1,73 +1,90 @@
 #pragma once
 
-#include <StormByte/async_buffer.hxx>
+#include <StormByte/buffers/async.hxx>
 
 /**
- * @namespace StormByte
- * @brief Main namespace for the StormByte library and components
+ * @namespace Buffers
+ * @brief Namespace for buffer-related components in the StormByte library.
+ *
+ * The `Buffers` namespace provides classes and utilities for managing simple, shared, and producer/consumer
+ * buffers in a multi-threaded or single-threaded environment. It supports a variety of use cases, including
+ * thread-safe operations and lightweight non-thread-safe buffers.
+ *
+ * Key features include:
+ * - **Simple Buffers**: Lightweight, non-thread-safe buffers designed for single-threaded environments.
+ * - **Shared Buffers**: Flexible and efficient storage for byte data with support for concurrent access.
+ * - **Producer/Consumer Buffers**: Advanced models for managing data flow between producers and consumers
+ *   with status tracking (e.g., `Ready`, `EoF`, `Error`).
+ * - **Thread Safety**: Shared and producer/consumer buffers are designed to be thread-safe, enabling consistent
+ *   behavior in multi-threaded environments.
  */
-namespace StormByte {
+namespace StormByte::Buffers {
 	/**
-	 * @class ConsumerBuffer
+	 * @class Consumer
 	 * @brief A thread-safe class for handling consumer buffers with destructive read operations.
 	 *
-	 * The `ConsumerBuffer` class is designed for use in producer-consumer models where the consumer
+	 * The `Consumer` class is designed for use in producer-consumer models where the consumer
 	 * reads data from a shared buffer. This class provides methods to extract data and skip unwanted
 	 * data from the start of the buffer.
 	 *
 	 * **Key Features:**
-	 * - **Destructive read operations**: The `ConsumerBuffer` allows reading data through the `Extract` method.
+	 * - **Destructive read operations**: The `Consumer` allows reading data through the `Extract` method.
 	 *   Each read operation removes the extracted data from the buffer, making it unavailable for subsequent reads.
 	 *   No data can be inserted into the buffer using this class.
-	 * - **Always reads from the start**: The `ConsumerBuffer` always reads data from the start of the buffer.
+	 * - **Always reads from the start**: The `Consumer` always reads data from the start of the buffer.
 	 *   This design eliminates the concept of a "read position." If unwanted data exists (e.g., padding), it can
 	 *   be removed using the `Skip` method.
 	 * - **Thread-safe**: All operations are thread-safe, ensuring consistent behavior in multi-threaded environments.
-	 * - **Shared buffer**: Copies of a `ConsumerBuffer` share the same underlying buffer, meaning changes to the
+	 * - **Shared buffer**: Copies of a `Consumer` share the same underlying buffer, meaning changes to the
 	 *   buffer's state (e.g., data removal) by one instance will be reflected in all copies.
 	 *
 	 * This class is ideal for scenarios where multiple threads need to consume data from a shared buffer
 	 * while maintaining thread safety and avoiding data corruption.
 	 */
-	class STORMBYTE_PUBLIC ConsumerBuffer final: public AsyncBuffer {
-		friend class AsyncBuffer;															///< Friend class AsyncBuffer.
-
+	class STORMBYTE_PUBLIC Consumer final: public Async {
 		public:
 			/**
-			 * @brief Copy constructor
-			 * Creates a new `ConsumerBuffer` that shares the same underlying buffer as the original.
-			 * @param other ConsumerBuffer to copy
+			 * @brief Constructor
+			 * Creates a `Consumer` instance linked to the specified buffer.
+			 * @param async The async buffer to copy from
 			 */
-			ConsumerBuffer(const ConsumerBuffer& other)										= delete;
+			explicit Consumer(const Async& async) noexcept;
+			
+			/**
+			 * @brief Copy constructor
+			 * Creates a new `Consumer` that shares the same underlying buffer as the original.
+			 * @param other Consumer to copy
+			 */
+			Consumer(const Consumer& other)													= default;
 
 			/**
 			 * @brief Move constructor
-			 * Moves the contents of another `ConsumerBuffer` into this instance.
-			 * @param other ConsumerBuffer to move
+			 * Moves the contents of another `Consumer` into this instance.
+			 * @param other Consumer to move
 			 */
-			ConsumerBuffer(ConsumerBuffer&& other) noexcept									= default;
+			Consumer(Consumer&& other) noexcept												= default;
 
 			/**
 			 * @brief Destructor
-			 * Cleans up the `ConsumerBuffer` instance.
+			 * Cleans up the `Consumer` instance.
 			 */
-			virtual ~ConsumerBuffer() noexcept												= default;
+			~Consumer() noexcept override													= default;
 
 			/**
 			 * @brief Copy assignment operator
-			 * Copies the state of another `ConsumerBuffer` into this instance.
-			 * @param other ConsumerBuffer to copy
+			 * Copies the state of another `Consumer` into this instance.
+			 * @param other Consumer to copy
 			 * @return Reference to this buffer
 			 */
-			ConsumerBuffer& operator=(const ConsumerBuffer& other)							= delete;
+			Consumer& operator=(const Consumer& other)										= default;
 
 			/**
 			 * @brief Move assignment operator
-			 * Moves the contents of another `ConsumerBuffer` into this instance.
-			 * @param other ConsumerBuffer to move
+			 * Moves the contents of another `Consumer` into this instance.
+			 * @param other Consumer to move
 			 * @return Reference to this buffer
 			 */
-			ConsumerBuffer& operator=(ConsumerBuffer&& other) noexcept						= default;
+			Consumer& operator=(Consumer&& other) noexcept									= default;
 
 			/**
 			 * @brief Extracts a specific size of data, taking ownership of the read data and removing it from the buffer.
@@ -85,7 +102,7 @@ namespace StormByte {
 			 *         if insufficient data exists.
 			 * @note This operation modifies the buffer by removing the extracted data.
 			 */
-			ExpectedDataType																Extract(const size_t& length);
+			ExpectedData<Buffers::Exception>												Extract(const size_t& length);
 
 			/**
 			 * @brief Extracts all current data from the buffer, removing it in the process.
@@ -102,7 +119,7 @@ namespace StormByte {
 			 *         if an error occurs during extraction.
 			 * @note This operation modifies the buffer by removing the extracted data.
 			 */
-			ExpectedDataType																Extract();
+			ExpectedData<Buffers::Exception>												Extract();
 
 			/**
 			 * @brief Skips a specified number of characters (removing them from the buffer).
@@ -130,21 +147,13 @@ namespace StormByte {
 			 * @note This function modifies the buffer by removing the skipped data.
 			 * @note The function will block and wait for sufficient data unless the buffer is in an `EoF` or `Error` state.
 			 */
-			StormByte::Expected<void, BufferNotReady>										Skip(const std::size_t& length);
+			Expected<void, BufferNotReady>													Skip(const std::size_t& length);
 
 			/**
 			 * @brief Sets the status of the buffer.
 			 * @param status The new `Status` to assign to the buffer.
-			 * @return Reference to the updated `ConsumerBuffer` instance.
+			 * @return Reference to the updated `Consumer` instance.
 			 */
-			ConsumerBuffer& 																operator<<(const enum Status& status);
-
-		private:
-			/**
-			 * @brief Constructor
-			 * Creates a `ConsumerBuffer` instance linked to the specified buffer.
-			 * @param buffer The underlying buffer to link to.
-			 */
-			ConsumerBuffer() noexcept														= default;
+			Consumer& 																		operator<<(const enum Status& status);
 	};
 }

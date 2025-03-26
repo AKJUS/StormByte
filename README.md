@@ -1,7 +1,3 @@
-Here’s the updated README with references to the Logger module:
-
----
-
 # StormByte
 
 StormByte is a comprehensive, cross-platform C++ library aimed at easing system programming, configuration management, logging, and database handling tasks. This library provides a unified API that abstracts away the complexities and inconsistencies of different platforms (Windows, Linux).
@@ -12,22 +8,23 @@ StormByte is a comprehensive, cross-platform C++ library aimed at easing system 
 - **Database Handling**: Includes SQLite support for embedded database management while hiding SQLite3 internals conveniently.
 - **Logging**: Offers various logging levels, customizable formats, and supports outputs to files, streams, or other destinations.
 - **Multimedia**: Includes a set of classes to work with multimedia files.
-- **Network**: All the needed classes to handle network communication portable to Linux and Windows.
-- **System Operations**: Handles pipes, processes, and system variables seamlessly across different platforms.
+- **Network**: Contains everything needed to handle network communication portable to Linux and Windows.
+- **System Operations**: Manages pipes, processes, and system variables seamlessly across different platforms.
+- **Buffers**: Provides a variety of buffer types for managing byte data in both single-threaded and multi-threaded environments. This includes lightweight non-thread-safe buffers, thread-safe shared buffers, and robust producer/consumer models that track buffer status.
 
 ## Table of Contents
 
-- [Repository](#Repository)
-- [Installation](#Installation)
-- [Modules](#Modules)
-	- **Base**
-	- [Config](https://dev.stormbyte.org/StormByte-Config)
-	- [Database](https://dev.stormbyte.org/StormByte-Database)
-	- [Multimedia](https://dev.stormbyte.org/StormByte-Multimedia)
-	- [Network](https://dev.stormbyte.org/StormByte-Network)
-	- [System](https://dev.stormbyte.org/StormByte-System)
-- [Contributing](#Contributing)
-- [License](#License)
+- [Repository](#repository)
+- [Installation](#installation)
+- [Modules](#modules)
+  - **Base**
+  - [Config](https://dev.stormbyte.org/StormByte-Config)
+  - [Database](https://dev.stormbyte.org/StormByte-Database)
+  - [Multimedia](https://dev.stormbyte.org/StormByte-Multimedia)
+  - [Network](https://dev.stormbyte.org/StormByte-Network)
+  - [System](https://dev.stormbyte.org/StormByte-System)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Repository
 
@@ -57,13 +54,11 @@ make
 
 ## Modules
 
-StormByte Library is composed by several modules:
+StormByte Library is composed of several modules:
 
 ### Base
 
-Base component is the most basic part of the library containing only templates, string helpers, and base exception framework.
-
----
+The Base component is the core of the library containing only templates, string helpers, and the base exception framework.
 
 ### Logger
 
@@ -110,25 +105,159 @@ int main() {
 }
 ```
 
-##### Using Custom Formats
+### Buffers
+
+The Buffers module provides a robust set of classes for managing byte data. With support for both thread-safe and non-thread-safe buffers—as well as for producer/consumer models—you can choose the right buffer to suit your use case.
+
+#### Simple Buffer
+
+The `Simple` buffer is designed for performance-critical, single-threaded scenarios. It offers lightweight operations for appending, reading, and seeking within the buffer.
+
+**Example:**
 ```cpp
-#include <StormByte/logger/log.hxx>
+#include <StormByte/buffers/simple.hxx>
 #include <iostream>
 
-using namespace StormByte::Logger;
+int main() {
+    // Create a simple buffer with initial data.
+    StormByte::Buffers::Simple simpleBuffer("Initial data");
+    simpleBuffer << " appended text";
+    
+    // Retrieve the buffer content.
+    auto data = simpleBuffer.Data();
+    std::string output(data.begin(), data.end());
+    std::cout << "Simple Buffer contents: " << output << std::endl;
+    return 0;
+}
+```
+
+#### Shared Buffer
+
+The `Shared` buffer extends `Simple` by adding thread safety through a `std::shared_mutex`. It allows concurrent reads and exclusive writes, making it ideal for multi-threaded contexts.
+
+**Example:**
+```cpp
+#include <StormByte/buffers/shared.hxx>
+#include <iostream>
+#include <thread>
+
+void writeData(StormByte::Buffers::Shared& sharedBuffer) {
+    sharedBuffer << " Thread data";
+}
 
 int main() {
-    Log logger(std::cout, Level::Info, "[%L]: ");
-    logger << Level::Notice << "Notice message." << std::endl;
+    StormByte::Buffers::Shared sharedBuffer("Start");
+    
+    // Launch two threads that write data concurrently.
+    std::thread t1(writeData, std::ref(sharedBuffer));
+    std::thread t2(writeData, std::ref(sharedBuffer));
+    
+    t1.join();
+    t2.join();
+    
+    // Display the hexadecimal representation of the shared buffer.
+    std::cout << "Shared Buffer Hex: " << sharedBuffer.HexData() << std::endl;
+    return 0;
+}
+```
+
+#### Async Buffer
+
+The `Async` class provides the foundation for a multi-threaded producer/consumer model. It safely handles concurrent reads and writes by offering helper methods to obtain `Producer` and `Consumer` instances.
+
+**Example:**
+```cpp
+#include <StormByte/buffers/async.hxx>
+#include <StormByte/buffers/producer.hxx>
+#include <StormByte/buffers/consumer.hxx>
+#include <iostream>
+#include <memory>
+#include <thread>
+
+int main() {
+    // Create a shared Async buffer and obtain Producer and Consumer instances.
+    auto asyncBuffer = std::make_shared<StormByte::Buffers::Async>();
+    auto producer = asyncBuffer->Producer();
+    auto consumer = asyncBuffer->Consumer();
+    
+    // Producer thread: Append some data and signal the End of File.
+    std::thread prod([&]() {
+        *producer << "Async data: Hello from producer.";
+        *producer << StormByte::Buffers::Status::EoF;
+    });
+    
+    // Consumer thread: Extract data from the buffer.
+    std::thread cons([&]() {
+        auto data = consumer->Extract(25);
+        if (data) {
+            std::string output(data.value().begin(), data.value().end());
+            std::cout << "Async Buffer extracted: " << output << std::endl;
+        }
+    });
+    
+    prod.join();
+    cons.join();
+    
+    return 0;
+}
+```
+
+#### Producer Buffer
+
+The `Producer` is a write-only buffer designed for use in producer/consumer models. It supports appending data using overloaded `operator<<` calls, seamlessly integrating various data sources.
+
+**Example:**
+```cpp
+#include <StormByte/buffers/producer.hxx>
+#include <iostream>
+
+int main() {
+    // Create an Async buffer and initialize a Producer instance with it.
+    StormByte::Buffers::Async asyncBuffer;
+    StormByte::Buffers::Producer producer(asyncBuffer);
+    
+    // Append data to the buffer.
+    producer << "Producer writes data.";
+    producer << StormByte::Buffers::Status::EoF;
+    
+    std::cout << "Data appended by Producer." << std::endl;
+    return 0;
+}
+```
+
+#### Consumer Buffer
+
+The `Consumer` buffer supports destructive read operations in a thread-safe manner—once data is extracted it is removed from the buffer. This is ideal for scenarios where data should be processed only once.
+
+**Example:**
+```cpp
+#include <StormByte/buffers/consumer.hxx>
+#include <iostream>
+
+int main() {
+    // Create an Async buffer and initialize a Consumer instance with it.
+    StormByte::Buffers::Async asyncBuffer;
+    StormByte::Buffers::Consumer consumer(asyncBuffer);
+    
+    // In a real-world scenario, a Producer would be adding data.
+    // Here we simulate data already being available.
+    auto result = consumer.Extract(10);
+    if (result) {
+        std::string readString(result.value().begin(), result.value().end());
+        std::cout << "Consumer extracted data: " << readString << std::endl;
+    } else {
+        std::cerr << "Extraction error." << std::endl;
+    }
+    
     return 0;
 }
 ```
 
 ### Serializable
 
-The `Serializable` template class provides a way to serialize and deserialize data. It works with trivially copyable types, standard library types, containers, and can be specialized to include custom objects with the `SerializeComplex` and `DeserializeComplex` functions.
+The `Serializable` template class provides a way to serialize and deserialize data. It works with trivially copyable types, standard library types, containers, and can be specialized for custom objects.
 
-#### Example Usage with Trivially Copyable Type
+#### Example Usage with a Trivially Copyable Type
 
 ```cpp
 #include <StormByte/util/serializable.hxx>
@@ -138,90 +267,54 @@ The `Serializable` template class provides a way to serialize and deserialize da
 using namespace StormByte::Util;
 
 struct MyStruct {
-	int a;
-	float b;
+    int a;
+    float b;
 };
 
 template<>
 class Serializable<MyStruct> {
 public:
-	Serializable(const MyStruct& data) : m_data(data) {}
+    Serializable(const MyStruct& data) : m_data(data) {}
 
-	Buffer Serialize() const noexcept {
-		Buffer buffer;
-		buffer << Serializable<int>(m_data.a).Serialize();
-		buffer << Serializable<float>(m_data.b).Serialize();
-		return buffer;
-	}
+    Buffer Serialize() const noexcept {
+        Buffer buffer;
+        buffer << Serializable<int>(m_data.a).Serialize();
+        buffer << Serializable<float>(m_data.b).Serialize();
+        return buffer;
+    }
 
-	static StormByte::Expected<MyStruct, BufferException> Deserialize(const Buffer& buffer) noexcept {
-		auto a = Serializable<int>::Deserialize(buffer);
-		if (!a) return StormByte::Unexpected<BufferException>(a.error());
+    static StormByte::Expected<MyStruct, BufferException> Deserialize(const Buffer& buffer) noexcept {
+        auto a = Serializable<int>::Deserialize(buffer);
+        if (!a) return StormByte::Unexpected<BufferException>(a.error());
 
-		auto b = Serializable<float>::Deserialize(buffer);
-		if (!b) return StormByte::Unexpected<BufferException>(b.error());
+        auto b = Serializable<float>::Deserialize(buffer);
+        if (!b) return StormByte::Unexpected<BufferException>(b.error());
 
-		return MyStruct{a.value(), b.value()};
-	}
+        return MyStruct{a.value(), b.value()};
+    }
 
 private:
-	const MyStruct& m_data;
+    const MyStruct& m_data;
 };
 
 int main() {
-	MyStruct myStruct = {42, 3.14f};
-	Serializable<MyStruct> serializable(myStruct);
+    MyStruct myStruct = {42, 3.14f};
+    Serializable<MyStruct> serializable(myStruct);
 
-	// Serialize
-	Buffer buffer = serializable.Serialize();
-	std::cout << "Serialized data: " << buffer.HexData() << std::endl;
+    // Serialize
+    Buffer buffer = serializable.Serialize();
+    std::cout << "Serialized data: " << buffer.HexData() << std::endl;
 
-	// Deserialize
-	auto deserialized = Serializable<MyStruct>::Deserialize(buffer);
-	if (deserialized) {
-		MyStruct deserializedStruct = deserialized.value();
-		std::cout << "Deserialized data: a = " << deserializedStruct.a << ", b = " << deserializedStruct.b << std::endl;
-	} else {
-		std::cerr << "Deserialization failed: " << deserialized.error().what() << std::endl;
-	}
+    // Deserialize
+    auto deserialized = Serializable<MyStruct>::Deserialize(buffer);
+    if (deserialized) {
+        MyStruct deserializedStruct = deserialized.value();
+        std::cout << "Deserialized data: a = " << deserializedStruct.a << ", b = " << deserializedStruct.b << std::endl;
+    } else {
+        std::cerr << "Deserialization failed: " << deserialized.error().what() << std::endl;
+    }
 
-	return 0;
-}
-```
-
-### Buffer
-
-The `Buffer` class provides a powerful and memory-safe way to store and manipulate byte buffers. It supports various operations such as appending data, reading data, and converting data to a hexadecimal string representation.
-
-#### Example Usage
-
-```cpp
-#include <StormByte/util/buffer.hxx>
-#include <iostream>
-
-using namespace StormByte::Util;
-
-int main() {
-	// Create a buffer from a string
-	Buffer buffer("Hello, World!", 13);
-
-	// Append more data to the buffer
-	buffer << " More data";
-
-	// Print the buffer contents as a hexadecimal string
-	std::cout << "Buffer contents (hex):" << std::endl;
-	std::cout << buffer.HexData() << std::endl;
-
-	// Read data from the buffer
-	auto readData = buffer.Read(5);
-	if (readData) {
-		std::string readString(reinterpret_cast<const char*>(readData.value().data()), readData.value().size());
-		std::cout << "Read data: " << readString << std::endl;
-	} else {
-		std::cerr << "Read failed: " << readData.error().what() << std::endl;
-	}
-
-	return 0;
+    return 0;
 }
 ```
 
@@ -232,3 +325,4 @@ Contributions are welcome! Please fork the repository and submit pull requests f
 ## License
 
 This project is licensed under GPL v3 License - see the [LICENSE](LICENSE) file for details.
+```

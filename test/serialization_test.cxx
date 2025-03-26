@@ -12,7 +12,7 @@ using namespace StormByte;
 int test_serialize_int() {
 	int data = 42;
 	Serializable<int> serialization(data);
-	Buffer buffer = serialization.Serialize();
+	Buffers::Simple buffer = serialization.Serialize();
 	if (buffer.Size() == 0)
 		RETURN_TEST("test_serialize_int", 1);
 
@@ -27,7 +27,7 @@ int test_serialize_int() {
 int test_serialize_double() {
 	double data = 777.777;
 	Serializable<double> serialization(data);
-	Buffer buffer = serialization.Serialize();
+	Buffers::Simple buffer = serialization.Serialize();
 	if (buffer.Size() == 0)
 		RETURN_TEST("test_serialize_double", 1);
 	
@@ -42,7 +42,7 @@ int test_serialize_double() {
 int test_serialize_string() {
 	std::string data = "Hello, World!";
 	Serializable<std::string> serialization(data);
-	Buffer buffer = serialization.Serialize();
+	Buffers::Simple buffer = serialization.Serialize();
 	if (buffer.Size() == 0)
 		RETURN_TEST("test_serialize_string", 1);
 	
@@ -58,7 +58,7 @@ int test_serialize_size_t() {
 	std::string data = "Hello, World!";
 	std::size_t size = data.size();
 	Serializable<std::size_t> serialization(size);
-	Buffer buffer = serialization.Serialize();
+	Buffers::Simple buffer = serialization.Serialize();
 	if (buffer.Size() == 0)
 		RETURN_TEST("test_serialize_size_t", 1);
 	
@@ -73,7 +73,7 @@ int test_serialize_size_t() {
 int test_serialize_string_vector() {
 	std::vector<std::string> data = { "Hello", "World!" };
 	Serializable<std::vector<std::string>> serialization(data);
-	Buffer buffer = serialization.Serialize();
+	Buffers::Simple buffer = serialization.Serialize();
 	if (buffer.Size() == 0)
 		RETURN_TEST("test_serialize_string_vector", 1);
 	
@@ -90,7 +90,7 @@ int test_serialize_string_vector() {
 int test_serialize_pair() {
 	std::pair<int, double> data = { 42, 777.777 };
 	Serializable<std::pair<int, double>> serialization(data);
-	Buffer buffer = serialization.Serialize();
+	Buffers::Simple buffer = serialization.Serialize();
 	if (buffer.Size() == 0)
 		RETURN_TEST("test_serialize_pair", 1);
 	
@@ -107,7 +107,7 @@ int test_serialize_pair() {
 int test_serialize_map() {
 	std::map<int, std::string> data = { { 1, "Hello" }, { 2, "World!" } };
 	Serializable<std::map<int, std::string>> serialization(data);
-	Buffer buffer = serialization.Serialize();
+	Buffers::Simple buffer = serialization.Serialize();
 	if (buffer.Size() == 0)
 		RETURN_TEST("test_serialize_map", 1);
 	
@@ -122,77 +122,77 @@ int test_serialize_map() {
 }
 
 int test_serialize_int_truncated() {
-    int data = 42;
-    Serializable<int> serialization(data);
-    Buffer buffer = serialization.Serialize();
-    if (buffer.Size() == 0)
-        RETURN_TEST("test_serialize_int_truncated", 1);
+	int data = 42;
+	Serializable<int> serialization(data);
+	Buffers::Simple buffer = serialization.Serialize();
+	if (buffer.Size() == 0)
+		RETURN_TEST("test_serialize_int_truncated", 1);
 
-    // Truncamos el buffer a la mitad de su tamaño esperado
-    auto expected_truncated_buffer = buffer.Read(sizeof(int) / 2);
+	// Truncamos el buffer a la mitad de su tamaño esperado
+	auto expected_truncated_buffer = buffer.Read(sizeof(int) / 2);
 	if (!expected_truncated_buffer) {
 		std::cerr << expected_truncated_buffer.error()->what() << std::endl;
 		RETURN_TEST("test_serialize_int_truncated", 1);
 	}
-    auto expected_data = Serializable<int>::Deserialize(expected_truncated_buffer.value());
-    if (expected_data) {
-        std::cerr << "Expected failure, but got value: " << expected_data.value() << std::endl;
-        RETURN_TEST("test_serialize_int_truncated", 1);
-    }
+	auto expected_data = Serializable<int>::Deserialize(expected_truncated_buffer.value());
+	if (expected_data) {
+		std::cerr << "Expected failure, but got value: " << expected_data.value() << std::endl;
+		RETURN_TEST("test_serialize_int_truncated", 1);
+	}
 
-    RETURN_TEST("test_serialize_int_truncated", 0);
+	RETURN_TEST("test_serialize_int_truncated", 0);
 }
 
 int test_serialize_string_vector_truncated() {
-    std::vector<std::string> data = { "Hello", "World!" };
-    Serializable<std::vector<std::string>> serialization(data);
-    Buffer buffer = serialization.Serialize();
-    if (buffer.Size() == 0)
-        RETURN_TEST("test_serialize_string_vector_truncated", 1);
+	std::vector<std::string> data = { "Hello", "World!" };
+	Serializable<std::vector<std::string>> serialization(data);
+	Buffers::Simple buffer = serialization.Serialize();
+	if (buffer.Size() == 0)
+		RETURN_TEST("test_serialize_string_vector_truncated", 1);
 
-    // Truncamos el buffer para que solo incluya el tamaño y parte del primer elemento
-    std::size_t truncated_length = sizeof(std::size_t) + 2; // Tamaño + 2 bytes del primer string
+	// Truncamos el buffer para que solo incluya el tamaño y parte del primer elemento
+	std::size_t truncated_length = sizeof(std::size_t) + 2; // Tamaño + 2 bytes del primer string
 	auto expected_truncated_buffer = buffer.Read(truncated_length);
 	if (!expected_truncated_buffer) {
 		std::cerr << expected_truncated_buffer.error()->what() << std::endl;
 		RETURN_TEST("test_serialize_string_vector_truncated", 1);
 	}
-    auto expected_data = Serializable<std::vector<std::string>>::Deserialize(expected_truncated_buffer.value());
-    if (expected_data) {
-        std::cerr << "Expected failure, but got value" << std::endl;
-        RETURN_TEST("test_serialize_string_vector_truncated", 1);
-    }
+	auto expected_data = Serializable<std::vector<std::string>>::Deserialize(expected_truncated_buffer.value());
+	if (expected_data) {
+		std::cerr << "Expected failure, but got value" << std::endl;
+		RETURN_TEST("test_serialize_string_vector_truncated", 1);
+	}
 
-    RETURN_TEST("test_serialize_string_vector_truncated", 0);
+	RETURN_TEST("test_serialize_string_vector_truncated", 0);
 }
 
 int test_serialize_pair_truncated() {
-    std::pair<int, double> data = { 42, 777.777 };
-    Serializable<std::pair<int, double>> serialization(data);
-    Buffer buffer = serialization.Serialize();
-    if (buffer.Size() == 0)
-        RETURN_TEST("test_serialize_pair_truncated", 1);
+	std::pair<int, double> data = { 42, 777.777 };
+	Serializable<std::pair<int, double>> serialization(data);
+	Buffers::Simple buffer = serialization.Serialize();
+	if (buffer.Size() == 0)
+		RETURN_TEST("test_serialize_pair_truncated", 1);
 
-    // Truncamos el buffer para que solo incluya el int (primer elemento)
-    std::size_t truncated_length = sizeof(int);
+	// Truncamos el buffer para que solo incluya el int (primer elemento)
+	std::size_t truncated_length = sizeof(int);
 	auto expected_truncated_buffer = buffer.Read(truncated_length);
 	if (!expected_truncated_buffer) {
 		std::cerr << expected_truncated_buffer.error()->what() << std::endl;
 		RETURN_TEST("test_serialize_pair_truncated", 1);
 	}
-    auto expected_data = Serializable<std::pair<int, double>>::Deserialize(expected_truncated_buffer.value());
-    if (expected_data) {
-        std::cerr << "Expected failure, but got value: (" << expected_data.value().first << ", " << expected_data.value().second << ")" << std::endl;
-        RETURN_TEST("test_serialize_pair_truncated", 1);
-    }
+	auto expected_data = Serializable<std::pair<int, double>>::Deserialize(expected_truncated_buffer.value());
+	if (expected_data) {
+		std::cerr << "Expected failure, but got value: (" << expected_data.value().first << ", " << expected_data.value().second << ")" << std::endl;
+		RETURN_TEST("test_serialize_pair_truncated", 1);
+	}
 
-    RETURN_TEST("test_serialize_pair_truncated", 0);
+	RETURN_TEST("test_serialize_pair_truncated", 0);
 }
 
 int test_serialize_optional_notempty() {
 	std::optional<int> data = 42;
 	Serializable<std::optional<int>> serialization(data);
-	Buffer buffer = serialization.Serialize();
+	Buffers::Simple buffer = serialization.Serialize();
 	if (buffer.Size() == 0)
 		RETURN_TEST("test_serialize_optional_notempty", 1);
 
@@ -209,7 +209,7 @@ int test_serialize_optional_notempty() {
 int test_serialize_optional_empty() {
 	std::optional<int> data;
 	Serializable<std::optional<int>> serialization(data);
-	Buffer buffer = serialization.Serialize();
+	Buffers::Simple buffer = serialization.Serialize();
 	if (buffer.Size() == 0)
 		RETURN_TEST("test_serialize_optional_empty", 1);
 
@@ -226,7 +226,7 @@ int test_serialize_optional_empty() {
 int test_serialize_optional_string() {
 	std::optional<std::string> data = "Hello, World!";
 	Serializable<std::optional<std::string>> serialization(data);
-	Buffer buffer = serialization.Serialize();
+	Buffers::Simple buffer = serialization.Serialize();
 	if (buffer.Size() == 0)
 		RETURN_TEST("test_serialize_optional_string", 1);
 
@@ -241,7 +241,7 @@ int test_serialize_optional_string() {
 }
 
 int main() {
-    int result = 0;
+	int result = 0;
 	result += test_serialize_int();
 	result += test_serialize_double();
 	result += test_serialize_string();
@@ -256,10 +256,10 @@ int main() {
 	result += test_serialize_optional_empty();
 	result += test_serialize_optional_string();
 
-    if (result == 0) {
-        std::cout << "All tests passed!" << std::endl;
-    } else {
-        std::cout << result << " tests failed." << std::endl;
-    }
-    return result;
+	if (result == 0) {
+		std::cout << "All tests passed!" << std::endl;
+	} else {
+		std::cout << result << " tests failed." << std::endl;
+	}
+	return result;
 }
