@@ -16,6 +16,10 @@ if(ENABLE_TEST AND NOT STORMBYTE_AS_DEPENDENCY)
 	target_link_libraries(MutexedTests StormByte)
 	add_test(NAME MutexedTests COMMAND MutexedTests)
 
+	add_executable(ProducerConsumerTests producer_consumer_test.cxx)
+	target_link_libraries(ProducerConsumerTests StormByte)
+	add_test(NAME ProducerConsumerTests COMMAND ProducerConsumerTests)
+
 	add_executable(SerializationTests serialization_test.cxx)
 	target_link_libraries(SerializationTests StormByte)
 	add_test(NAME SerializationTests COMMAND SerializationTests)
