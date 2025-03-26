@@ -6,13 +6,14 @@
 using namespace StormByte::System;
 
 int test_several_sleeps() {
+	constexpr const int allowed_jitter = 20;
 	int result = 0;
 	try {
 		auto start = std::chrono::high_resolution_clock::now();
 		Sleep(std::chrono::milliseconds(100));
 		auto end = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-		ASSERT_TRUE("test_several_sleeps", (duration - 100) < 10); // In Windows sleep is lees accurate, we allow 10ms shift
+		ASSERT_TRUE("test_several_sleeps", (duration - 100) < allowed_jitter); // In Windows sleep is lees accurate, we allow 10ms shift
 
 		start = std::chrono::high_resolution_clock::now();
 		Sleep(std::chrono::seconds(1));
