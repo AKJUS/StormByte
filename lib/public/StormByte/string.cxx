@@ -15,6 +15,86 @@
 #include <windows.h> // For MAX_PATH
 #endif
 
+namespace {
+	template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+	std::string HumanReadableByteSize(const T& bytes, const std::string& locale) noexcept {
+		try {
+			constexpr uint64_t KB = 1024;
+			constexpr uint64_t MB = KB * 1024;
+			constexpr uint64_t GB = MB * 1024;
+			constexpr uint64_t TB = GB * 1024;
+			constexpr uint64_t PB = TB * 1024;
+
+			double value = static_cast<double>(bytes);
+			std::string suffix = "Bytes";
+
+			if (bytes >= PB) {
+				value /= PB;
+				suffix = "PiB";
+			} else if (bytes >= TB) {
+				value /= TB;
+				suffix = "TiB";
+			} else if (bytes >= GB) {
+				value /= GB;
+				suffix = "GiB";
+			} else if (bytes >= MB) {
+				value /= MB;
+				suffix = "MiB";
+			} else if (bytes >= KB) {
+				value /= KB;
+				suffix = "KiB";
+			}
+
+			std::ostringstream oss;
+			try {
+				oss.imbue(std::locale(locale));
+			} catch (...) {
+				oss.imbue(std::locale("C"));
+			}
+
+			if (std::fabs(value - std::round(value)) < 0.01) {
+				oss << static_cast<int64_t>(std::round(value));
+			} else if (value < 0.01) {
+				oss << "0";
+			} else {
+				oss << std::fixed << std::setprecision(2) << value;
+			}
+
+			return oss.str() + " " + suffix;
+
+		} catch (...) {
+			return std::to_string(bytes) + " Bytes";
+		}
+	}
+
+	template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T> && !std::is_same_v<T, wchar_t>>>
+	std::string HumanReadableNumber(const T& number, const std::string& locale) noexcept {
+		try {
+			std::ostringstream oss;
+
+			try {
+				oss.imbue(std::locale(locale));
+			} catch (...) {
+				oss.imbue(std::locale("C"));
+			}
+
+			if constexpr (std::is_integral_v<T>) {
+				oss << number;
+			} else if constexpr (std::is_floating_point_v<T>) {
+				if (std::fmod(number, 1.0) == 0.0) {
+					oss << static_cast<int64_t>(number);
+				} else {
+					oss << std::fixed << std::setprecision(2) << number;
+				}
+			}
+
+			return oss.str();
+		} catch (...) {
+			return std::to_string(number);
+		}
+	}
+}
+
 namespace StormByte::String {
 	std::queue<std::string> Explode(const std::string& str, const char delimiter) {
 		std::queue<std::string> result;
