@@ -250,7 +250,7 @@ namespace StormByte::Buffers {
 			 * @param position The position to move to, interpreted based on the specified mode.
 			 * @param mode The mode to use for seeking (e.g., `Begin`, `End`, `Relative`, `Absolute`).
 			 */
-			void 																Seek(const std::ptrdiff_t& position, const Read::Position& mode);
+			void 																Seek(const std::ptrdiff_t& position, const Read::Position& mode) const;
 
 			/**
 			 * @brief Retrieves the length of the shared buffer

@@ -198,7 +198,7 @@ void Simple::Reserve(const std::size_t& size) {
 	m_data.reserve(size);
 }
 
-void Simple::Seek(const std::ptrdiff_t& position, const Read::Position& mode) {
+void Simple::Seek(const std::ptrdiff_t& position, const Read::Position& mode) const {
 	std::size_t new_position = 0;
 
 	if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(Read::Position::Begin)) {

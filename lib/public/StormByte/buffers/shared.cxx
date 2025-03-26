@@ -127,7 +127,7 @@ void Shared::Reserve(const std::size_t& size) {
 	Simple::Reserve(size);
 }
 
-void Shared::Seek(const std::ptrdiff_t& position, const Read::Position& mode) {
+void Shared::Seek(const std::ptrdiff_t& position, const Read::Position& mode) const {
 	std::unique_lock lock(m_data_mutex);
 	Simple::Seek(position, mode);
 }
