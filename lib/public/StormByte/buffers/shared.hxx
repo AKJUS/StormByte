@@ -174,48 +174,69 @@ namespace StormByte::Buffers {
 			void 																Clear() noexcept override;
 
 			/**
-			 * @brief Retrieves the stored value
-			 * @return Span of the stored value.
+			 * @brief Retrieves a copy of the buffer data.
+			 * 
+			 * This method returns a copy of the data stored in the buffer.
+			 * It is suitable for scenarios where the caller needs to work
+			 * with an independent copy of the buffer's contents.
+			 * 
+			 * @return A copy of the buffer data as a vector of bytes.
 			 */
 			Buffers::Data 														Data() const noexcept override;
 
 			/**
-			 * @brief Deleted function to prevent usage of Span in Shared.
-			 *
-			 * The `Span()` function is deleted in the `Shared` class to ensure thread safety. Returning a `std::span`
-			 * provides a lightweight view into the internal buffer, but it does not own the data. In a multi-threaded
-			 * environment, concurrent modifications to the buffer could invalidate the span, leading to undefined
-			 * behavior or memory access issues.
-			 *
-			 * Use the `Data()` method instead to retrieve a thread-safe copy of the buffer's contents.
+			 * @brief Checks if the read position is at the end
+			 * @return True if the read position is at the end, false otherwise.
 			 */
-			std::span<Byte> 													Span() noexcept = delete;
+			bool 																End() const noexcept override;
 
 			/**
-			 * @brief Deleted function to prevent usage of Span in Shared.
-			 *
-			 * The `Span()` function is deleted in the `Shared` class to ensure thread safety. Returning a `std::span`
-			 * provides a lightweight view into the internal buffer, but it does not own the data. In a multi-threaded
-			 * environment, concurrent modifications to the buffer could invalidate the span, leading to undefined
-			 * behavior or memory access issues.
-			 *
-			 * Use the `Data()` method instead to retrieve a thread-safe copy of the buffer's contents.
+			 * @brief Checks if shared buffer is empty
+			 * @return True if the shared buffer is empty, false otherwise.
 			 */
-			const std::span<const Byte> 										Span() const noexcept = delete;
+			bool 																Empty() const noexcept override;
 
 			/**
-			 * @brief Retrieves the stored value as a hexadecimal string
-			 * @param column_size Number of bytes per column in the output.
-			 * @return Hexadecimal string representation of the stored value.
+			 * @brief Extracts a specific size of data, taking ownership of the read data and removing it from the shared buffer.
+			 * @param length Length of the data to read and remove from the shared buffer.
+			 * @return `ExpectedBuffers::DataType` containing the requested data, or an `Unexpected` with a `BufferOverflow` error if
+			 *         insufficient data exists.
 			 */
-			std::string 														HexData(const std::size_t& column_size = 16) const;
+			ExpectedData<BufferOverflow> 										Extract(const size_t& length) override;
 
 			/**
 			 * @brief Checks if the shared buffer has enough data starting from the current read position.
 			 * @param length Length of the data to check.
 			 * @return True if the shared buffer has enough data starting from the current position, false otherwise.
 			 */
-			bool 																HasEnoughData(const std::size_t& length) const;
+			bool 																HasEnoughData(const std::size_t& length) const override;
+
+			/**
+			 * @brief Retrieves the stored value as a hexadecimal string
+			 * @param column_size Number of bytes per column in the output.
+			 * @return Hexadecimal string representation of the stored value.
+			 */
+			std::string 														HexData(const std::size_t& column_size = 16) const override;
+
+			/**
+			 * @brief Locks the shared buffer for exclusive access.
+			 * 
+			 * This method prevents other threads from reading or writing to the buffer
+			 * until `Unlock()` is called. It is mandatory to call this method before
+			 * using `Span()` functions to ensure thread safety and avoid memory corruption.
+			 */
+			void 																Lock();
+
+			/**
+			 * @brief Peeks at the next byte in the shared buffer without advancing the read position.
+			 * 
+			 * This method retrieves the next byte in the buffer without modifying the read position.
+			 * It is useful for inspecting the next byte without consuming it.
+			 * 
+			 * @return `ExpectedByte<BufferOverflow>` containing the next byte, or an 
+			 *         `Unexpected` with an appropriate error if the buffer is empty or an error occurs.
+			 */
+			ExpectedByte<BufferOverflow>										Peek() const override;
 
 			/**
 			 * @brief Retrieves the read position
@@ -224,51 +245,46 @@ namespace StormByte::Buffers {
 			std::size_t 														Position() const noexcept override;
 
 			/**
-			 * @brief Gets a shared buffer of a specific length since current read position
-			 * @param length Length of the shared buffer to read.
-			 * @return Span of the requested length or a BufferOverflow error.
+			 * @brief Reads a specific size of data starting from the current read position.
+			 * 
+			 * This method retrieves a copy of the requested portion of data from the buffer, starting
+			 * at the current read position and spanning the specified length. If there is not enough
+			 * data available, it will wait for data to become available or return an error if the end
+			 * of the buffer is reached or an error occurs.
+			 * 
+			 * @param length Length of the data to read.
+			 * @return `ExpectedDataType` containing a copy of the requested data, or an 
+			 *         `Unexpected` with a `BufferOverflow` or other error if insufficient data exists.
 			 */
-			ExpectedConstByteSpan<BufferOverflow> 								Read(const size_t& length) const;
-
-			/**
-			 * @brief Extracts a specific size of data, taking ownership of the read data and removing it from the shared buffer.
-			 * @param length Length of the data to read and remove from the shared buffer.
-			 * @return `ExpectedBuffers::DataType` containing the requested data, or an `Unexpected` with a `BufferOverflow` error if
-			 *         insufficient data exists.
-			 */
-			ExpectedData<BufferOverflow> 										Extract(const size_t& length);
+			ExpectedData<BufferOverflow> 										Read(const size_t& length) const override;
 
 			/**
 			 * @brief Reserves shared buffer size
 			 * Ensures the shared buffer has enough capacity for the specified size.
 			 * @param size Size to reserve.
 			 */
-			void 																Reserve(const std::size_t& size);
+			void 																Reserve(const std::size_t& size) override;
 
 			/**
 			 * @brief Moves the read pointer within the shared buffer based on the specified position and mode.
 			 * @param position The position to move to, interpreted based on the specified mode.
 			 * @param mode The mode to use for seeking (e.g., `Begin`, `End`, `Relative`, `Absolute`).
 			 */
-			void 																Seek(const std::ptrdiff_t& position, const Read::Position& mode) const;
+			void 																Seek(const std::ptrdiff_t& position, const Read::Position& mode) const override;
 
 			/**
 			 * @brief Retrieves the length of the shared buffer
 			 * @return Length of the shared buffer.
 			 */
-			std::size_t 														Size() const noexcept;
+			std::size_t 														Size() const noexcept override;
 
 			/**
-			 * @brief Checks if shared buffer is empty
-			 * @return True if the shared buffer is empty, false otherwise.
+			 * @brief Unlocks the shared buffer, releasing exclusive access.
+			 * 
+			 * This method allows other threads to access the buffer after it has been
+			 * locked using `Lock()`. It must be called to release the lock.
 			 */
-			bool 																Empty() const noexcept;
-
-			/**
-			 * @brief Checks if the read position is at the end
-			 * @return True if the read position is at the end, false otherwise.
-			 */
-			bool 																End() const noexcept;
+			void 																Unlock();
 
 		private:
 			mutable std::shared_mutex m_data_mutex; 							///< Mutex for thread safety.

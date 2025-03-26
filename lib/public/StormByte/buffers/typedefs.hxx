@@ -45,6 +45,27 @@ namespace StormByte::Buffers {
 			Relative 	= 0x04,		///< The read position is relative to the current position.
 			Absolute 	= 0x08		///< The read position is absolute.
 		};
+
+		/**
+		 * @enum Mode
+		 * @brief Defines the behavior for read operations in concurrent buffers.
+		 *
+		 * The `Mode` enumeration specifies whether a read operation should wait
+		 * until the requested data is fully available or return immediately with
+		 * the available data, even if it is incomplete.
+		 *
+		 * **Values:**
+		 * - `Full`: The read operation will wait until the requested data is fully
+		 *   available. This ensures that the read is complete but may block the
+		 *   calling thread.
+		 * - `Partial`: The read operation will return immediately with the available
+		 *   data, even if it is less than the requested amount. This is useful for
+		 *   non-blocking or time-sensitive operations.
+		 */
+		enum class Mode : unsigned short {
+			Full,    ///< Reads the full requested size, waiting if necessary.
+			Partial  ///< Reads a partial size, returning immediately with available data.
+		};
 	}
 
 	/**

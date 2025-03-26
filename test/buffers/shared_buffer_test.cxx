@@ -84,10 +84,53 @@ int test_concurrent_reads_and_writes() {
 	RETURN_TEST("test_concurrent_reads_and_writes", 0);
 }
 
+int test_manual_locking() {
+	Buffers::Shared buffer;
+
+	// Pre-fill the buffer with some data
+	buffer << "InitialData";
+
+	auto writer = [&buffer]() {
+		for (int i = 0; i < 100; ++i) {
+			buffer << "WriterData";
+		}
+	};
+
+	// Lock the buffer manually
+	buffer.Lock();
+
+	// Get a span view of the data while the buffer is locked
+	auto span_data = buffer.Span();
+	std::string span_result(reinterpret_cast<const char*>(span_data.data()), span_data.size());
+
+	// Start a writer thread that tries to modify the buffer
+	std::thread t1(writer);
+
+	// Simulate some processing while the buffer is locked
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+	// Verify that the buffer content has not changed
+	ASSERT_EQUAL("test_manual_locking", "InitialData", span_result);
+
+	// Unlock the buffer
+	buffer.Unlock();
+
+	// Wait for the writer thread to finish
+	t1.join();
+
+	// Verify that the buffer was correctly unlocked and modified
+	std::string final_result(reinterpret_cast<const char*>(buffer.Data().data()), buffer.Size());
+	size_t writer_data_count = std::count(final_result.begin(), final_result.end(), 'W'); // Count occurrences of 'W' (start of "WriterData")
+	ASSERT_EQUAL("test_manual_locking", 100, writer_data_count); // Expect 100 occurrences of "WriterData"
+
+	RETURN_TEST("test_manual_locking", 0);
+}
+
 int main() {
 	int result = 0;
 	result += test_concurrent_writes();
 	result += test_concurrent_reads_and_writes();
+	result += test_manual_locking();
 
 	if (result == 0) {
 		std::cout << "All tests passed successfully" << std::endl;

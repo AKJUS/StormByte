@@ -179,28 +179,31 @@ namespace StormByte::Buffers {
 			virtual Buffers::Data 													Data() const noexcept;
 
 			/**
-			 * @brief Retrieves a const view (span) to the stored value.
-			 * 
-			 * This method provides a lightweight, read-only view of the
-			 * buffer's contents without copying the data. The returned
-			 * span remains valid as long as the buffer is not modified.
-			 * 
-			 * @return A read-only span of the stored value.
-			 * @note Modifying the buffer invalidates the returned span.
+			 * @brief Checks if simple buffer is empty
+			 * @return True if the simple buffer is empty, false otherwise.
 			 */
-			const std::span<const Byte> 											Span() const noexcept;
+			virtual bool 															Empty() const noexcept;
 
 			/**
-			 * @brief Retrieves a view (span) to the stored value.
-			 * 
-			 * This method provides a lightweight, mutable view of the
-			 * buffer's contents without copying the data. The returned
-			 * span remains valid as long as the buffer is not modified.
-			 * 
-			 * @return A mutable span of the stored value.
-			 * @note Modifying the buffer invalidates the returned span.
+			 * @brief Checks if the read position is at the end
+			 * @return True if the read position is at the end, false otherwise.
 			 */
-			std::span<Byte> 														Span() noexcept;
+			virtual bool 															End() const noexcept;
+
+			/**
+			 * @brief Extracts a specific size of data, taking ownership of the read data and removing it from the simple buffer.
+			 * @param length Length of the data to read and remove from the simple buffer.
+			 * @return `ExpectedDataType` containing the requested data, or an `Unexpected` with a `BufferOverflow` error if
+			 *         insufficient data exists.
+			 */
+			virtual ExpectedData<BufferOverflow> 									Extract(const size_t& length);
+
+			/**
+			 * @brief Checks if the simple buffer has enough data starting from the current read position.
+			 * @param length Length of the data to check.
+			 * @return True if the simple buffer has enough data starting from the current position, false otherwise.
+			 */
+			virtual bool 															HasEnoughData(const std::size_t& length) const;
 
 			/**
 			 * @brief Retrieves the stored value as a hexadecimal string.
@@ -214,11 +217,16 @@ namespace StormByte::Buffers {
 			virtual std::string 													HexData(const std::size_t& column_size = 16) const;
 
 			/**
-			 * @brief Checks if the simple buffer has enough data starting from the current read position.
-			 * @param length Length of the data to check.
-			 * @return True if the simple buffer has enough data starting from the current position, false otherwise.
+			 * @brief Retrieves the next byte without incrementing the read position.
+			 * 
+			 * This method allows peeking at the next byte in the buffer without
+			 * advancing the read position. It is useful for inspecting the next
+			 * value without modifying the state of the buffer.
+			 * 
+			 * @return `ExpectedByte` containing the next byte, or an `Unexpected`
+			 *         with a `BufferOverflow` error if there is no more data.
 			 */
-			virtual bool 															HasEnoughData(const std::size_t& length) const;
+			virtual ExpectedByte<BufferOverflow>									Peek() const;
 
 			/**
 			 * @brief Retrieves the read position
@@ -227,19 +235,18 @@ namespace StormByte::Buffers {
 			virtual std::size_t 													Position() const noexcept;
 
 			/**
-			 * @brief Gets a simple buffer of a specific length since current read position
-			 * @param length Length of the simple buffer to read.
-			 * @return Span of the requested length or a BufferOverflow error.
+			 * @brief Reads a specific size of data starting from the current read position.
+			 * 
+			 * This method retrieves a copy of the requested data from the buffer, starting
+			 * at the current read position. The read position is advanced by the specified
+			 * length. If the buffer does not contain enough data, a `BufferOverflow` error
+			 * is returned.
+			 * 
+			 * @param length Length of the data to read.
+			 * @return `ExpectedDataType` containing a copy of the requested data, or an 
+			 *         `Unexpected` with a `BufferOverflow` error if insufficient data exists.
 			 */
-			virtual ExpectedConstByteSpan<BufferOverflow> 							Read(const size_t& length) const;
-
-			/**
-			 * @brief Extracts a specific size of data, taking ownership of the read data and removing it from the simple buffer.
-			 * @param length Length of the data to read and remove from the simple buffer.
-			 * @return `ExpectedDataType` containing the requested data, or an `Unexpected` with a `BufferOverflow` error if
-			 *         insufficient data exists.
-			 */
-			virtual ExpectedData<BufferOverflow> 									Extract(const size_t& length);
+			virtual ExpectedData<BufferOverflow> 									Read(const size_t& length) const;
 
 			/**
 			 * @brief Reserves simple buffer size
@@ -262,16 +269,28 @@ namespace StormByte::Buffers {
 			virtual std::size_t 													Size() const noexcept;
 
 			/**
-			 * @brief Checks if simple buffer is empty
-			 * @return True if the simple buffer is empty, false otherwise.
+			 * @brief Retrieves a const view (span) to the stored value.
+			 * 
+			 * This method provides a lightweight, read-only view of the
+			 * buffer's contents without copying the data. The returned
+			 * span remains valid as long as the buffer is not modified.
+			 * 
+			 * @return A read-only span of the stored value.
+			 * @note Modifying the buffer invalidates the returned span.
 			 */
-			virtual bool 															Empty() const noexcept;
+			const std::span<const Byte> 											Span() const noexcept;
 
 			/**
-			 * @brief Checks if the read position is at the end
-			 * @return True if the read position is at the end, false otherwise.
+			 * @brief Retrieves a view (span) to the stored value.
+			 * 
+			 * This method provides a lightweight, mutable view of the
+			 * buffer's contents without copying the data. The returned
+			 * span remains valid as long as the buffer is not modified.
+			 * 
+			 * @return A mutable span of the stored value.
+			 * @note Modifying the buffer invalidates the returned span.
 			 */
-			virtual bool 															End() const noexcept;
+			std::span<Byte> 														Span() noexcept;
 
 		private:
 			std::vector<std::byte> m_data; 											///< Stored value.

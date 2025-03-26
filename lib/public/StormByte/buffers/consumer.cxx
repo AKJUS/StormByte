@@ -5,7 +5,7 @@ using namespace StormByte::Buffers;
 
 Consumer::Consumer(const Async& async) noexcept: Async(async) {}
 
-ExpectedData<StormByte::Buffers::Exception> Consumer::Extract(const size_t& length) {
+ExpectedData<StormByte::Buffers::Exception> Consumer::Extract(const size_t& length, const Read::Mode& mode) {
 	// Check the buffer status immediately
 	auto current_status = Status();
 	if (current_status == Status::Error) {
@@ -14,7 +14,22 @@ ExpectedData<StormByte::Buffers::Exception> Consumer::Extract(const size_t& leng
 		);
 	}
 
-	// Wait until enough data is available or the buffer status changes
+	if (mode == Read::Mode::Partial) {
+		// Extract as much data as is currently available without waiting
+		auto available_size = m_buffer->second.Size();
+		auto extract_length = std::min(length, available_size);
+
+		// Extract the data
+		auto expected_data = m_buffer->second.Extract(extract_length);
+		if (!expected_data) {
+			return StormByte::Unexpected(expected_data.error());
+		}
+
+		// Return the extracted data
+		return expected_data;
+	}
+
+	// Default behavior corresponds to Read::Mode::Full
 	while (!m_buffer->second.HasEnoughData(length)) {
 		current_status = Status();
 
@@ -77,6 +92,58 @@ ExpectedData<StormByte::Buffers::Exception> Consumer::Extract() {
 
 	// Return the extracted data
 	return expected_data;
+}
+
+ExpectedByte<StormByte::Buffers::Exception> Consumer::Peek(const Read::Mode& mode) const {
+    // Check the buffer status immediately
+    auto current_status = Status();
+    if (current_status == Status::Error) {
+        return StormByte::Unexpected<BufferNotReady>(
+            "Buffer is in an error state"
+        );
+    }
+
+    if (mode == Read::Mode::Partial) {
+        // Return the next byte if available
+        if (m_buffer->second.Size() > 0) {
+            return m_buffer->second.Peek();
+        }
+        return StormByte::Unexpected<BufferOverflow>(
+            "Buffer is empty"
+        );
+    }
+
+    // Default behavior corresponds to Read::Mode::Full
+    while (m_buffer->second.Size() == 0) {
+        current_status = Status();
+
+        // Handle Error status
+        if (current_status == Status::Error) {
+            return StormByte::Unexpected<BufferNotReady>(
+                "Buffer is in an error state while waiting"
+            );
+        }
+
+        // Handle EoF status
+        if (current_status == Status::EoF) {
+            return StormByte::Unexpected<BufferOverflow>(
+                "Buffer has reached EOF and is empty"
+            );
+        }
+
+        // Handle other statuses (e.g., Ready)
+        if (current_status != Status::Ready) {
+            return StormByte::Unexpected<BufferNotReady>(
+                "Buffer is not ready while waiting"
+            );
+        }
+
+        // Block the thread until the condition changes
+        System::Sleep(std::chrono::milliseconds(100)); // Small sleep to avoid busy-waiting
+    }
+
+    // Return the next byte
+    return m_buffer->second.Peek();
 }
 
 StormByte::Expected<void, BufferNotReady> Consumer::Skip(const std::size_t& length) {

@@ -65,23 +65,6 @@ bool Simple::operator!=(const Simple& other) const {
 	return !(*this == other);
 }
 
-void Simple::Clear() {
-	m_data.clear();
-	m_position = 0;
-}
-
-StormByte::Buffers::Data Simple::Data() const noexcept {
-	return m_data;
-}
-
-const std::span<const Byte> Simple::Span() const noexcept {
-	return std::span<const Byte>(m_data.data(), m_data.size());
-}
-
-std::span<Byte> Simple::Span() noexcept {
-	return std::span<Byte>(m_data.data(), m_data.size());
-}
-
 Simple& Simple::operator<<(const Simple& buffer) {
 	if (this != &buffer) {
 		m_data.reserve(m_data.size() + buffer.m_data.size());
@@ -132,6 +115,44 @@ Simple& Simple::operator>>(Simple& buffer) {
 	return buffer;
 }
 
+void Simple::Clear() {
+	m_data.clear();
+	m_position = 0;
+}
+
+StormByte::Buffers::Data Simple::Data() const noexcept {
+	return m_data;
+}
+
+bool Simple::Empty() const noexcept {
+	return m_data.empty();
+}
+
+bool Simple::End() const noexcept {
+	return m_position == m_data.size();
+}
+
+ExpectedData<BufferOverflow> Simple::Extract(const std::size_t& length) {
+	if (m_position + length > m_data.size()) {
+		return StormByte::Unexpected<BufferOverflow>(
+			"Insufficient data to read {} bytes (only have {} bytes)", length, m_data.size() - m_position
+		);
+	}
+
+	auto start = m_data.begin() + m_position;
+	auto end = start + length;
+
+	Buffers::Data extracted_data(std::make_move_iterator(start), std::make_move_iterator(end));
+
+	m_data.erase(start, end);
+
+	return extracted_data;
+}
+
+bool Simple::HasEnoughData(const std::size_t& length) const {
+	return m_position + length <= m_data.size();
+}
+
 std::string Simple::HexData(const std::size_t& column_size) const {
 	std::string hex_data;
 	std::string hex_line, char_line;
@@ -157,41 +178,24 @@ std::string Simple::HexData(const std::size_t& column_size) const {
 	return hex_data;
 }
 
-bool Simple::HasEnoughData(const std::size_t& length) const {
-	return m_position + length <= m_data.size();
-}
-
 std::size_t Simple::Position() const noexcept {
 	return m_position;
 }
 
-ExpectedConstByteSpan<BufferOverflow> Simple::Read(const std::size_t& length) const {
+ExpectedData<BufferOverflow> Simple::Read(const std::size_t& length) const {
 	if (m_position + length > m_data.size()) {
 		return StormByte::Unexpected<BufferOverflow>(
 			"Insufficient data to read {} bytes (only have {} bytes)",
 			length,
 			m_data.size() - m_position);
 	}
-	auto current_pos = m_position;
-	m_position += length;
-	return std::span<const Byte>(m_data.data() + current_pos, length);
-}
-
-ExpectedData<BufferOverflow> Simple::Extract(const std::size_t& length) {
-	if (m_position + length > m_data.size()) {
-		return StormByte::Unexpected<BufferOverflow>(
-			"Insufficient data to read {} bytes (only have {} bytes)", length, m_data.size() - m_position
-		);
-	}
-
 	auto start = m_data.begin() + m_position;
 	auto end = start + length;
 
-	Buffers::Data extracted_data(std::make_move_iterator(start), std::make_move_iterator(end));
+	Buffers::Data read_data(start, end); // Create a copy of the requested data
+	m_position += length; // Advance the read position
 
-	m_data.erase(start, end);
-
-	return extracted_data;
+	return read_data;
 }
 
 void Simple::Reserve(const std::size_t& size) {
@@ -223,10 +227,19 @@ std::size_t Simple::Size() const noexcept {
 	return m_data.size();
 }
 
-bool Simple::Empty() const noexcept {
-	return m_data.empty();
+const std::span<const Byte> Simple::Span() const noexcept {
+	return std::span<const Byte>(m_data.data(), m_data.size());
 }
 
-bool Simple::End() const noexcept {
-	return m_position == m_data.size();
+std::span<Byte> Simple::Span() noexcept {
+	return std::span<Byte>(m_data.data(), m_data.size());
+}
+
+ExpectedByte<BufferOverflow> Simple::Peek() const {
+	if (m_position >= m_data.size()) {
+		return StormByte::Unexpected<BufferOverflow>(
+			"Cannot peek: no more data available in the buffer."
+		);
+	}
+	return m_data[m_position];
 }

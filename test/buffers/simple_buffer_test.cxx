@@ -49,6 +49,19 @@ int test_append_string() {
 	RETURN_TEST("test_append_string", 0);
 }
 
+int test_peek_function() {
+	Buffers::Simple buffer { "Hello", 5 };
+	auto peeked = buffer.Peek();
+	ASSERT_TRUE("test_peek_function", peeked.has_value());
+	ASSERT_EQUAL("test_peek_function", static_cast<char>(peeked.value()), 'H');
+
+	auto read = buffer.Read(1);
+	ASSERT_TRUE("test_peek_function", read.has_value());
+	ASSERT_EQUAL("test_peek_function", static_cast<char>(read.value()[0]), 'H');
+
+	RETURN_TEST("test_peek_function", 0);
+}
+
 int main() {
 	int result = 0;
 	result += test_simple_buffer();
@@ -56,6 +69,7 @@ int main() {
 	result += test_buffer_move();
 	result += test_buffer_append();
 	result += test_append_string();
+	result += test_peek_function();
 
 	if (result == 0) {
 		std::cout << "All tests passed!" << std::endl;

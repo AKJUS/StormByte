@@ -202,6 +202,27 @@ int test_consumer_skip() {
 	RETURN_TEST("test_consumer_skip", consumer_result);
 }
 
+int test_consumer_partial_read() {
+	// Create an Buffers::Async and link ProducerBuffer and ConsumerBuffer
+	auto async_buffer = std::make_shared<Buffers::Async>();
+	auto producer = async_buffer->Producer();
+	auto consumer = async_buffer->Consumer();
+
+	// Producer writes a small amount of data
+	*producer << "Hi";
+
+	// Consumer attempts to read more data than available using Mode::Partial
+	auto extracted_data = consumer->Extract(5, Buffers::Read::Mode::Partial); // Request 5 bytes
+	ASSERT_TRUE("test_consumer_partial_read", extracted_data.has_value());
+
+	// Verify that only the available data is returned
+	std::string expected = "Hi";
+	std::string result(reinterpret_cast<const char*>(extracted_data->data()), extracted_data->size());
+	ASSERT_EQUAL("test_consumer_partial_read", expected, result);
+
+	RETURN_TEST("test_consumer_partial_read", 0);
+}
+
 int main() {
 	int result = 0;
 	result += test_producer_to_consumer();
@@ -210,6 +231,7 @@ int main() {
 	result += test_consumer_wait_for_data();
 	result += test_producer_to_consumer_eof();
 	result += test_consumer_skip();
+	result += test_consumer_partial_read(); // Add the new test here
 
 	if (result == 0) {
 		std::cout << "All tests passed!" << std::endl;
