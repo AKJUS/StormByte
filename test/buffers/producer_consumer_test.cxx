@@ -223,6 +223,51 @@ int test_consumer_partial_read() {
 	RETURN_TEST("test_consumer_partial_read", 0);
 }
 
+int test_consumer_wait_for_producer() {
+    // Create an Async buffer and link ProducerBuffer and ConsumerBuffer
+    auto async_buffer = std::make_shared<Buffers::Async>();
+    auto producer = async_buffer->Producer();
+    auto consumer = async_buffer->Consumer();
+
+    // Consumer thread: Waits for the producer to finish processing
+    bool consumer_finished = false;
+    int consumer_result = 0;
+    std::thread consumer_thread([&consumer, &consumer_finished, &consumer_result]() -> int {
+        // Wait for the producer to mark the buffer as EoF or Error
+        consumer->Wait();
+
+        // Verify that the buffer status is EoF
+        ASSERT_TRUE("test_consumer_wait_for_producer", consumer->Status() == Buffers::Status::EoF);
+
+        // Mark the consumer as finished
+        consumer_finished = true;
+        return 0; // Return success
+    });
+
+    // Producer thread: Writes data and marks the buffer as EoF
+    std::thread producer_thread([&producer]() -> int {
+        // Simulate some processing
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+        // Write data to the buffer
+        *producer << "Producer Data";
+
+        // Mark the buffer as EoF
+        *producer << Buffers::Status::EoF;
+
+        return 0; // Return success
+    });
+
+    // Wait for both threads to finish
+    producer_thread.join();
+    consumer_thread.join();
+
+    // Verify that the consumer finished successfully
+    ASSERT_TRUE("test_consumer_wait_for_producer", consumer_finished);
+
+    RETURN_TEST("test_consumer_wait_for_producer", consumer_result);
+}
+
 int main() {
 	int result = 0;
 	result += test_producer_to_consumer();
@@ -232,6 +277,7 @@ int main() {
 	result += test_producer_to_consumer_eof();
 	result += test_consumer_skip();
 	result += test_consumer_partial_read(); // Add the new test here
+	result += test_consumer_wait_for_producer(); // Add the new test here
 
 	if (result == 0) {
 		std::cout << "All tests passed!" << std::endl;

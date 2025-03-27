@@ -5,6 +5,11 @@ using namespace StormByte::Buffers;
 
 Consumer::Consumer(const Async& async) noexcept: Async(async) {}
 
+Consumer& Consumer::operator<<(const enum Status& status) {
+	Async::operator<<(status);
+	return *this;
+}
+
 ExpectedData<StormByte::Buffers::Exception> Consumer::Extract(const size_t& length, const Read::Mode& mode) {
 	// Check the buffer status immediately
 	auto current_status = Status();
@@ -159,7 +164,16 @@ StormByte::Expected<void, BufferNotReady> Consumer::Skip(const std::size_t& leng
 	return {};
 }
 
-Consumer& Consumer::operator<<(const enum Status& status) {
-	Async::operator<<(status);
-	return *this;
+void Consumer::Wait() const noexcept {
+    while (true) {
+        auto current_status = Status();
+
+        // Exit the loop if the buffer is not ready (desired state reached)
+        if (current_status != Status::Ready) {
+            break;
+        }
+
+        // Sleep briefly to avoid busy-waiting
+        System::Sleep(std::chrono::milliseconds(100));
+    }
 }

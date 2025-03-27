@@ -1,14 +1,19 @@
 #pragma once
 
-#include <StormByte/buffers/async.hxx>
+#include <StormByte/buffers/consumer.hxx>
+#include <StormByte/buffers/producer.hxx>
 
 /**
  * @namespace Buffers
  * @brief Namespace for buffer-related components in the StormByte library.
  *
- * The `StormByte::Buffers` namespace provides classes and utilities for managing various types of buffers,
- * including simple, shared, and producer/consumer buffers. These buffers are designed to support
- * both single-threaded and multi-threaded environments, offering flexibility and efficiency.
+ * The `StormByte::Buffers` namespace provides classes and utilities for managing simple, shared, and producer/consumer
+ * buffers in both single-threaded and multi-threaded environments. It supports a variety of use cases, including:
+ * - **Simple Buffers**: Lightweight, non-thread-safe buffers for single-threaded environments.
+ * - **Shared Buffers**: Flexible and efficient storage for byte data with concurrent access support.
+ * - **Producer/Consumer Buffers**: Advanced models for managing data flow between producers and consumers
+ *   with status tracking (e.g., `Ready`, `EoF`, `Error`).
+ * - **Thread Safety**: Shared and producer/consumer buffers are designed to ensure consistent behavior in multi-threaded environments.
  */
 namespace StormByte::Buffers {
 	class Consumer; 																		///< Forward declaration of Consumer.
@@ -32,6 +37,12 @@ namespace StormByte::Buffers {
 	 */
 	class STORMBYTE_PUBLIC Producer final: public Async {
 		public:
+			/**
+			 * @brief Default constructor
+			 * Creates an empty `Producer` instance.
+			 */
+			Producer() noexcept																= default;
+
 			/**
 			 * @brief Default constructor
 			 * Creates an empty `Producer` instance.

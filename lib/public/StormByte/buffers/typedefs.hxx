@@ -3,6 +3,7 @@
 #include <StormByte/expected.hxx>
 
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <span>
 #include <type_traits>
@@ -12,9 +13,13 @@
  * @namespace Buffers
  * @brief Namespace for buffer-related components in the StormByte library.
  *
- * The `StormByte::Buffers` namespace provides classes and utilities for managing various types of buffers,
- * including simple, shared, and producer/consumer buffers. These buffers are designed to support
- * both single-threaded and multi-threaded environments, offering flexibility and efficiency.
+ * The `StormByte::Buffers` namespace provides classes and utilities for managing simple, shared, and producer/consumer
+ * buffers in both single-threaded and multi-threaded environments. It supports a variety of use cases, including:
+ * - **Simple Buffers**: Lightweight, non-thread-safe buffers for single-threaded environments.
+ * - **Shared Buffers**: Flexible and efficient storage for byte data with concurrent access support.
+ * - **Producer/Consumer Buffers**: Advanced models for managing data flow between producers and consumers
+ *   with status tracking (e.g., `Ready`, `EoF`, `Error`).
+ * - **Thread Safety**: Shared and producer/consumer buffers are designed to ensure consistent behavior in multi-threaded environments.
  */
 namespace StormByte::Buffers {
 	/**
@@ -85,23 +90,29 @@ namespace StormByte::Buffers {
 	class Producer;
 	class Consumer;
 
+	// Pointers
+	using AsyncPtr						= std::shared_ptr<Async>;								///< Shared pointer to an `Async` instance.
+	using ConsumerPtr					= std::shared_ptr<Consumer>;							///< Shared pointer to a `Consumer` instance.
+	using ProducerPtr					= std::shared_ptr<Producer>;							///< Shared pointer to a `Producer` instance.
+
 	// Data types
-	using Byte											= std::byte;								///< Represents a single byte of data.
-	using Data											= std::vector<Byte>;						///< Represents a collection of bytes stored in the buffer.
+	using Byte							= std::byte;											///< Represents a single byte of data.
+	using Data							= std::vector<Byte>;									///< Represents a collection of bytes stored in the buffer.
 	template<class T>
-	using ExpectedByte									= Expected<Byte, T>;						///< Represents a single byte with error handling.
+	using ExpectedByte					= Expected<Byte, T>;									///< Represents a single byte with error handling.
 	template<class T>
-	using ExpectedByteRef								= Expected<Byte&, T>;						///< Represents a reference to a single byte with error handling.
+	using ExpectedByteRef				= Expected<Byte&, T>;									///< Represents a reference to a single byte with error handling.
 	template<class T>
-	using ExpectedConstByte								= Expected<const Byte, T>;					///< Represents a constant byte with error handling.
+	using ExpectedByteSpan				= Expected<std::span<Byte>, T>;							///< Represents a span of bytes with error handling.
 	template<class T>
-	using ExpectedConstByteRef							= Expected<const Byte&, T>;					///< Represents a reference to a constant byte with error handling.
+	using ExpectedConstByte				= Expected<const Byte, T>;								///< Represents a constant byte with error handling.
 	template<class T>
-	using ExpectedByteSpan								= Expected<std::span<Byte>, T>;				///< Represents a span of bytes with error handling.
+	using ExpectedConstByteRef			= Expected<const Byte&, T>;								///< Represents a reference to a constant byte with error handling.
 	template<class T>
-	using ExpectedConstByteSpan							= Expected<std::span<const Byte>, T>;		///< Represents a constant span of bytes with error handling.
+	using ExpectedConstByteSpan			= Expected<std::span<const Byte>, T>;					///< Represents a constant span of bytes with error handling.
 	template<class T>
-	using ExpectedData									= Expected<Data, T>;						///< Represents a collection of bytes with error handling.
+	using ExpectedData					= Expected<Data, T>;									///< Represents a collection of bytes with error handling.
+	using PipeFunction					= std::function<bool(ConsumerPtr, ProducerPtr)>;		///< Represents a function that processes a data pipe.
 
 	/**
 	 * @brief Wrapper for `operator<<` to support `std::shared_ptr` or `std::unique_ptr` as the left-hand parameter.
