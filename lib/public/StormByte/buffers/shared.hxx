@@ -2,6 +2,7 @@
 
 #include <StormByte/buffers/simple.hxx>
 
+#include <atomic>
 #include <cstddef>
 #include <memory>
 #include <mutex>
@@ -115,6 +116,12 @@ namespace StormByte::Buffers {
              * @return Reference to the updated shared buffer.
              */
             Shared& 															operator=(Shared&& other) noexcept;
+
+			/**
+			 * Sets buffer status
+			 * @see Buffers::Status
+			 */
+			Shared& 															operator<<(const Status& status);
 
             /**
              * @brief Appends a buffer to the current buffer
@@ -248,6 +255,11 @@ namespace StormByte::Buffers {
              */
             virtual std::size_t 												Size() const noexcept override;
 
+			/**
+			 * Gets buffer status
+			 */
+			enum Status 														Status() const noexcept;
+
             /**
              * @brief Unlocks the shared buffer, releasing exclusive access.
              * Allows other threads to access the buffer after it has been locked using `Lock()`.
@@ -299,7 +311,30 @@ namespace StormByte::Buffers {
              */
             virtual Write::Status 												Write(Buffers::Data&& data) override;
 
-        private:
+        protected:
             mutable std::shared_mutex m_data_mutex; 							///< Mutex for thread safety.
+			std::atomic<enum Status> m_status;									///< Buffer status.
+
+			/**
+			 * Reads a specific size of data starting from the current read position waiting for data available if needed
+			 * 
+			 * If buffer is marked EoF (or error) while waiting for data will return BufferOverflow error
+			 */
+			ExpectedData<BufferOverflow> 										ReadWaiting(const std::size_t& length) const noexcept;
+
+			/**
+			 * Checks if the buffer is readable
+			 */
+			bool 																IsReadable() const noexcept;
+
+			/**
+			 * Checks if the buffer is writable
+			 */
+			bool 																IsWritable() const noexcept;
+
+			/**
+			 * Checks if the buffer is at the end of the file/data
+			 */
+			bool 																IsEoF() const noexcept;
     };
 }

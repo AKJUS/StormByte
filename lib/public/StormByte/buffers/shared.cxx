@@ -1,32 +1,34 @@
 #include <StormByte/buffers/shared.hxx>
 
 #include <algorithm>
+#include <thread>
 
 using namespace StormByte::Buffers;
 
-Shared::Shared() noexcept: Simple() {}
+Shared::Shared() noexcept: Simple(), m_status(Status::Ready) {}
 
-Shared::Shared(const std::size_t& size): Simple(size) {}
+Shared::Shared(const std::size_t& size): Simple(size), m_status(Status::Ready) {}
 
-Shared::Shared(const char* data, const std::size_t& length): Simple(data, length) {}
+Shared::Shared(const char* data, const std::size_t& length): Simple(data, length), m_status(Status::Ready) {}
 
-Shared::Shared(const std::string& data): Simple(data) {}
+Shared::Shared(const std::string& data): Simple(data), m_status(Status::Ready) {}
 
-Shared::Shared(const Buffers::Data& data): Simple(data) {}
+Shared::Shared(const Buffers::Data& data): Simple(data), m_status(Status::Ready) {}
 
-Shared::Shared(Buffers::Data&& data): Simple(std::move(data)) {}
+Shared::Shared(Buffers::Data&& data): Simple(std::move(data)), m_status(Status::Ready) {}
 
-Shared::Shared(const std::span<const Byte>& data): Simple(data) {}
+Shared::Shared(const std::span<const Byte>& data): Simple(data), m_status(Status::Ready) {}
 
-Shared::Shared(const Shared& other): Simple(other) {}
+Shared::Shared(const Shared& other): Simple(other), m_status(Status::Ready) {}
 
-Shared::Shared(Shared&& other) noexcept: Simple(std::move(other)) {}
+Shared::Shared(Shared&& other) noexcept: Simple(std::move(other)), m_status(other.m_status.load()) {}
 
 Shared& Shared::operator=(const Shared& other) {
     if (this != &other) {
         std::unique_lock lock(m_data_mutex);
         std::unique_lock other_lock(other.m_data_mutex);
         Simple::operator=(other);
+		m_status.store(other.m_status.load());
     }
     return *this;
 }
@@ -36,6 +38,7 @@ Shared& Shared::operator=(Shared&& other) noexcept {
         std::unique_lock lock(m_data_mutex);
         std::unique_lock other_lock(other.m_data_mutex);
         Simple::operator=(std::move(other));
+		m_status.store(other.m_status.load());
     }
     return *this;
 }
@@ -107,9 +110,9 @@ void Shared::Lock() {
 }
 
 ExpectedData<BufferOverflow> Shared::Extract(const std::size_t& length) {
-    std::unique_lock lock(m_data_mutex);
-    auto expected_data = Simple::Read(length);
+    auto expected_data = ReadWaiting(length);
     if (expected_data) {
+		std::unique_lock lock(m_data_mutex);
         Simple::Discard(0, Read::Position::Relative);
     }
     return expected_data;
@@ -136,8 +139,7 @@ std::size_t Shared::Position() const noexcept {
 }
 
 ExpectedData<BufferOverflow> Shared::Read(const std::size_t& length) const {
-    std::shared_lock lock(m_data_mutex);
-    return Simple::Read(length);
+   return ReadWaiting(length);
 }
 
 void Shared::Reserve(const std::size_t& size) {
@@ -153,6 +155,10 @@ void Shared::Seek(const std::ptrdiff_t& position, const Read::Position& mode) co
 std::size_t Shared::Size() const noexcept {
     std::shared_lock lock(m_data_mutex);
     return Simple::Size();
+}
+
+enum Status Shared::Status() const noexcept {
+	return m_status.load();
 }
 
 void Shared::Unlock() {
@@ -183,4 +189,34 @@ Write::Status Shared::Write(Simple&& buffer) {
 Write::Status Shared::Write(const std::string& data) {
     std::unique_lock lock(m_data_mutex);
     return Simple::Write(data);
+}
+
+ExpectedData<BufferOverflow> Shared::ReadWaiting(const std::size_t& length) const noexcept {
+    if (HasEnoughData(length)) {
+		std::shared_lock lock(m_data_mutex);
+        return Simple::Read(length);
+    } else {
+        while (IsReadable() && !IsEoF() && !HasEnoughData(length)) {
+            std::this_thread::yield();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1)); // Add a small sleep to reduce CPU usage
+        }
+        if (IsReadable() && !IsEoF()) {
+            std::shared_lock lock(m_data_mutex);
+        	return Simple::Read(length);
+        } else {
+            return StormByte::Unexpected<BufferOverflow>("Cannot read: buffer is not readable.");
+        }
+    }
+}
+
+bool Shared::IsReadable() const noexcept {
+	return m_status.load() != Status::Error;
+}
+
+bool Shared::IsWritable() const noexcept {
+	return m_status.load() == Status::Ready;
+}
+
+bool Shared::IsEoF() const noexcept {
+	return m_status.load() == Status::EoF;
 }

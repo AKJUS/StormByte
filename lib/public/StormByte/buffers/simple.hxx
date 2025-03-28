@@ -349,7 +349,7 @@ namespace StormByte::Buffers {
 			 */
 			virtual Write::Status 													Write(const std::string& data);
 
-		private:
+		protected:
 			std::vector<std::byte> m_data; 											///< Stored value.
 			mutable std::size_t m_position;											///< Read position.
 			mutable std::size_t m_minimum_chunk_size;								///< Minimum chunk size for buffer operations.
