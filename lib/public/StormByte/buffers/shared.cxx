@@ -28,7 +28,7 @@ Shared& Shared::operator=(const Shared& other) {
         std::unique_lock lock(m_data_mutex);
         std::unique_lock other_lock(other.m_data_mutex);
         Simple::operator=(other);
-		m_status.store(other.m_status.load());
+        m_status.store(other.m_status.load());
     }
     return *this;
 }
@@ -38,9 +38,14 @@ Shared& Shared::operator=(Shared&& other) noexcept {
         std::unique_lock lock(m_data_mutex);
         std::unique_lock other_lock(other.m_data_mutex);
         Simple::operator=(std::move(other));
-		m_status.store(other.m_status.load());
+        m_status.store(other.m_status.load());
     }
     return *this;
+}
+
+Shared& Shared::operator<<(const enum Status& status) {
+	m_status.store(status);
+	return *this;
 }
 
 Shared& Shared::operator<<(const Simple& buffer) {
@@ -112,7 +117,7 @@ void Shared::Lock() {
 ExpectedData<BufferOverflow> Shared::Extract(const std::size_t& length) {
     auto expected_data = ReadWaiting(length);
     if (expected_data) {
-		std::unique_lock lock(m_data_mutex);
+        std::unique_lock lock(m_data_mutex);
         Simple::Discard(0, Read::Position::Relative);
     }
     return expected_data;
@@ -158,42 +163,56 @@ std::size_t Shared::Size() const noexcept {
 }
 
 enum Status Shared::Status() const noexcept {
-	return m_status.load();
+    return m_status.load();
 }
 
 void Shared::Unlock() {
     m_data_mutex.unlock();
 }
 
-// Write function implementations
 Write::Status Shared::Write(const Buffers::Data& data) {
+    if (IsEoF()) {
+        return Write::Status::Error;
+    }
     std::unique_lock lock(m_data_mutex);
     return Simple::Write(data);
 }
 
 Write::Status Shared::Write(Buffers::Data&& data) {
+    if (IsEoF()) {
+        return Write::Status::Error;
+    }
     std::unique_lock lock(m_data_mutex);
     return Simple::Write(std::move(data));
 }
 
 Write::Status Shared::Write(const Simple& buffer) {
+    if (IsEoF()) {
+        return Write::Status::Error;
+    }
     std::unique_lock lock(m_data_mutex);
     return Simple::Write(buffer);
 }
 
 Write::Status Shared::Write(Simple&& buffer) {
+    if (IsEoF()) {
+        return Write::Status::Error;
+    }
     std::unique_lock lock(m_data_mutex);
     return Simple::Write(std::move(buffer));
 }
 
 Write::Status Shared::Write(const std::string& data) {
+    if (IsEoF()) {
+        return Write::Status::Error;
+    }
     std::unique_lock lock(m_data_mutex);
     return Simple::Write(data);
 }
 
 ExpectedData<BufferOverflow> Shared::ReadWaiting(const std::size_t& length) const noexcept {
     if (HasEnoughData(length)) {
-		std::shared_lock lock(m_data_mutex);
+        std::shared_lock lock(m_data_mutex);
         return Simple::Read(length);
     } else {
         while (IsReadable() && !IsEoF() && !HasEnoughData(length)) {
@@ -202,7 +221,7 @@ ExpectedData<BufferOverflow> Shared::ReadWaiting(const std::size_t& length) cons
         }
         if (IsReadable() && !IsEoF()) {
             std::shared_lock lock(m_data_mutex);
-        	return Simple::Read(length);
+            return Simple::Read(length);
         } else {
             return StormByte::Unexpected<BufferOverflow>("Cannot read: buffer is not readable.");
         }
@@ -210,13 +229,13 @@ ExpectedData<BufferOverflow> Shared::ReadWaiting(const std::size_t& length) cons
 }
 
 bool Shared::IsReadable() const noexcept {
-	return m_status.load() != Status::Error;
+    return m_status.load() != Status::Error;
 }
 
 bool Shared::IsWritable() const noexcept {
-	return m_status.load() == Status::Ready;
+    return m_status.load() == Status::Ready;
 }
 
 bool Shared::IsEoF() const noexcept {
-	return m_status.load() == Status::EoF;
+    return m_status.load() == Status::EoF;
 }

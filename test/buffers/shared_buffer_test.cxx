@@ -126,11 +126,33 @@ int test_manual_locking() {
 	RETURN_TEST("test_manual_locking", 0);
 }
 
+int test_write_after_eof() {
+    Buffers::Shared buffer;
+
+    // Set the buffer to EOF
+    buffer << Buffers::Status::EoF;
+
+    // Attempt to write to the buffer
+    Buffers::Write::Status status1 = buffer.Write("TestData1");
+    Buffers::Write::Status status2 = buffer.Write("TestData2");
+
+    // Verify that the writes return an error
+    ASSERT_TRUE("test_write_after_eof", Buffers::Write::Status::Error == status1);
+    ASSERT_TRUE("test_write_after_eof", Buffers::Write::Status::Error == status2);
+
+    // Verify that the buffer content remains unchanged
+    std::string result(reinterpret_cast<const char*>(buffer.Data().data()), buffer.Size());
+    ASSERT_EQUAL("test_write_after_eof", "", result); // Buffer should remain empty
+
+    RETURN_TEST("test_write_after_eof", 0);
+}
+
 int main() {
 	int result = 0;
 	result += test_concurrent_writes();
 	result += test_concurrent_reads_and_writes();
 	result += test_manual_locking();
+	result += test_write_after_eof(); // Add the new test here
 
 	if (result == 0) {
 		std::cout << "All tests passed successfully" << std::endl;
