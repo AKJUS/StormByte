@@ -110,6 +110,20 @@ namespace StormByte::Buffers {
 			Simple& operator=(Simple&& other) noexcept								= default;
 
 			/**
+			 * @brief Appends a byte vector to the current simple buffer
+			 * @param data Byte vector to append.
+			 * @return Reference to the updated simple buffer.
+			 */
+			virtual Simple& 														operator<<(const Data& data);
+
+			/**
+			 * @brief Moves a byte vector and appends to the current simple buffer
+			 * @param data Byte vector to append.
+			 * @return Reference to the updated simple buffer.
+			 */
+			virtual Simple& 														operator<<(Data&& data);
+
+			/**
 			 * @brief Appends a simple buffer to the current simple buffer
 			 * @param buffer Simple buffer to append.
 			 * @return Reference to the updated simple buffer.
@@ -129,20 +143,6 @@ namespace StormByte::Buffers {
 			 * @return Reference to the updated simple buffer.
 			 */
 			virtual Simple& 														operator<<(const std::string& data);
-
-			/**
-			 * @brief Appends a byte vector to the current simple buffer
-			 * @param data Byte vector to append.
-			 * @return Reference to the updated simple buffer.
-			 */
-			virtual Simple& 														operator<<(const Data& data);
-
-			/**
-			 * @brief Moves a byte vector and appends to the current simple buffer
-			 * @param data Byte vector to append.
-			 * @return Reference to the updated simple buffer.
-			 */
-			virtual Simple& 														operator<<(Data&& data);
 
 			/**
 			 * @brief Appends current simple buffer to target simple buffer
@@ -299,12 +299,55 @@ namespace StormByte::Buffers {
 			 */
 			std::span<Byte> 														Span() noexcept;
 
-		protected:
 			/**
-			 * @brief Ensures capacity is always a multiple of the minimum chunk size (if enabled).
-			 * @param size Size to ensure capacity for.
+			 * @brief Writes a byte vector to the current simple buffer.
+			 *
+			 * This function is provided for polymorphic use cases where `operator<<` cannot be used.
+			 *
+			 * @param data Byte vector to write.
+			 * @return Write::Status of the operation.
 			 */
-			void																	EnsureCapacity(const std::size_t& size);
+			virtual Write::Status 													Write(const Buffers::Data& data);
+
+			/**
+			 * @brief Moves a byte vector and writes it to the current simple buffer.
+			 *
+			 * This function is provided for polymorphic use cases where `operator<<` cannot be used.
+			 *
+			 * @param data Byte vector to write.
+			 * @return Write::Status of the operation.
+			 */
+			virtual Write::Status 													Write(Buffers::Data&& data);
+
+			/**
+			 * @brief Writes a simple buffer to the current simple buffer.
+			 *
+			 * This function is provided for polymorphic use cases where `operator<<` cannot be used.
+			 *
+			 * @param buffer Simple buffer to write.
+			 * @return Write::Status of the operation.
+			 */
+			virtual Write::Status 													Write(const Simple& buffer);
+
+			/**
+			 * @brief Moves a simple buffer and writes it to the current simple buffer.
+			 *
+			 * This function is provided for polymorphic use cases where `operator<<` cannot be used.
+			 *
+			 * @param buffer Simple buffer to write.
+			 * @return Write::Status of the operation.
+			 */
+			virtual Write::Status 													Write(Simple&& buffer);
+
+			/**
+			 * @brief Writes a string to the current simple buffer.
+			 *
+			 * This function is provided for polymorphic use cases where `operator<<` cannot be used.
+			 *
+			 * @param data String to write.
+			 * @return Write::Status of the operation.
+			 */
+			virtual Write::Status 													Write(const std::string& data);
 
 		private:
 			std::vector<std::byte> m_data; 											///< Stored value.

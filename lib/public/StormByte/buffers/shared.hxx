@@ -254,6 +254,51 @@ namespace StormByte::Buffers {
              */
             virtual void 														Unlock();
 
+            /**
+             * @brief Writes a simple buffer to the current shared buffer.
+             * Thread-safe version of @see Simple::Write.
+             *
+             * @param buffer Simple buffer to write.
+             * @return Write::Status of the operation.
+             */
+            virtual Write::Status 												Write(const Simple& buffer) override;
+
+            /**
+             * @brief Moves a simple buffer and writes it to the current shared buffer.
+             * Thread-safe version of @see Simple::Write.
+             *
+             * @param buffer Simple buffer to write.
+             * @return Write::Status of the operation.
+             */
+            virtual Write::Status 												Write(Simple&& buffer) override;
+
+            /**
+             * @brief Writes a string to the current shared buffer.
+             * Thread-safe version of @see Simple::Write.
+             *
+             * @param data String to write.
+             * @return Write::Status of the operation.
+             */
+            virtual Write::Status 												Write(const std::string& data) override;
+
+            /**
+             * @brief Writes a byte vector to the current shared buffer.
+             * Thread-safe version of @see Simple::Write.
+             *
+             * @param data Byte vector to write.
+             * @return Write::Status of the operation.
+             */
+            virtual Write::Status 												Write(const Buffers::Data& data) override;
+
+            /**
+             * @brief Moves a byte vector and writes it to the current shared buffer.
+             * Thread-safe version of @see Simple::Write.
+             *
+             * @param data Byte vector to write.
+             * @return Write::Status of the operation.
+             */
+            virtual Write::Status 												Write(Buffers::Data&& data) override;
+
         private:
             mutable std::shared_mutex m_data_mutex; 							///< Mutex for thread safety.
     };
