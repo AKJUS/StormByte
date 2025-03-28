@@ -171,6 +171,8 @@ namespace StormByte::Buffers {
 			 */
 			Shared& 															operator>>(Shared& buffer);
 
+			size_t 																Capacity() const noexcept override;
+
 			/**
 			 * @brief Clears the shared buffer
 			 * Removes all data and resets the read position.
@@ -187,6 +189,12 @@ namespace StormByte::Buffers {
 			 * @return A copy of the buffer data as a vector of bytes.
 			 */
 			Buffers::Data 														Data() const noexcept override;
+
+			/**
+			 * Discards data from the begining to current read position in a thread safe way
+			 * @see Simple::Discard()
+			 */
+			void 																Discard() noexcept override;
 
 			/**
 			 * @brief Checks if the read position is at the end

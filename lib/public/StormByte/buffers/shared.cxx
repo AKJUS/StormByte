@@ -68,13 +68,13 @@ Shared& Shared::operator<<(const std::string& data) {
 	return *this;
 }
 
-Shared& Shared::operator<<(const StormByte::Buffers::Data& data) {
+Shared& Shared::operator<<(const Buffers::Data& data) {
 	std::unique_lock lock(m_data_mutex);
 	Simple::operator<<(data);
 	return *this;
 }
 
-Shared& Shared::operator<<(StormByte::Buffers::Data&& data) {
+Shared& Shared::operator<<(Buffers::Data&& data) {
 	std::unique_lock lock(m_data_mutex);
 	Simple::operator<<(std::move(data));
 	return *this;
@@ -87,14 +87,24 @@ Shared& Shared::operator>>(Shared& buffer) {
 	return *this;
 }
 
+size_t Shared::Capacity() const noexcept {
+	std::shared_lock lock(m_data_mutex);
+	return Simple::Capacity();
+}
+
 void Shared::Clear() noexcept {
 	std::unique_lock lock(m_data_mutex);
 	Simple::Clear(); // Call base class Clear method
 }
 
-StormByte::Buffers::Data Shared::Data() const noexcept {
+Data Shared::Data() const noexcept {
 	std::shared_lock lock(m_data_mutex);
 	return Simple::Data();
+}
+
+void Shared::Discard() noexcept {
+	std::unique_lock lock(m_data_mutex);
+	Simple::Discard();
 }
 
 bool Shared::Empty() const noexcept {
@@ -113,7 +123,11 @@ void Shared::Lock() {
 
 ExpectedData<BufferOverflow> Shared::Extract(const std::size_t& length) {
 	std::unique_lock lock(m_data_mutex);
-	return Simple::Extract(length);
+	auto expected_data = Simple::Read(length);
+	if (expected_data) {
+		Simple::Discard();
+	}
+	return expected_data;
 }
 
 bool Shared::HasEnoughData(const std::size_t& length) const {

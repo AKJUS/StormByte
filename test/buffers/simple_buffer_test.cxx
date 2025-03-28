@@ -62,6 +62,21 @@ int test_peek_function() {
 	RETURN_TEST("test_peek_function", 0);
 }
 
+int test_buffer_with_minimum_chunk() {
+	Buffers::Simple buffer(sizeof(int) * 4); // 4 integers to be reserved
+	for (int i = 1; i < 5*4; i++) {
+		std::vector<std::byte> data(reinterpret_cast<std::byte*>(&i), reinterpret_cast<std::byte*>(&i) + sizeof(int));
+		buffer << std::move(data);
+		if (i % 4 == 0) {
+			ASSERT_TRUE("test_buffer_with_minimum_chunk", buffer.Capacity() == buffer.Size());
+		}
+		else {
+			ASSERT_TRUE("test_buffer_with_minimum_chunk", buffer.Capacity() > buffer.Size());
+		}
+	}
+	RETURN_TEST("test_buffer_with_minimum_chunk", 0);
+}
+
 int main() {
 	int result = 0;
 	result += test_simple_buffer();
@@ -70,6 +85,7 @@ int main() {
 	result += test_buffer_append();
 	result += test_append_string();
 	result += test_peek_function();
+	result += test_buffer_with_minimum_chunk();
 
 	if (result == 0) {
 		std::cout << "All tests passed!" << std::endl;

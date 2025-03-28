@@ -81,13 +81,13 @@ namespace StormByte::Buffers {
 			 * @brief Copy constructor
 			 * @param other Simple buffer to copy from.
 			 */
-			Simple(const Simple& other);
+			Simple(const Simple& other)												= default;
 
 			/**
 			 * @brief Move constructor
 			 * @param other Simple buffer to move from.
 			 */
-			Simple(Simple&& other) noexcept;
+			Simple(Simple&& other) noexcept											= default;
 
 			/**
 			 * @brief Destructor
@@ -100,14 +100,14 @@ namespace StormByte::Buffers {
 			 * @param other Simple buffer to copy from.
 			 * @return Reference to the updated simple buffer.
 			 */
-			Simple& operator=(const Simple& other);
+			Simple& operator=(const Simple& other)									= default;
 
 			/**
 			 * @brief Move assignment operator
 			 * @param other Simple buffer to move from.
 			 * @return Reference to the updated simple buffer.
 			 */
-			Simple& operator=(Simple&& other) noexcept;
+			Simple& operator=(Simple&& other) noexcept								= default;
 
 			/**
 			 * @brief Checks if two simple buffers are equal
@@ -165,6 +165,8 @@ namespace StormByte::Buffers {
 			 */
 			virtual Simple& 														operator>>(Simple& buffer);
 
+			virtual size_t 															Capacity() const noexcept;
+
 			/**
 			 * @brief Clears the simple buffer
 			 * Removes all data and resets the read position.
@@ -181,6 +183,11 @@ namespace StormByte::Buffers {
 			 * @return A copy of the buffer data as a vector of bytes.
 			 */
 			virtual Buffers::Data 													Data() const noexcept;
+
+			/**
+			 * Discards all data from beginning to current read position
+			 */
+			virtual void 															Discard() noexcept;
 
 			/**
 			 * @brief Checks if simple buffer is empty
@@ -296,8 +303,16 @@ namespace StormByte::Buffers {
 			 */
 			std::span<Byte> 														Span() noexcept;
 
+		protected:
+			/**
+			 * Ensures capacity is always a multiple of the minimum chunk size (if enabled)
+			 * @param size Size to ensure capacity for.
+			 */
+			void																	EnsureCapacity(const std::size_t& size);
+
 		private:
 			std::vector<std::byte> m_data; 											///< Stored value.
 			mutable std::size_t m_position;											///< Read position.
+			mutable std::size_t m_minimum_chunk_size;								///< Minimum chunk size for buffer operations.
 	};
 }

@@ -216,7 +216,9 @@ int test_pipeline_integer_processing() {
     Pipeline pipeline;
 
     // Input array of integers
-    std::vector<int> input_integers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    std::vector<int> input_integers;
+	for (int i = 1; i < 100; i++)
+		input_integers.push_back(i);
     std::cout << "Input integers: ";
     for (const auto& num : input_integers) {
         std::cout << num << " ";
@@ -235,14 +237,14 @@ int test_pipeline_integer_processing() {
             if (!data) break;
 
             int num = *reinterpret_cast<int*>(data->data()); // Convert std::byte data back to an integer
-            std::cout << "[Pipe 1] Received integer: " << num << std::endl;
+            //std::cout << "[Pipe 1] Received integer: " << num << std::endl;
             num *= 2; // Multiply the integer by 2
-            std::cout << "[Pipe 1] Processed integer (multiplied by 2): " << num << std::endl;
+            //std::cout << "[Pipe 1] Processed integer (multiplied by 2): " << num << std::endl;
 
             std::vector<std::byte> output_bytes(reinterpret_cast<std::byte*>(&num),
                                                 reinterpret_cast<std::byte*>(&num) + sizeof(int));
             *output << output_bytes; // Write to output
-            std::cout << "[Pipe 1] Wrote to output buffer" << std::endl;
+            //std::cout << "[Pipe 1] Wrote to output buffer" << std::endl;
         }
         std::cout << "[Pipe 1] End" << std::endl;
         return true;
@@ -255,14 +257,14 @@ int test_pipeline_integer_processing() {
             if (!data) break;
 
             int num = *reinterpret_cast<int*>(data->data()); // Convert std::byte data back to an integer
-            std::cout << "[Pipe 2] Received integer: " << num << std::endl;
+            //std::cout << "[Pipe 2] Received integer: " << num << std::endl;
             num += 5; // Add 5 to the integer
-            std::cout << "[Pipe 2] Processed integer (added 5): " << num << std::endl;
+            //std::cout << "[Pipe 2] Processed integer (added 5): " << num << std::endl;
 
             std::vector<std::byte> output_bytes(reinterpret_cast<std::byte*>(&num),
                                                 reinterpret_cast<std::byte*>(&num) + sizeof(int));
             *output << output_bytes; // Write to output
-            std::cout << "[Pipe 2] Wrote to output buffer" << std::endl;
+            //std::cout << "[Pipe 2] Wrote to output buffer" << std::endl;
         }
         std::cout << "[Pipe 2] End" << std::endl;
         return true;
@@ -275,14 +277,15 @@ int test_pipeline_integer_processing() {
             if (!data) break;
 
             int num = *reinterpret_cast<int*>(data->data()); // Convert std::byte data back to an integer
-            std::cout << "[Pipe 3] Received integer: " << num << std::endl;
+            //std::cout << "[Pipe 3] Received integer: " << num << std::endl;
             num -= 5; // Subtract 5 from the integer
-            std::cout << "[Pipe 3] Processed integer (subtracted 5): " << num << std::endl;
+            //std::cout << "[Pipe 3] Processed integer (subtracted 5): " << num << std::endl;
 
             std::vector<std::byte> output_bytes(reinterpret_cast<std::byte*>(&num),
                                                 reinterpret_cast<std::byte*>(&num) + sizeof(int));
             *output << output_bytes; // Write to output
-            std::cout << "[Pipe 3] Wrote to output buffer" << std::endl;
+            //std::cout << "[Pipe 3] Wrote to output buffer" << std::endl;
+			//std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         std::cout << "[Pipe 3] End" << std::endl;
         return true;
@@ -295,14 +298,14 @@ int test_pipeline_integer_processing() {
             if (!data) break;
 
             int num = *reinterpret_cast<int*>(data->data()); // Convert std::byte data back to an integer
-            std::cout << "[Pipe 4] Received integer: " << num << std::endl;
+            //std::cout << "[Pipe 4] Received integer: " << num << std::endl;
             num /= 2; // Divide the integer by 2
-            std::cout << "[Pipe 4] Processed integer (divided by 2): " << num << std::endl;
+            //std::cout << "[Pipe 4] Processed integer (divided by 2): " << num << std::endl;
 
             std::vector<std::byte> output_bytes(reinterpret_cast<std::byte*>(&num),
                                                 reinterpret_cast<std::byte*>(&num) + sizeof(int));
             *output << output_bytes; // Write to output
-            std::cout << "[Pipe 4] Wrote to output buffer" << std::endl;
+            //std::cout << "[Pipe 4] Wrote to output buffer" << std::endl;
         }
         std::cout << "[Pipe 4] End" << std::endl;
         return true;
@@ -327,8 +330,8 @@ int test_pipeline_integer_processing() {
         ASSERT_TRUE("test_pipeline_integer_processing", data.has_value());
 
         int output_integer = *reinterpret_cast<int*>(data->data()); // Convert std::byte data back to an integer
-        std::cout << "[Verification] Input integer: " << input_integers[i]
-                  << ", Output integer: " << output_integer << std::endl;
+        //std::cout << "[Verification] Input integer: " << input_integers[i]
+        //          << ", Output integer: " << output_integer << std::endl;
         ASSERT_EQUAL("test_pipeline_integer_processing", input_integers[i], output_integer);
     }
 
