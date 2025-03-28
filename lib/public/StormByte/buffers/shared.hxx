@@ -40,7 +40,7 @@ namespace StormByte::Buffers {
 	 * This class is ideal for scenarios where multiple threads need to read from or write to a shared buffer
 	 * while maintaining data integrity and avoiding race conditions.
 	 */
-	class STORMBYTE_PUBLIC Shared final : public Simple {
+	class STORMBYTE_PUBLIC Shared: public Simple {
 		public:
 			/**
 			 * @brief Default constructor
