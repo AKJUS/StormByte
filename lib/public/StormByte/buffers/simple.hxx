@@ -4,6 +4,8 @@
 #include <StormByte/buffers/typedefs.hxx>
 #include <StormByte/visibility.h>
 
+#include <functional>
+
 /**
  * @namespace Buffers
  * @brief Namespace for buffer-related components in the StormByte library.
@@ -205,6 +207,7 @@ namespace StormByte::Buffers {
 			 */
 			virtual ExpectedData<BufferOverflow> 									Extract(const size_t& length);
 
+
 			/**
 			 * @brief Checks if the simple buffer has enough data starting from the current read position.
 			 * @param length Length of the data to check.
@@ -240,6 +243,24 @@ namespace StormByte::Buffers {
 			 * @return Current read position in the simple buffer.
 			 */
 			virtual std::size_t 													Position() const noexcept;
+
+			/**
+			 * @brief Extracts, processes, and stores the results in the provided buffer.
+			 * 
+			 * This method performs three operations in a single step:
+			 * - Extracts a specific size of data from the buffer.
+			 * - Applies a user-provided processing function to the extracted data.
+			 * - Stores the processed results in the provided output buffer.
+			 * 
+			 * This approach is much more efficient than performing the three operations separately,
+			 * as it minimizes intermediate copies and reduces overhead.
+			 * 
+			 * @param length The number of bytes to extract and process.
+			 * @param function A user-provided processing function to apply to the extracted data.
+			 * @param output The buffer where the processed results will be stored.
+			 * @return `Read::Status` indicating the success or failure of the operation.
+			 */
+			Read::Status 															Process(const std::size_t& length, Processor function, Simple& output) noexcept;
 
 			/**
 			 * @brief Reads a specific size of data starting from the current read position.

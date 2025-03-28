@@ -1,6 +1,7 @@
 #include <StormByte/buffers/shared.hxx>
 #include <StormByte/test_handlers.h>
 
+#include <set>
 #include <thread>
 
 using namespace StormByte;
@@ -127,24 +128,24 @@ int test_manual_locking() {
 }
 
 int test_write_after_eof() {
-    Buffers::Shared buffer;
+	Buffers::Shared buffer;
 
-    // Set the buffer to EOF
-    buffer << Buffers::Status::EoF;
+	// Set the buffer to EOF
+	buffer << Buffers::Status::EoF;
 
-    // Attempt to write to the buffer
-    Buffers::Write::Status status1 = buffer.Write("TestData1");
-    Buffers::Write::Status status2 = buffer.Write("TestData2");
+	// Attempt to write to the buffer
+	Buffers::Write::Status status1 = buffer.Write("TestData1");
+	Buffers::Write::Status status2 = buffer.Write("TestData2");
 
-    // Verify that the writes return an error
-    ASSERT_TRUE("test_write_after_eof", Buffers::Write::Status::Error == status1);
-    ASSERT_TRUE("test_write_after_eof", Buffers::Write::Status::Error == status2);
+	// Verify that the writes return an error
+	ASSERT_TRUE("test_write_after_eof", Buffers::Write::Status::Error == status1);
+	ASSERT_TRUE("test_write_after_eof", Buffers::Write::Status::Error == status2);
 
-    // Verify that the buffer content remains unchanged
-    std::string result(reinterpret_cast<const char*>(buffer.Data().data()), buffer.Size());
-    ASSERT_EQUAL("test_write_after_eof", "", result); // Buffer should remain empty
+	// Verify that the buffer content remains unchanged
+	std::string result(reinterpret_cast<const char*>(buffer.Data().data()), buffer.Size());
+	ASSERT_EQUAL("test_write_after_eof", "", result); // Buffer should remain empty
 
-    RETURN_TEST("test_write_after_eof", 0);
+	RETURN_TEST("test_write_after_eof", 0);
 }
 
 int main() {
@@ -152,12 +153,12 @@ int main() {
 	result += test_concurrent_writes();
 	result += test_concurrent_reads_and_writes();
 	result += test_manual_locking();
-	result += test_write_after_eof(); // Add the new test here
+	result += test_write_after_eof();
 
 	if (result == 0) {
-		std::cout << "All tests passed successfully" << std::endl;
+		std::cout << "All tests passed!" << std::endl;
 	} else {
-		std::cerr << "Some tests failed" << std::endl;
+		std::cout << result << " tests failed." << std::endl;
 	}
 
 	return result;
