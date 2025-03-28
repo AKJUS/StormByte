@@ -19,7 +19,7 @@
 namespace StormByte::Buffers {
 	/**
 	 * @class Simple
-	 * @brief The class to store and manipulate simple byte buffers.
+	 * @brief A lightweight class for storing and manipulating simple byte buffers.
 	 *
 	 * The `Simple` class provides a lightweight and efficient way to store and manipulate byte data.
 	 * It supports various operations such as appending, extracting, reading, and seeking within the buffer.
@@ -110,20 +110,6 @@ namespace StormByte::Buffers {
 			Simple& operator=(Simple&& other) noexcept								= default;
 
 			/**
-			 * @brief Checks if two simple buffers are equal
-			 * @param other Simple buffer to compare with.
-			 * @return True if simple buffers are equal, false otherwise.
-			 */
-			virtual bool 															operator==(const Simple& other) const;
-
-			/**
-			 * @brief Checks if two simple buffers are not equal
-			 * @param other Simple buffer to compare with.
-			 * @return True if simple buffers are not equal, false otherwise.
-			 */
-			virtual bool 															operator!=(const Simple& other) const;
-
-			/**
 			 * @brief Appends a simple buffer to the current simple buffer
 			 * @param buffer Simple buffer to append.
 			 * @return Reference to the updated simple buffer.
@@ -165,6 +151,10 @@ namespace StormByte::Buffers {
 			 */
 			virtual Simple& 														operator>>(Simple& buffer);
 
+			/**
+			 * @brief Retrieves the capacity of the simple buffer
+			 * @return The total capacity of the buffer.
+			 */
 			virtual size_t 															Capacity() const noexcept;
 
 			/**
@@ -185,12 +175,18 @@ namespace StormByte::Buffers {
 			virtual Buffers::Data 													Data() const noexcept;
 
 			/**
-			 * Discards all data from beginning to current read position
+			 * @brief Discards data from the buffer.
+			 * 
+			 * Removes data from the buffer starting from the beginning up to the current read position.
+			 * The discard operation can be performed in different modes (e.g., relative to the current position).
+			 * 
+			 * @param length The number of bytes to discard.
+			 * @param mode The mode to use for discarding (default is `Read::Position::Relative`).
 			 */
 			virtual void 															Discard(const std::size_t& length, const Read::Position& mode = Read::Position::Relative) noexcept;
 
 			/**
-			 * @brief Checks if simple buffer is empty
+			 * @brief Checks if the simple buffer is empty
 			 * @return True if the simple buffer is empty, false otherwise.
 			 */
 			virtual bool 															Empty() const noexcept;
@@ -305,7 +301,7 @@ namespace StormByte::Buffers {
 
 		protected:
 			/**
-			 * Ensures capacity is always a multiple of the minimum chunk size (if enabled)
+			 * @brief Ensures capacity is always a multiple of the minimum chunk size (if enabled).
 			 * @param size Size to ensure capacity for.
 			 */
 			void																	EnsureCapacity(const std::size_t& size);

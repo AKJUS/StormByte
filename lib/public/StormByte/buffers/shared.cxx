@@ -40,16 +40,6 @@ Shared& Shared::operator=(Shared&& other) noexcept {
 	return *this;
 }
 
-bool Shared::operator==(const Shared& other) const {
-	std::shared_lock lock(m_data_mutex);
-	std::shared_lock other_lock(other.m_data_mutex);
-	return Simple::operator==(other);
-}
-
-bool Shared::operator!=(const Shared& other) const {
-	return !(*this == other);
-}
-
 Shared& Shared::operator<<(const Simple& buffer) {
 	std::unique_lock lock(m_data_mutex);
 	Simple::operator<<(buffer);

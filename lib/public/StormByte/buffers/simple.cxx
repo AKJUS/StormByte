@@ -32,14 +32,6 @@ Simple::Simple(Buffers::Data&& data): m_data(std::move(data)), m_position(0) {}
 
 Simple::Simple(const std::span<const Byte>& data): m_data(data.begin(), data.end()), m_position(0), m_minimum_chunk_size(0) {}
 
-bool Simple::operator==(const Simple& other) const {
-	return m_data == other.m_data;
-}
-
-bool Simple::operator!=(const Simple& other) const {
-	return !(*this == other);
-}
-
 Simple& Simple::operator<<(const Simple& buffer) {
 	if (this != &buffer) {
 		EnsureCapacity(buffer.m_data.size());
@@ -105,34 +97,34 @@ StormByte::Buffers::Data Simple::Data() const noexcept {
 }
 
 void Simple::Discard(const std::size_t& length, const Read::Position& mode) noexcept {
-    std::size_t discard_start = 0;
+	std::size_t discard_start = 0;
 
-    // Determine the starting position for the discard operation based on the mode
-    if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(Read::Position::Begin)) {
-        discard_start = 0; // Discard from the beginning
-    } else if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(Read::Position::End)) {
-        discard_start = (length > m_data.size()) ? 0 : m_data.size() - length; // Discard from the end
-    } else if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(Read::Position::Relative)) {
-        discard_start = m_position; // Discard relative to the current position
-    } else if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(Read::Position::Absolute)) {
-        discard_start = (length > m_data.size()) ? m_data.size() : 0; // Discard from the absolute position
-    }
+	// Determine the starting position for the discard operation based on the mode
+	if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(Read::Position::Begin)) {
+		discard_start = 0; // Discard from the beginning
+	} else if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(Read::Position::End)) {
+		discard_start = (length > m_data.size()) ? 0 : m_data.size() - length; // Discard from the end
+	} else if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(Read::Position::Relative)) {
+		discard_start = m_position; // Discard relative to the current position
+	} else if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(Read::Position::Absolute)) {
+		discard_start = (length > m_data.size()) ? m_data.size() : 0; // Discard from the absolute position
+	}
 
-    // Ensure the discard range is valid
-    discard_start = std::min(discard_start, m_data.size());
-    const std::size_t discard_end = std::min(discard_start + length, m_data.size());
+	// Ensure the discard range is valid
+	discard_start = std::min(discard_start, m_data.size());
+	const std::size_t discard_end = std::min(discard_start + length, m_data.size());
 
-    // Perform the discard operation
-    if (discard_start < discard_end) {
-        m_data.erase(m_data.begin() + discard_start, m_data.begin() + discard_end);
-    }
+	// Perform the discard operation
+	if (discard_start < discard_end) {
+		m_data.erase(m_data.begin() + discard_start, m_data.begin() + discard_end);
+	}
 
-    // Adjust the read position if necessary
-    if (m_position >= discard_end) {
-        m_position -= (discard_end - discard_start); // Adjust position if it's after the discarded range
-    } else if (m_position >= discard_start) {
-        m_position = discard_start; // Adjust position to the start of the discarded range
-    }
+	// Adjust the read position if necessary
+	if (m_position >= discard_end) {
+		m_position -= (discard_end - discard_start); // Adjust position if it's after the discarded range
+	} else if (m_position >= discard_start) {
+		m_position = discard_start; // Adjust position to the start of the discarded range
+	}
 }
 
 bool Simple::Empty() const noexcept {
