@@ -187,7 +187,7 @@ namespace StormByte::Buffers {
 			/**
 			 * Discards all data from beginning to current read position
 			 */
-			virtual void 															Discard() noexcept;
+			virtual void 															Discard(const std::size_t& length, const Read::Position& mode = Read::Position::Relative) noexcept;
 
 			/**
 			 * @brief Checks if simple buffer is empty

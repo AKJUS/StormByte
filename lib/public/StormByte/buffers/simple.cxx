@@ -104,10 +104,35 @@ StormByte::Buffers::Data Simple::Data() const noexcept {
 	return m_data;
 }
 
-void Simple::Discard() noexcept {
-	m_data.erase(m_data.begin(), m_data.begin() + m_position);
-	m_data.shrink_to_fit();
-	m_position = 0;
+void Simple::Discard(const std::size_t& length, const Read::Position& mode) noexcept {
+    std::size_t discard_start = 0;
+
+    // Determine the starting position for the discard operation based on the mode
+    if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(Read::Position::Begin)) {
+        discard_start = 0; // Discard from the beginning
+    } else if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(Read::Position::End)) {
+        discard_start = (length > m_data.size()) ? 0 : m_data.size() - length; // Discard from the end
+    } else if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(Read::Position::Relative)) {
+        discard_start = m_position; // Discard relative to the current position
+    } else if (static_cast<unsigned short>(mode) & static_cast<unsigned short>(Read::Position::Absolute)) {
+        discard_start = (length > m_data.size()) ? m_data.size() : 0; // Discard from the absolute position
+    }
+
+    // Ensure the discard range is valid
+    discard_start = std::min(discard_start, m_data.size());
+    const std::size_t discard_end = std::min(discard_start + length, m_data.size());
+
+    // Perform the discard operation
+    if (discard_start < discard_end) {
+        m_data.erase(m_data.begin() + discard_start, m_data.begin() + discard_end);
+    }
+
+    // Adjust the read position if necessary
+    if (m_position >= discard_end) {
+        m_position -= (discard_end - discard_start); // Adjust position if it's after the discarded range
+    } else if (m_position >= discard_start) {
+        m_position = discard_start; // Adjust position to the start of the discarded range
+    }
 }
 
 bool Simple::Empty() const noexcept {
@@ -129,9 +154,8 @@ ExpectedData<BufferOverflow> Simple::Extract(const std::size_t& length) {
 	auto end = start + length;
 
 	Buffers::Data extracted_data(std::make_move_iterator(start), std::make_move_iterator(end));
-	m_position += length;
 
-	Discard();
+	Discard(length, Read::Position::Relative);
 
 	return extracted_data;
 }

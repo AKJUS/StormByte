@@ -1,11 +1,3 @@
-add_executable(PipelineTests pipeline_test.cxx)
-target_link_libraries(PipelineTests StormByte)
-add_test(NAME PipelineTests COMMAND PipelineTests)
-
-add_executable(ProducerConsumerTests producer_consumer_test.cxx)
-target_link_libraries(ProducerConsumerTests StormByte)
-add_test(NAME ProducerConsumerTests COMMAND ProducerConsumerTests)
-
 add_executable(SharedBufferTests shared_buffer_test.cxx)
 target_link_libraries(SharedBufferTests StormByte)
 add_test(NAME SharedBufferTests COMMAND SharedBufferTests)

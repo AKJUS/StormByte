@@ -102,9 +102,9 @@ Data Shared::Data() const noexcept {
 	return Simple::Data();
 }
 
-void Shared::Discard() noexcept {
+void Shared::Discard(const std::size_t& length, const Read::Position& mode) noexcept {
 	std::unique_lock lock(m_data_mutex);
-	Simple::Discard();
+	Simple::Discard(length, mode);
 }
 
 bool Shared::Empty() const noexcept {
@@ -125,7 +125,7 @@ ExpectedData<BufferOverflow> Shared::Extract(const std::size_t& length) {
 	std::unique_lock lock(m_data_mutex);
 	auto expected_data = Simple::Read(length);
 	if (expected_data) {
-		Simple::Discard();
+		Simple::Discard(0, Read::Position::Relative);
 	}
 	return expected_data;
 }

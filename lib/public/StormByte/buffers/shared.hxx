@@ -194,7 +194,7 @@ namespace StormByte::Buffers {
 			 * Discards data from the begining to current read position in a thread safe way
 			 * @see Simple::Discard()
 			 */
-			void 																Discard() noexcept override;
+			void 																Discard(const std::size_t& length, const Read::Position& mode) noexcept override;
 
 			/**
 			 * @brief Checks if the read position is at the end
