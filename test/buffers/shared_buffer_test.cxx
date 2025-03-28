@@ -148,12 +148,63 @@ int test_write_after_eof() {
 	RETURN_TEST("test_write_after_eof", 0);
 }
 
+int test_process_shared_buffer_multithreaded() {
+    Buffers::Shared input_buffer;
+    Buffers::Shared output_buffer;
+
+    // Add data to the input buffer
+    std::string initial_data = "Hello, World!";
+    for (int i = 0; i < 10; ++i) {
+        input_buffer << initial_data; // Add the same data multiple times
+    }
+
+    // Define a processing function that converts all characters to uppercase
+    auto to_uppercase = [](const Buffers::Simple& buffer) -> std::shared_ptr<Buffers::Simple> {
+        auto data = buffer.Data();
+        auto result = std::make_shared<Buffers::Simple>();
+        for (auto byte : data) {
+            char c = static_cast<char>(byte);
+            result->Write(std::string(1, std::toupper(c)));
+        }
+        return result;
+    };
+
+    // Define a thread-safe processing task
+    auto process_task = [&input_buffer, &output_buffer, &to_uppercase]() {
+        while (!input_buffer.Empty()) {
+            input_buffer.Process(13, to_uppercase, output_buffer); // Process 13 bytes (length of "Hello, World!")
+        }
+    };
+
+    // Launch multiple threads to process the data concurrently
+    std::thread t1(process_task);
+    std::thread t2(process_task);
+
+    t1.join();
+    t2.join();
+
+    // Verify the output buffer content
+    std::string expected_output;
+    for (int i = 0; i < 10; ++i) {
+        expected_output += "HELLO, WORLD!";
+    }
+
+    std::string actual_output(reinterpret_cast<const char*>(output_buffer.Data().data()), output_buffer.Size());
+    ASSERT_EQUAL("test_process_shared_buffer_multithreaded", expected_output, actual_output);
+
+    // Verify that the input buffer is empty after processing
+    ASSERT_TRUE("test_process_shared_buffer_multithreaded", input_buffer.Empty());
+
+    RETURN_TEST("test_process_shared_buffer_multithreaded", 0);
+}
+
 int main() {
 	int result = 0;
 	result += test_concurrent_writes();
 	result += test_concurrent_reads_and_writes();
 	result += test_manual_locking();
 	result += test_write_after_eof();
+	result += test_process_shared_buffer_multithreaded(); // Add the new test here
 
 	if (result == 0) {
 		std::cout << "All tests passed!" << std::endl;
