@@ -117,6 +117,7 @@ int test_pipeline_integer_operations() {
         std::cout << "[Pipe 4]: End" << std::endl;
     });
 
+	std::cout << "Input buffer:" << std::endl << input_buffer.HexData();
     // Process the pipeline
     Buffers::Consumer final_buffer = pipeline.Process(std::move(input_buffer));
 

@@ -203,6 +203,7 @@ ExpectedData<BufferOverflow> Shared::Read(const std::size_t& length) const {
 	if (wait_status != Read::Status::Success) {
 		return StormByte::Unexpected<BufferOverflow>("Not enough data to read.");
 	}
+	std::shared_lock lock(m_data_mutex);
 	return Simple::Read(length);
 }
 
