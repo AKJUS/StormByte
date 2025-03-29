@@ -27,7 +27,6 @@ int test_pipeline_integer_operations() {
 
     // Pipe 1: Multiply by 2
     pipeline.AddPipe([](Buffers::Consumer input, Buffers::Producer output) {
-        std::cout << "[Pipe 1]: Start - Multiply by 2" << std::endl;
         while (!input.IsEoF() || input.HasEnoughData(sizeof(int))) {
             auto data = input.Read(sizeof(int));
             if (!data) {
@@ -45,12 +44,10 @@ int test_pipeline_integer_operations() {
             output.Write(std::move(output_data)); // Use std::move to avoid unnecessary copy
         }
         output << Buffers::Status::EoF; // Mark as finished
-        std::cout << "[Pipe 1]: End" << std::endl;
     });
 
     // Pipe 2: Add 5
     pipeline.AddPipe([](Buffers::Consumer input, Buffers::Producer output) {
-        std::cout << "[Pipe 2]: Start - Add 5" << std::endl;
         while (!input.IsEoF() || input.HasEnoughData(sizeof(int))) {
             auto data = input.Read(sizeof(int));
             if (!data) {
@@ -68,12 +65,10 @@ int test_pipeline_integer_operations() {
             output.Write(std::move(output_data)); // Use std::move to avoid unnecessary copy
         }
         output << Buffers::Status::EoF; // Mark as finished
-        std::cout << "[Pipe 2]: End" << std::endl;
     });
 
     // Pipe 3: Subtract 5
     pipeline.AddPipe([](Buffers::Consumer input, Buffers::Producer output) {
-        std::cout << "[Pipe 3]: Start - Subtract 5" << std::endl;
         while (!input.IsEoF() || input.HasEnoughData(sizeof(int))) {
             auto data = input.Read(sizeof(int));
             if (!data) {
@@ -91,12 +86,10 @@ int test_pipeline_integer_operations() {
             output.Write(std::move(output_data)); // Use std::move to avoid unnecessary copy
         }
         output << Buffers::Status::EoF; // Mark as finished
-        std::cout << "[Pipe 3]: End" << std::endl;
     });
 
     // Pipe 4: Divide by 2
     pipeline.AddPipe([](Buffers::Consumer input, Buffers::Producer output) {
-        std::cout << "[Pipe 4]: Start - Divide by 2" << std::endl;
         while (!input.IsEoF() || input.HasEnoughData(sizeof(int))) {
             auto data = input.Read(sizeof(int));
             if (!data) {
@@ -114,7 +107,6 @@ int test_pipeline_integer_operations() {
             output.Write(std::move(output_data)); // Use std::move to avoid unnecessary copy
         }
         output << Buffers::Status::EoF; // Mark as finished
-        std::cout << "[Pipe 4]: End" << std::endl;
     });
 
 	std::cout << "Input buffer:" << std::endl << input_buffer.HexData();
