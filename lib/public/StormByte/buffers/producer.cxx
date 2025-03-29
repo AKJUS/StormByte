@@ -6,6 +6,10 @@ using namespace StormByte::Buffers;
 // Default constructor
 Producer::Producer() noexcept: m_shared(std::make_shared<Shared>()) {}
 
+Producer::Producer(const Shared& shared) noexcept: m_shared(std::make_shared<Shared>(shared)) {}
+
+Producer::Producer(Shared&& shared) noexcept: m_shared(std::make_shared<Shared>(std::move(shared))) {}
+
 // Sets the buffer status
 Producer& Producer::operator<<(const Status& status) {
 	*m_shared << status;

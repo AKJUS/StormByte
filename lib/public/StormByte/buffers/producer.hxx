@@ -33,6 +33,9 @@ namespace StormByte::Buffers {
      *   for incoming data.
      * - **Consumer Creation**: The only way to create a `Consumer` instance is via the `Consumer` method of this class, which
      *   returns a `Consumer` instance bound to this producer's buffer.
+     * - **Shared Buffer Behavior**: While the class is designed to have only one producer and one consumer instance,
+     *   if `Producer` instances are copied, they will share the same buffer. This is allowed, but it is up to the user
+     *   to ensure that the produced-consumed data flow remains in sync.
      */
     class STORMBYTE_PUBLIC Producer final {
         public:
@@ -44,12 +47,16 @@ namespace StormByte::Buffers {
              */
             Producer() noexcept;
 
+			Producer(const Shared& shared) noexcept;
+
+			Producer(Shared&& shared) noexcept;
+
             /**
              * @brief Deleted copy constructor
              * 
              * The `Producer` class cannot be copied to ensure data integrity and prevent unintended sharing of the buffer.
              */
-            Producer(const Producer& other) 							= delete;
+            Producer(const Producer& other) 							= default;
 
             /**
              * @brief Default move constructor
@@ -70,7 +77,7 @@ namespace StormByte::Buffers {
              * 
              * The `Producer` class cannot be copied to ensure data integrity and prevent unintended sharing of the buffer.
              */
-            Producer& operator=(const Producer& other) 					= delete;
+            Producer& operator=(const Producer& other) 					= default;
 
             /**
              * @brief Default move assignment operator

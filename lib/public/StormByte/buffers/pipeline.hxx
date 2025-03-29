@@ -1,6 +1,7 @@
 #pragma once
 
-#include <StormByte/buffers/async.hxx>
+#include <StormByte/buffers/consumer.hxx>
+#include <StormByte/buffers/producer.hxx>
 #include <StormByte/buffers/typedefs.hxx>
 
 /**
@@ -123,7 +124,7 @@ namespace StormByte::Buffers {
              * @param buffer Buffer to process
              * @return Processed buffer
              */
-            ConsumerPtr 													Process(ConsumerPtr buffer) const noexcept;
+            Consumer														Process(Shared&& buffer) const noexcept;
 
         private:
             std::vector<PipeFunction> m_pipes;								///< Vector of pipe functions

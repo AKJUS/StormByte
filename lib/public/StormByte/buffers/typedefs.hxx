@@ -122,12 +122,6 @@ namespace StormByte::Buffers {
 	class Shared;
 
 	/**
-	 * @class Async
-	 * @brief Forward declaration of the `Async` class.
-	 */
-	class Async;
-
-	/**
 	 * @class Producer
 	 * @brief Forward declaration of the `Producer` class.
 	 */
@@ -138,11 +132,6 @@ namespace StormByte::Buffers {
 	 * @brief Forward declaration of the `Consumer` class.
 	 */
 	class Consumer;
-
-	// Pointers
-	using AsyncPtr						= std::shared_ptr<Async>;								///< Shared pointer to an `Async` instance.
-	using ConsumerPtr					= std::shared_ptr<Consumer>;							///< Shared pointer to a `Consumer` instance.
-	using ProducerPtr					= std::shared_ptr<Producer>;							///< Shared pointer to a `Producer` instance.
 
 	// Data types
 	using Byte							= std::byte;											///< Represents a single byte of data.
@@ -161,7 +150,7 @@ namespace StormByte::Buffers {
 	using ExpectedConstByteSpan			= Expected<std::span<const Byte>, T>;					///< Represents a constant span of bytes with error handling.
 	template<class T>
 	using ExpectedData					= Expected<Data, T>;									///< Represents a collection of bytes with error handling.
-	using PipeFunction					= std::function<bool(ConsumerPtr, ProducerPtr)>;		///< Represents a function that processes a data pipe.
+	using PipeFunction					= std::function<void(Consumer, Producer)>;				///< Represents a function that processes a data pipe.
 	using Processor						= std::function<std::shared_ptr<Simple>(const Simple&)>;///< Represents a function that processes a buffer.
 
 	/**
@@ -180,9 +169,14 @@ namespace StormByte::Buffers {
 	 */
 	template <typename PtrType, typename T,
 		typename = std::enable_if_t<
-			std::is_base_of_v<Simple, typename PtrType::element_type> ||
-			std::is_base_of_v<Async, typename PtrType::element_type>>>
+			(std::is_same_v<PtrType, std::shared_ptr<typename PtrType::element_type>> ||
+			 std::is_same_v<PtrType, std::unique_ptr<typename PtrType::element_type>>)
+		>
+	>
 	inline PtrType& operator<<(PtrType& ptr, const T& value) {
+		static_assert(std::is_same_v<PtrType, std::shared_ptr<typename PtrType::element_type>> ||
+					  std::is_same_v<PtrType, std::unique_ptr<typename PtrType::element_type>>,
+					  "PtrType must be a std::shared_ptr or std::unique_ptr");
 		if (ptr) {
 			*ptr << value; // Forward the call to the existing operator<<
 		}
@@ -204,10 +198,15 @@ namespace StormByte::Buffers {
 	 * @note If the smart pointer is null, the function does nothing and returns the original pointer.
 	 */
 	template <typename PtrType, typename T,
-		typename = std::enable_if_t<
-			std::is_base_of_v<Simple, typename PtrType::element_type> ||
-			std::is_base_of_v<Async, typename PtrType::element_type>>>
+			typename = std::enable_if_t<
+			(std::is_same_v<PtrType, std::shared_ptr<typename PtrType::element_type>> ||
+			 std::is_same_v<PtrType, std::unique_ptr<typename PtrType::element_type>>)
+		>
+	>
 	inline PtrType& operator<<(PtrType& ptr, T&& value) {
+		static_assert(std::is_same_v<PtrType, std::shared_ptr<typename PtrType::element_type>> ||
+					  std::is_same_v<PtrType, std::unique_ptr<typename PtrType::element_type>>,
+					  "PtrType must be a std::shared_ptr or std::unique_ptr");
 		if (ptr) {
 			*ptr << std::move(value); // Forward the call to the existing operator<<
 		}

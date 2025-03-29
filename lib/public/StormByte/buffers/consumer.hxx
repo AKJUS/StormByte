@@ -27,6 +27,9 @@ namespace StormByte::Buffers {
 	 * - **Read-Only Access**: Allows only read operations on the buffer.
 	 * - **Non-Copyable**: Instances of `Consumer` cannot be copied to ensure data integrity.
 	 * - **Thread-Safe**: All operations are thread-safe and synchronized using the underlying `Shared` buffer.
+	 * - **Shared Buffer Behavior**: While the class is designed to have only one producer and one consumer instance,
+	 *   if `Consumer` instances are copied, they will share the same buffer. This is allowed, but it is up to the user
+	 *   to ensure that the produced-consumed data flow remains in sync.
 	 */
 	class STORMBYTE_PUBLIC Consumer final {
 		friend class Producer;
@@ -37,7 +40,7 @@ namespace StormByte::Buffers {
 			 * 
 			 * The `Consumer` class cannot be copied to ensure data integrity and prevent unintended sharing of the buffer.
 			 */
-			Consumer(const Consumer& other) 							= delete;
+			Consumer(const Consumer& other) 							= default;
 
 			/**
 			 * @brief Default move constructor
@@ -58,7 +61,7 @@ namespace StormByte::Buffers {
 			 * 
 			 * The `Consumer` class cannot be copied to ensure data integrity and prevent unintended sharing of the buffer.
 			 */
-			Consumer& operator=(const Consumer& other) 					= delete;
+			Consumer& operator=(const Consumer& other) 					= default;
 
 			/**
 			 * @brief Default move assignment operator
