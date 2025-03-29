@@ -149,53 +149,97 @@ int test_write_after_eof() {
 }
 
 int test_process_shared_buffer_multithreaded() {
-    Buffers::Shared input_buffer;
-    Buffers::Shared output_buffer;
+	Buffers::Shared input_buffer;
+	Buffers::Shared output_buffer;
 
-    // Add data to the input buffer
-    std::string initial_data = "Hello, World!";
-    for (int i = 0; i < 10; ++i) {
-        input_buffer << initial_data; // Add the same data multiple times
-    }
+	// Add data to the input buffer
+	std::string initial_data = "Hello, World!";
+	for (int i = 0; i < 10; ++i) {
+		input_buffer << initial_data; // Add the same data multiple times
+	}
 
-    // Define a processing function that converts all characters to uppercase
-    auto to_uppercase = [](const Buffers::Simple& buffer) -> std::shared_ptr<Buffers::Simple> {
-        auto data = buffer.Data();
-        auto result = std::make_shared<Buffers::Simple>();
-        for (auto byte : data) {
-            char c = static_cast<char>(byte);
-            result->Write(std::string(1, std::toupper(c)));
-        }
-        return result;
-    };
+	// Define a processing function that converts all characters to uppercase
+	auto to_uppercase = [](const Buffers::Simple& buffer) -> std::shared_ptr<Buffers::Simple> {
+		auto data = buffer.Data();
+		auto result = std::make_shared<Buffers::Simple>();
+		for (auto byte : data) {
+			char c = static_cast<char>(byte);
+			result->Write(std::string(1, std::toupper(c)));
+		}
+		return result;
+	};
 
-    // Define a thread-safe processing task
-    auto process_task = [&input_buffer, &output_buffer, &to_uppercase]() {
-        while (!input_buffer.Empty()) {
-            input_buffer.Process(13, to_uppercase, output_buffer); // Process 13 bytes (length of "Hello, World!")
-        }
-    };
+	// Define a thread-safe processing task
+	auto process_task = [&input_buffer, &output_buffer, &to_uppercase]() {
+		while (!input_buffer.Empty()) {
+			input_buffer.Process(13, to_uppercase, output_buffer); // Process 13 bytes (length of "Hello, World!")
+		}
+	};
 
-    // Launch multiple threads to process the data concurrently
-    std::thread t1(process_task);
-    std::thread t2(process_task);
+	// Launch multiple threads to process the data concurrently
+	std::thread t1(process_task);
+	std::thread t2(process_task);
 
-    t1.join();
-    t2.join();
+	t1.join();
+	t2.join();
 
-    // Verify the output buffer content
-    std::string expected_output;
-    for (int i = 0; i < 10; ++i) {
-        expected_output += "HELLO, WORLD!";
-    }
+	// Verify the output buffer content
+	std::string expected_output;
+	for (int i = 0; i < 10; ++i) {
+		expected_output += "HELLO, WORLD!";
+	}
 
-    std::string actual_output(reinterpret_cast<const char*>(output_buffer.Data().data()), output_buffer.Size());
-    ASSERT_EQUAL("test_process_shared_buffer_multithreaded", expected_output, actual_output);
+	std::string actual_output(reinterpret_cast<const char*>(output_buffer.Data().data()), output_buffer.Size());
+	ASSERT_EQUAL("test_process_shared_buffer_multithreaded", expected_output, actual_output);
 
-    // Verify that the input buffer is empty after processing
-    ASSERT_TRUE("test_process_shared_buffer_multithreaded", input_buffer.Empty());
+	// Verify that the input buffer is empty after processing
+	ASSERT_TRUE("test_process_shared_buffer_multithreaded", input_buffer.Empty());
 
-    RETURN_TEST("test_process_shared_buffer_multithreaded", 0);
+	RETURN_TEST("test_process_shared_buffer_multithreaded", 0);
+}
+
+int test_extract_into_multithreaded() {
+	Buffers::Shared source_buffer;
+
+	// Add data to the source buffer
+	std::string initial_data = "Hello, World!";
+	for (int i = 0; i < 100; ++i) {
+		source_buffer << initial_data; // Add the same data multiple times
+	}
+
+	Buffers::Shared target_buffer1;
+	Buffers::Shared target_buffer2;
+
+	// Define a task to extract data into a target buffer
+	auto extract_task = [&source_buffer](Buffers::Shared& target_buffer, int iterations, std::size_t length) {
+		for (int i = 0; i < iterations; ++i) {
+			source_buffer.ExtractInto(length, target_buffer);
+		}
+	};
+
+	// Launch multiple threads to extract data concurrently
+	std::thread t1(extract_task, std::ref(target_buffer1), 50, initial_data.size()); // Extract 50 times into target_buffer1
+	std::thread t2(extract_task, std::ref(target_buffer2), 50, initial_data.size()); // Extract 50 times into target_buffer2
+
+	t1.join();
+	t2.join();
+
+	// Verify that the source buffer is empty after all extractions
+	ASSERT_TRUE("test_extract_into_multithreaded", source_buffer.Empty());
+
+	// Verify the content of the target buffers
+	std::string expected_output;
+	for (int i = 0; i < 50; ++i) {
+		expected_output += initial_data;
+	}
+
+	std::string actual_output1(reinterpret_cast<const char*>(target_buffer1.Data().data()), target_buffer1.Size());
+	std::string actual_output2(reinterpret_cast<const char*>(target_buffer2.Data().data()), target_buffer2.Size());
+
+	ASSERT_EQUAL("test_extract_into_multithreaded (target_buffer1)", expected_output, actual_output1);
+	ASSERT_EQUAL("test_extract_into_multithreaded (target_buffer2)", expected_output, actual_output2);
+
+	RETURN_TEST("test_extract_into_multithreaded", 0);
 }
 
 int main() {
@@ -204,7 +248,8 @@ int main() {
 	result += test_concurrent_reads_and_writes();
 	result += test_manual_locking();
 	result += test_write_after_eof();
-	result += test_process_shared_buffer_multithreaded(); // Add the new test here
+	result += test_process_shared_buffer_multithreaded();
+	result += test_extract_into_multithreaded();
 
 	if (result == 0) {
 		std::cout << "All tests passed!" << std::endl;

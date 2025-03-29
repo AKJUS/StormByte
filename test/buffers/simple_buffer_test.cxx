@@ -136,39 +136,69 @@ int test_discard_modes() {
 }
 
 int test_process_function() {
-    Buffers::Simple input_buffer;
-    Buffers::Simple output_buffer;
+	Buffers::Simple input_buffer;
+	Buffers::Simple output_buffer;
 
-    // Add data to the input buffer
-    std::string initial_data = "Hello, World!";
-    input_buffer << initial_data;
+	// Add data to the input buffer
+	std::string initial_data = "Hello, World!";
+	input_buffer << initial_data;
 
-    // Define a processing function that converts all characters to uppercase
-    auto to_uppercase = [](const Buffers::Simple& buffer) -> std::shared_ptr<Buffers::Simple> {
-        auto data = buffer.Data();
-        auto result = std::make_shared<Buffers::Simple>();
-        for (auto byte : data) {
-            char c = static_cast<char>(byte);
-            result->Write(std::string(1, std::toupper(c)));
-        }
-        return result;
-    };
+	// Define a processing function that converts all characters to uppercase
+	auto to_uppercase = [](const Buffers::Simple& buffer) -> std::shared_ptr<Buffers::Simple> {
+		auto data = buffer.Data();
+		auto result = std::make_shared<Buffers::Simple>();
+		for (auto byte : data) {
+			char c = static_cast<char>(byte);
+			result->Write(std::string(1, std::toupper(c)));
+		}
+		return result;
+	};
 
-    // Process the data
-    auto status = input_buffer.Process(initial_data.size(), to_uppercase, output_buffer);
+	// Process the data
+	auto status = input_buffer.Process(initial_data.size(), to_uppercase, output_buffer);
 
-    // Verify the status
-    ASSERT_TRUE("test_process_function", Buffers::Read::Status::Success == status);
+	// Verify the status
+	ASSERT_TRUE("test_process_function", Buffers::Read::Status::Success == status);
 
-    // Verify the output buffer content
-    std::string expected_output = "HELLO, WORLD!";
-    std::string actual_output(reinterpret_cast<const char*>(output_buffer.Data().data()), output_buffer.Size());
-    ASSERT_EQUAL("test_process_function", expected_output, actual_output);
+	// Verify the output buffer content
+	std::string expected_output = "HELLO, WORLD!";
+	std::string actual_output(reinterpret_cast<const char*>(output_buffer.Data().data()), output_buffer.Size());
+	ASSERT_EQUAL("test_process_function", expected_output, actual_output);
 
-    // Verify that the input buffer is empty after processing
-    ASSERT_TRUE("test_process_function", input_buffer.Empty());
+	// Verify that the input buffer is empty after processing
+	ASSERT_TRUE("test_process_function", input_buffer.Empty());
 
-    RETURN_TEST("test_process_function", 0);
+	RETURN_TEST("test_process_function", 0);
+}
+
+int test_extract_into() {
+	Buffers::Simple source_buffer;
+	Buffers::Simple target_buffer;
+
+	// Add data to the source buffer
+	std::string initial_data = "Hello, World!";
+	source_buffer << initial_data;
+
+	// Extract 5 bytes ("Hello") into the target buffer
+	auto status = source_buffer.ExtractInto(5, target_buffer);
+
+	// Verify the status
+	ASSERT_TRUE("test_extract_into", Buffers::Read::Status::Success == status);
+
+	// Verify the target buffer content
+	std::string expected_target = "Hello";
+	std::string actual_target(reinterpret_cast<const char*>(target_buffer.Data().data()), target_buffer.Size());
+	ASSERT_EQUAL("test_extract_into", expected_target, actual_target);
+
+	// Verify the source buffer content after extraction
+	std::string expected_source = ", World!";
+	std::string actual_source(reinterpret_cast<const char*>(source_buffer.Data().data()), source_buffer.Size());
+	ASSERT_EQUAL("test_extract_into", expected_source, actual_source);
+
+	// Verify the source buffer's position is updated correctly
+	ASSERT_EQUAL("test_extract_into", source_buffer.Size(), expected_source.size());
+
+	RETURN_TEST("test_extract_into", 0);
 }
 
 int main() {
@@ -181,7 +211,8 @@ int main() {
 	result += test_peek_function();
 	result += test_discard_function();
 	result += test_discard_modes();
-	result += test_process_function(); // Add the new test here
+	result += test_process_function();
+	result += test_extract_into(); // Add the new test here
 
 	if (result == 0) {
 		std::cout << "All tests passed!" << std::endl;

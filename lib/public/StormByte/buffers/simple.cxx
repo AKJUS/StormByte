@@ -134,6 +134,27 @@ ExpectedData<BufferOverflow> Simple::Extract(const std::size_t& length) {
 	return extracted_data;
 }
 
+Read::Status Simple::ExtractInto(const std::size_t& length, Simple& output) noexcept {
+	if (!HasEnoughData(length)) {
+		return Read::Status::Error;
+	}
+
+	// Lock the data to extract
+	auto start = m_data.begin() + m_position;
+	auto end = start + length;
+
+	// Move the data directly into the output buffer
+	output.m_data.reserve(output.m_data.size() + length);
+	output.m_data.insert(output.m_data.end(),
+						std::make_move_iterator(start),
+						std::make_move_iterator(end));
+
+	// Use Discard to remove the extracted data
+	Discard(length, Read::Position::Relative);
+
+	return Read::Status::Success;
+}
+
 bool Simple::HasEnoughData(const std::size_t& length) const {
 	return m_position + length <= m_data.size();
 }

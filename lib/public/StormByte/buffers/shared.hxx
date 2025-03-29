@@ -201,6 +201,18 @@ namespace StormByte::Buffers {
 			 */
 			virtual ExpectedData<BufferOverflow> 								Extract(const size_t& length) override;
 
+
+			/**
+			 * @brief Extracts a specific size of data and moves it directly into the provided buffer.
+			 * 
+			 * Thread-safe version of @see Simple::ExtractInto.
+			 * 
+			 * @param length Length of the data to extract.
+			 * @param output Buffer where the extracted data will be moved.
+			 * @return `Read::Status` indicating the success or failure of the operation.
+			 */
+			Read::Status 														ExtractInto(const size_t& length, Shared& output) noexcept;
+
 			/**
 			 * @brief Checks if the shared buffer has enough data starting from the current read position.
 			 * Thread-safe version of @see Simple::HasEnoughData.
@@ -212,6 +224,21 @@ namespace StormByte::Buffers {
 			 * Thread-safe version of @see Simple::HexData.
 			 */
 			virtual std::string 												HexData(const std::size_t& column_size = 16) const override;
+
+			/**
+			 * Checks if the buffer is at the end of the file/data
+			 */
+			bool 																IsEoF() const noexcept;
+			
+			/**
+			 * Checks if the buffer is readable
+			 */
+			bool 																IsReadable() const noexcept;
+
+			/**
+			 * Checks if the buffer is writable
+			 */
+			bool 																IsWritable() const noexcept;
 
 			/**
 			 * @brief Locks the shared buffer for exclusive access.
@@ -316,25 +343,19 @@ namespace StormByte::Buffers {
 			std::atomic<enum Status> m_status;									///< Buffer status.
 
 			/**
-			 * Reads a specific size of data starting from the current read position waiting for data available if needed
+			 * @brief Waits for a specific amount of data to become available in the buffer.
 			 * 
-			 * If buffer is marked EoF (or error) while waiting for data will return BufferOverflow error
+			 * This function blocks until the requested amount of data is available in the buffer
+			 * or until the buffer is marked as `EoF` (End of File) or `Error`.
+			 * 
+			 * **Behavior:**
+			 * - If the required data becomes available, the function returns `Read::Status::Success`.
+			 * - If the buffer is marked as `EoF` or encounters an error while waiting, the function
+			 *   returns `Read::Status::Error`.
+			 * 
+			 * @param length The number of bytes to wait for.
+			 * @return `Read::Status` indicating the result of the wait operation.
 			 */
-			ExpectedData<BufferOverflow> 										ReadWaiting(const std::size_t& length) const noexcept;
-
-			/**
-			 * Checks if the buffer is readable
-			 */
-			bool 																IsReadable() const noexcept;
-
-			/**
-			 * Checks if the buffer is writable
-			 */
-			bool 																IsWritable() const noexcept;
-
-			/**
-			 * Checks if the buffer is at the end of the file/data
-			 */
-			bool 																IsEoF() const noexcept;
+			Read::Status 														Wait(const std::size_t length) const noexcept;
 	};
 }

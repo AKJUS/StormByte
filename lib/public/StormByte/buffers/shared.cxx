@@ -115,12 +115,55 @@ void Shared::Lock() {
 }
 
 ExpectedData<BufferOverflow> Shared::Extract(const std::size_t& length) {
-	auto expected_data = ReadWaiting(length);
-	if (expected_data) {
-		std::unique_lock lock(m_data_mutex);
-		Simple::Discard(0, Read::Position::Relative);
+	// Wait until enough data is available or an error occurs
+	auto wait_status = Wait(length);
+	if (wait_status != Read::Status::Success) {
+		return StormByte::Unexpected<BufferOverflow>("Not enough data to extract.");
 	}
-	return expected_data;
+
+	Buffers::Data extracted_data;
+
+	// Check if there is enough data to extract
+	if (!HasEnoughData(length)) {
+		return StormByte::Unexpected<BufferOverflow>("Buffer overflow during extraction.");
+	}
+
+	// Lock the data mutex for thread-safe access
+	std::unique_lock lock(m_data_mutex);
+
+	// Move the extracted data into a new buffer
+	auto start = m_data.begin() + m_position;
+	auto end = start + length;
+	extracted_data = Buffers::Data(std::make_move_iterator(start), std::make_move_iterator(end));
+
+	// Use Discard to remove the extracted data
+	Simple::Discard(length, Read::Position::Relative);
+
+	return extracted_data;
+}
+
+Read::Status Shared::ExtractInto(const std::size_t& length, Shared& output) noexcept {
+	if (!HasEnoughData(length)) {
+		return Read::Status::Error;
+	}
+
+	std::unique_lock lock(m_data_mutex);
+
+	// Lock the data to extract
+	auto start = m_data.begin() + m_position;
+	auto end = start + length;
+
+	std::unique_lock other_lock(output.m_data_mutex);
+	// Move the data directly into the output buffer
+	output.m_data.reserve(output.m_data.size() + length);
+	output.m_data.insert(output.m_data.end(),
+						std::make_move_iterator(start),
+						std::make_move_iterator(end));
+
+	// Use Discard to remove the extracted data
+	Simple::Discard(length, Read::Position::Relative);
+
+	return Read::Status::Success;
 }
 
 bool Shared::HasEnoughData(const std::size_t& length) const {
@@ -131,6 +174,18 @@ bool Shared::HasEnoughData(const std::size_t& length) const {
 std::string Shared::HexData(const std::size_t& column_size) const {
 	std::shared_lock lock(m_data_mutex);
 	return Simple::HexData(column_size);
+}
+
+bool Shared::IsReadable() const noexcept {
+	return m_status.load() != Status::Error;
+}
+
+bool Shared::IsEoF() const noexcept {
+	return m_status.load() == Status::EoF;
+}
+
+bool Shared::IsWritable() const noexcept {
+	return m_status.load() == Status::Ready;
 }
 
 ExpectedByte<BufferOverflow> Shared::Peek() const {
@@ -144,7 +199,11 @@ std::size_t Shared::Position() const noexcept {
 }
 
 ExpectedData<BufferOverflow> Shared::Read(const std::size_t& length) const {
-return ReadWaiting(length);
+	auto wait_status = Wait(length);
+	if (wait_status != Read::Status::Success) {
+		return StormByte::Unexpected<BufferOverflow>("Not enough data to read.");
+	}
+	return Simple::Read(length);
 }
 
 void Shared::Reserve(const std::size_t& size) {
@@ -210,32 +269,18 @@ Write::Status Shared::Write(const std::string& data) {
 	return Simple::Write(data);
 }
 
-ExpectedData<BufferOverflow> Shared::ReadWaiting(const std::size_t& length) const noexcept {
+Read::Status Shared::Wait(const std::size_t length) const noexcept {
 	if (HasEnoughData(length)) {
-		std::shared_lock lock(m_data_mutex);
-		return Simple::Read(length);
+		return Read::Status::Success;
 	} else {
 		while (IsReadable() && !IsEoF() && !HasEnoughData(length)) {
 			std::this_thread::yield();
 			std::this_thread::sleep_for(std::chrono::milliseconds(1)); // Add a small sleep to reduce CPU usage
 		}
 		if (IsReadable() && !IsEoF()) {
-			std::shared_lock lock(m_data_mutex);
-			return Simple::Read(length);
+			return Read::Status::Success;
 		} else {
-			return StormByte::Unexpected<BufferOverflow>("Cannot read: buffer is not readable.");
+			return Read::Status::Error;
 		}
 	}
-}
-
-bool Shared::IsReadable() const noexcept {
-	return m_status.load() != Status::Error;
-}
-
-bool Shared::IsWritable() const noexcept {
-	return m_status.load() == Status::Ready;
-}
-
-bool Shared::IsEoF() const noexcept {
-	return m_status.load() == Status::EoF;
 }

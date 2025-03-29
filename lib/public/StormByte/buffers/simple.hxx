@@ -207,6 +207,19 @@ namespace StormByte::Buffers {
 			 */
 			virtual ExpectedData<BufferOverflow> 									Extract(const size_t& length);
 
+			/**
+			 * @brief Extracts a specific size of data and moves it directly into the provided buffer.
+			 * 
+			 * This function is a more efficient alternative to `Extract`, as it avoids copying data
+			 * by moving it directly into the target buffer. The read position is advanced by the
+			 * specified length.
+			 * 
+			 * @param length Length of the data to extract.
+			 * @param output Buffer where the extracted data will be moved.
+			 * @return `Read::Status` indicating the success or failure of the operation.
+			 * @see Extract
+			 */
+			virtual Read::Status 													ExtractInto(const size_t& length, Simple& output) noexcept;
 
 			/**
 			 * @brief Checks if the simple buffer has enough data starting from the current read position.
