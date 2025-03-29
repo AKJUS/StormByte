@@ -52,6 +52,7 @@ namespace StormByte::Buffers {
 			 * @brief Constructor
 			 * @param data Pointer to the data to set.
 			 * @param length Length of the data.
+			 * @note The data is copied into the buffer.
 			 */
 			Simple(const char* data, const std::size_t& length);
 
@@ -115,6 +116,7 @@ namespace StormByte::Buffers {
 			 * @brief Appends a byte vector to the current simple buffer
 			 * @param data Byte vector to append.
 			 * @return Reference to the updated simple buffer.
+			 * @note This operation does not modify the read position.
 			 */
 			virtual Simple& 														operator<<(const Data& data);
 
@@ -180,10 +182,13 @@ namespace StormByte::Buffers {
 			 * @brief Discards data from the buffer.
 			 * 
 			 * Removes data from the buffer starting from the beginning up to the current read position.
-			 * The discard operation can be performed in different modes (e.g., relative to the current position).
+			 * The discard operation can be performed in different modes:
+			 * - **Relative**: Discards data relative to the current read position.
+			 * - **Absolute**: Discards data up to the specified absolute position.
 			 * 
 			 * @param length The number of bytes to discard.
 			 * @param mode The mode to use for discarding (default is `Read::Position::Relative`).
+			 * @note If the specified length exceeds the buffer size, the entire buffer is discarded.
 			 */
 			virtual void 															Discard(const std::size_t& length, const Read::Position& mode = Read::Position::Relative) noexcept;
 
@@ -210,6 +215,7 @@ namespace StormByte::Buffers {
 			/**
 			 * @brief Extracts a specific size of data and moves it directly into the provided buffer.
 			 * 
+			 * Thread-safe version of @see Extract.
 			 * This function is a more efficient alternative to `Extract`, as it avoids copying data
 			 * by moving it directly into the target buffer. The read position is advanced by the
 			 * specified length.
@@ -217,7 +223,6 @@ namespace StormByte::Buffers {
 			 * @param length Length of the data to extract.
 			 * @param output Buffer where the extracted data will be moved.
 			 * @return `Read::Status` indicating the success or failure of the operation.
-			 * @see Extract
 			 */
 			virtual Read::Status 													ExtractInto(const size_t& length, Simple& output) noexcept;
 
