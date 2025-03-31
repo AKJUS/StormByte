@@ -276,7 +276,7 @@ Read::Status Shared::Wait(const std::size_t length) const noexcept {
 	} else {
 		while (IsReadable() && !IsEoF() && !HasEnoughData(length)) {
 			std::this_thread::yield();
-			std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Add a small sleep to reduce CPU usage
+			std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Add a small sleep to reduce CPU usage
 		}
 		if (IsReadable() && !IsEoF()) {
 			return Read::Status::Success;
