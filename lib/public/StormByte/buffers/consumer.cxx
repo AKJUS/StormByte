@@ -6,6 +6,10 @@ using namespace StormByte::Buffers;
 Consumer::Consumer(std::shared_ptr<Shared> shared) noexcept
     : m_shared(std::move(shared)) {}
 
+size_t Consumer::AvailableBytes() const noexcept {
+	return m_shared->AvailableBytes();
+}
+
 // Retrieves a copy of the buffer data
 Data Consumer::Data() const noexcept {
     return m_shared->Data();

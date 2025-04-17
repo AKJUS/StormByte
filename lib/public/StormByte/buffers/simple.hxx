@@ -156,6 +156,12 @@ namespace StormByte::Buffers {
 			virtual Simple& 														operator>>(Simple& buffer);
 
 			/**
+			 * @brief Gets the available bytes to read from current position
+			 * @return Number of bytes available to read.
+			 */
+			virtual size_t 															AvailableBytes() const noexcept;
+
+			/**
 			 * @brief Retrieves the capacity of the simple buffer
 			 * @return The total capacity of the buffer.
 			 */

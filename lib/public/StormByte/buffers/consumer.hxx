@@ -71,6 +71,12 @@ namespace StormByte::Buffers {
 			Consumer& operator=(Consumer&& other) noexcept 				= default;
 
 			/**
+			 * @brief Retrieves the number of bytes available for reading.
+			 * @return The number of bytes available for reading.
+			 */
+			std::size_t 												AvailableBytes() const noexcept;
+
+			/**
 			 * @brief Retrieves a copy of the buffer data.
 			 * @return A copy of the buffer data.
 			 */

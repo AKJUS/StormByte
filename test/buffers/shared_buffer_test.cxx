@@ -242,6 +242,31 @@ int test_extract_into_multithreaded() {
 	RETURN_TEST("test_extract_into_multithreaded", 0);
 }
 
+int test_shared_available_bytes() {
+    Buffers::Shared buffer;
+
+    // Add data to the buffer
+    std::string data = "Hello, World!";
+    buffer << data;
+
+    // Verify the initial available bytes
+    ASSERT_EQUAL("test_shared_available_bytes (initial)", data.size(), buffer.AvailableBytes());
+
+    // Read 7 bytes ("Hello, ")
+    buffer.Read(7);
+
+    // Verify the available bytes after reading
+    ASSERT_EQUAL("test_shared_available_bytes (after read)", data.size() - 7, buffer.AvailableBytes());
+
+    // Read the remaining bytes
+    buffer.Read(buffer.AvailableBytes());
+
+    // Verify the available bytes after reading everything
+    ASSERT_EQUAL("test_shared_available_bytes (after full read)", 0, buffer.AvailableBytes());
+
+    RETURN_TEST("test_shared_available_bytes", 0);
+}
+
 int main() {
 	int result = 0;
 	result += test_concurrent_writes();
@@ -250,6 +275,7 @@ int main() {
 	result += test_write_after_eof();
 	result += test_process_shared_buffer_multithreaded();
 	result += test_extract_into_multithreaded();
+	result += test_shared_available_bytes();
 
 	if (result == 0) {
 		std::cout << "All tests passed!" << std::endl;

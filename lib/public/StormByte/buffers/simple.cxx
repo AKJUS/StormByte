@@ -65,6 +65,10 @@ Simple& Simple::operator>>(Simple& buffer) {
 	return buffer;
 }
 
+size_t Simple::AvailableBytes() const noexcept {
+	return m_data.size() - m_position;
+}
+
 size_t Simple::Capacity() const noexcept {
 	return m_data.capacity();
 }

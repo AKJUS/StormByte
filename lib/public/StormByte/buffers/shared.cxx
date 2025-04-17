@@ -80,6 +80,11 @@ Shared& Shared::operator>>(Shared& buffer) {
 	return *this;
 }
 
+size_t Shared::AvailableBytes() const noexcept {
+	std::shared_lock lock(m_data_mutex);
+	return Simple::AvailableBytes();
+}
+
 size_t Shared::Capacity() const noexcept {
 	std::shared_lock lock(m_data_mutex);
 	return Simple::Capacity();
