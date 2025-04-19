@@ -11,6 +11,7 @@ StormByte is a comprehensive, cross-platform C++ library aimed at easing system 
 - **Network**: Contains everything needed to handle network communication portable to Linux and Windows.
 - **System Operations**: Manages pipes, processes, and system variables seamlessly across different platforms.
 - **Buffers**: Provides a variety of buffer types for managing byte data in both single-threaded and multi-threaded environments. This includes lightweight non-thread-safe buffers, thread-safe shared buffers, and robust producer/consumer models that track buffer status.
+- **Cryptographic functions**: Cryptographic functions for encrypting, decrypting, hashing, signing and verify signatures.
 
 ## Table of Contents
 
