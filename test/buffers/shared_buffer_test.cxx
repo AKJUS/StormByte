@@ -267,6 +267,17 @@ int test_shared_available_bytes() {
     RETURN_TEST("test_shared_available_bytes", 0);
 }
 
+int test_if_copy_copies_status() {
+	Buffers::Shared buffer1;
+	buffer1 << Buffers::Status::EoF;
+
+	Buffers::Shared buffer2 = buffer1; // Copy constructor
+
+	ASSERT_TRUE("test_if_copy_copies_status", buffer2.Status() == Buffers::Status::EoF);
+
+	return 0;
+}
+
 int main() {
 	int result = 0;
 	result += test_concurrent_writes();
@@ -276,6 +287,7 @@ int main() {
 	result += test_process_shared_buffer_multithreaded();
 	result += test_extract_into_multithreaded();
 	result += test_shared_available_bytes();
+	result += test_if_copy_copies_status();
 
 	if (result == 0) {
 		std::cout << "All tests passed!" << std::endl;

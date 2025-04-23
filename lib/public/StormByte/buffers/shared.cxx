@@ -19,7 +19,7 @@ Shared::Shared(Buffers::Data&& data): Simple(std::move(data)), m_status(Status::
 
 Shared::Shared(const std::span<const Byte>& data): Simple(data), m_status(Status::Ready) {}
 
-Shared::Shared(const Shared& other): Simple(other), m_status(Status::Ready) {}
+Shared::Shared(const Shared& other): Simple(other), m_status(other.m_status.load()) {}
 
 Shared::Shared(Shared&& other) noexcept: Simple(std::move(other)), m_status(other.m_status.load()) {}
 
