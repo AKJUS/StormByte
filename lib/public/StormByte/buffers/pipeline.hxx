@@ -124,7 +124,7 @@ namespace StormByte::Buffers {
              * @param buffer Buffer to process
              * @return Processed buffer
              */
-            Consumer														Process(Shared&& buffer) const noexcept;
+            Consumer														Process(Consumer buffer) const noexcept;
 
         private:
             std::vector<PipeFunction> m_pipes;								///< Vector of pipe functions

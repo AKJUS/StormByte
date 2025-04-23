@@ -104,7 +104,7 @@ namespace StormByte::Buffers {
 	 */
 	enum class Status {
 		Ready, 																			///< Indicates the buffer is OK and ready for operations.
-		EoF,   																			///< Indicates the buffer has reached the end of the file/data.
+		Closed,   																		///< Indicates the buffer has closed its write end.
 		Error  																			///< Indicates the buffer has encountered an error.
 	};
 	

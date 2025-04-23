@@ -127,11 +127,11 @@ int test_manual_locking() {
 	RETURN_TEST("test_manual_locking", 0);
 }
 
-int test_write_after_eof() {
+int test_write_after_close() {
 	Buffers::Shared buffer;
 
 	// Set the buffer to EOF
-	buffer << Buffers::Status::EoF;
+	buffer << Buffers::Status::Closed;
 
 	// Attempt to write to the buffer
 	Buffers::Write::Status status1 = buffer.Write("TestData1");
@@ -157,6 +157,7 @@ int test_process_shared_buffer_multithreaded() {
 	for (int i = 0; i < 10; ++i) {
 		input_buffer << initial_data; // Add the same data multiple times
 	}
+	input_buffer << Buffers::Status::Closed; // Mark the input buffer as closed
 
 	// Define a processing function that converts all characters to uppercase
 	auto to_uppercase = [](const Buffers::Simple& buffer) -> std::shared_ptr<Buffers::Simple> {
@@ -269,11 +270,11 @@ int test_shared_available_bytes() {
 
 int test_if_copy_copies_status() {
 	Buffers::Shared buffer1;
-	buffer1 << Buffers::Status::EoF;
+	buffer1 << Buffers::Status::Closed;
 
 	Buffers::Shared buffer2 = buffer1; // Copy constructor
 
-	ASSERT_TRUE("test_if_copy_copies_status", buffer2.Status() == Buffers::Status::EoF);
+	ASSERT_TRUE("test_if_copy_copies_status", buffer2.Status() == Buffers::Status::Closed);
 
 	return 0;
 }
@@ -283,7 +284,7 @@ int main() {
 	result += test_concurrent_writes();
 	result += test_concurrent_reads_and_writes();
 	result += test_manual_locking();
-	result += test_write_after_eof();
+	result += test_write_after_close();
 	result += test_process_shared_buffer_multithreaded();
 	result += test_extract_into_multithreaded();
 	result += test_shared_available_bytes();

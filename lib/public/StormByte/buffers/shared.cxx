@@ -186,7 +186,13 @@ bool Shared::IsReadable() const noexcept {
 }
 
 bool Shared::IsEoF() const noexcept {
-	return m_status.load() == Status::EoF;
+	if (IsWritable()) {
+		return false;
+	}
+	else {
+		std::shared_lock lock(m_data_mutex);
+		return Simple::IsEoF();
+	}
 }
 
 bool Shared::IsWritable() const noexcept {
@@ -279,11 +285,11 @@ Read::Status Shared::Wait(const std::size_t length) const noexcept {
 	if (HasEnoughData(length)) {
 		return Read::Status::Success;
 	} else {
-		while (IsReadable() && !IsEoF() && !HasEnoughData(length)) {
+		while (IsWritable() && !HasEnoughData(length)) {
 			std::this_thread::yield();
 			std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Add a small sleep to reduce CPU usage
 		}
-		if (IsReadable() && !IsEoF()) {
+		if (HasEnoughData(length)) {
 			return Read::Status::Success;
 		} else {
 			return Read::Status::Error;

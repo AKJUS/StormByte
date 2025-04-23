@@ -188,6 +188,10 @@ std::string Simple::HexData(const std::size_t& column_size) const {
 	return hex_data;
 }
 
+bool Simple::IsEoF() const noexcept {
+	return m_position >= m_data.size();
+}
+
 std::size_t Simple::Position() const noexcept {
 	return m_position;
 }

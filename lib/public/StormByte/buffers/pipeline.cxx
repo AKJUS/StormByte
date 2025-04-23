@@ -13,20 +13,20 @@ void Pipeline::AddPipe(PipeFunction&& pipe) {
 	m_pipes.push_back(std::move(pipe));
 }
 
-Consumer Pipeline::Process(Shared&& buffer) const noexcept {
-	Consumer buffer_chain = Producer(std::move(buffer)).Consumer();
+Consumer Pipeline::Process(Consumer buffer) const noexcept {
+	Consumer last_result = buffer;
 
 	for (const auto& pipe: m_pipes) {
-		Producer result;
+		Producer current_result;
 
 		// Launch a detached thread for each pipe function
-		std::thread([pipe, buffer_chain, result]() {
-			pipe(buffer_chain, result);
+		std::thread([pipe, current_result, last_result]() {
+			pipe(last_result, current_result);
 		}).detach();
 
 		// Update the buffer chain to the result's consumer
-		buffer_chain = result.Consumer();
+		last_result = current_result.Consumer();
 	}
 
-	return buffer_chain;
+	return last_result;
 }

@@ -237,14 +237,15 @@ namespace StormByte::Buffers {
             std::string 														HexData(const std::size_t& column_size = 16) const override;
 
             /**
-             * @brief Checks if the buffer is at the end of the file/data
+             * @brief Checks if the buffer is at the end of the file/data in case its write end have been closed
+			 * @return True if the buffer is at the end and write closed, false otherwise.
              */
-            bool 																IsEoF() const noexcept;
+            bool 																IsEoF() const noexcept override;
 
             /**
              * @brief Checks if the buffer is readable.
              * 
-             * A buffer is considered readable if it is not in an `EoF` or `Error` state.
+             * A buffer is considered readable if it is not in an `Closed` or `Error` state.
              * @return True if the buffer is readable, false otherwise.
              */
             bool 																IsReadable() const noexcept;
@@ -252,7 +253,7 @@ namespace StormByte::Buffers {
             /**
              * @brief Checks if the buffer is writable.
              * 
-             * A buffer is considered writable if it is not in an `EoF` or `Error` state.
+             * A buffer is considered writable if it is not in an `Closed` or `Error` state.
              * @return True if the buffer is writable, false otherwise.
              */
             bool 																IsWritable() const noexcept;

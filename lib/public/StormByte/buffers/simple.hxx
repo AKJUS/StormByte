@@ -251,6 +251,12 @@ namespace StormByte::Buffers {
 			virtual std::string 													HexData(const std::size_t& column_size = 16) const;
 
 			/**
+			 * @brief Checks if the buffer is at the end of the file/data
+			 * @return True if the buffer is at the end, false otherwise.
+			 */
+			virtual bool 															IsEoF() const noexcept;
+
+			/**
 			 * @brief Retrieves the next byte without incrementing the read position.
 			 * 
 			 * This method allows peeking at the next byte in the buffer without

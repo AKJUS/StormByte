@@ -8,11 +8,11 @@
 using namespace StormByte;
 
 int test_pipeline_integer_operations() {
-	Buffers::Shared input_buffer;
+	Buffers::Producer input_buffer;
 
 	// Prepare the input buffer with integer data
 	std::vector<int> input_data;
-	for (int i = 1; i <= 5000; i++) { // Populate the vector with values from 1 to 24
+	for (int i = 1; i <= 20; i++) { // Populate the vector with values from 1 to 24
 		input_data.push_back(i);
 	}
 
@@ -20,14 +20,15 @@ int test_pipeline_integer_operations() {
 	Buffers::Data data(reinterpret_cast<const std::byte*>(input_data.data()),
 					reinterpret_cast<const std::byte*>(input_data.data()) + input_data.size() * sizeof(int));
 	input_buffer.Write(std::move(data)); // Use std::move to avoid unnecessary copy
-	input_buffer << Buffers::Status::EoF; // Mark as finished
+	input_buffer << Buffers::Status::Closed; // Mark as finished
 
 	// Define the pipeline
 	Buffers::Pipeline pipeline;
 
 	// Pipe 1: Multiply by 2
 	pipeline.AddPipe([](Buffers::Consumer input, Buffers::Producer output) {
-		while (!input.IsEoF() || input.HasEnoughData(sizeof(int))) {
+		while (!input.IsEoF()) {
+			// Read implies wait
 			auto data = input.Read(sizeof(int));
 			if (!data) {
 				std::cout << "[Pipe 1]: Unexpected error: " << data.error()->what() << std::endl;
@@ -38,17 +39,22 @@ int test_pipeline_integer_operations() {
 			std::cout << "[Pipe 1]: Read value " << value << std::endl;
 			value *= 2;
 
+			// Simulate some processing time
+			if (value % 5 == 0) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Simulate processing delay
+			}
+
 			Buffers::Data output_data(reinterpret_cast<const std::byte*>(&value),
 									reinterpret_cast<const std::byte*>(&value) + sizeof(int));
 			std::cout << "[Pipe 1]: Writing value " << value << " to output buffer" << std::endl;
 			output.Write(std::move(output_data)); // Use std::move to avoid unnecessary copy
 		}
-		output << Buffers::Status::EoF; // Mark as finished
+		output << Buffers::Status::Closed; // Mark as finished
 	});
 
 	// Pipe 2: Add 5
 	pipeline.AddPipe([](Buffers::Consumer input, Buffers::Producer output) {
-		while (!input.IsEoF() || input.HasEnoughData(sizeof(int))) {
+		while (!input.IsEoF()) {
 			auto data = input.Read(sizeof(int));
 			if (!data) {
 				std::cout << "[Pipe 2]: Unexpected error: " << data.error()->what() << std::endl;
@@ -64,12 +70,12 @@ int test_pipeline_integer_operations() {
 			std::cout << "[Pipe 2]: Writing value " << value << " to output buffer" << std::endl;
 			output.Write(std::move(output_data)); // Use std::move to avoid unnecessary copy
 		}
-		output << Buffers::Status::EoF; // Mark as finished
+		output << Buffers::Status::Closed; // Mark as finished
 	});
 
 	// Pipe 3: Subtract 5
 	pipeline.AddPipe([](Buffers::Consumer input, Buffers::Producer output) {
-		while (!input.IsEoF() || input.HasEnoughData(sizeof(int))) {
+		while (!input.IsEoF()) {
 			auto data = input.Read(sizeof(int));
 			if (!data) {
 				std::cout << "[Pipe 3]: Unexpected error: " << data.error()->what() << std::endl;
@@ -85,12 +91,12 @@ int test_pipeline_integer_operations() {
 			std::cout << "[Pipe 3]: Writing value " << value << " to output buffer" << std::endl;
 			output.Write(std::move(output_data)); // Use std::move to avoid unnecessary copy
 		}
-		output << Buffers::Status::EoF; // Mark as finished
+		output << Buffers::Status::Closed; // Mark as finished
 	});
 
 	// Pipe 4: Divide by 2
 	pipeline.AddPipe([](Buffers::Consumer input, Buffers::Producer output) {
-		while (!input.IsEoF() || input.HasEnoughData(sizeof(int))) {
+		while (!input.IsEoF()) {
 			auto data = input.Read(sizeof(int));
 			if (!data) {
 				std::cout << "[Pipe 4]: Unexpected error: " << data.error()->what() << std::endl;
@@ -106,15 +112,14 @@ int test_pipeline_integer_operations() {
 			std::cout << "[Pipe 4]: Writing value " << value << " to output buffer" << std::endl;
 			output.Write(std::move(output_data)); // Use std::move to avoid unnecessary copy
 		}
-		output << Buffers::Status::EoF; // Mark as finished
+		output << Buffers::Status::Closed; // Mark as finished
 	});
 
-	std::cout << "Input buffer:" << std::endl << input_buffer.HexData();
 	// Process the pipeline
-	Buffers::Consumer final_buffer = pipeline.Process(std::move(input_buffer));
+	Buffers::Consumer final_buffer = pipeline.Process(input_buffer.Consumer());
 
 	// Wait for the final buffer to be marked as EoF
-	while (!final_buffer.IsEoF()) {
+	while (final_buffer.Status() == Buffers::Status::Ready) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 
