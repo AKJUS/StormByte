@@ -131,7 +131,7 @@ int test_write_after_close() {
 	Buffers::Shared buffer;
 
 	// Set the buffer to EOF
-	buffer << Buffers::Status::Closed;
+	buffer << Buffers::Status::ReadOnly;
 
 	// Attempt to write to the buffer
 	Buffers::Write::Status status1 = buffer.Write("TestData1");
@@ -157,7 +157,7 @@ int test_process_shared_buffer_multithreaded() {
 	for (int i = 0; i < 10; ++i) {
 		input_buffer << initial_data; // Add the same data multiple times
 	}
-	input_buffer << Buffers::Status::Closed; // Mark the input buffer as closed
+	input_buffer << Buffers::Status::ReadOnly; // Mark the input buffer as closed
 
 	// Define a processing function that converts all characters to uppercase
 	auto to_uppercase = [](const Buffers::Simple& buffer) -> std::shared_ptr<Buffers::Simple> {
@@ -270,11 +270,11 @@ int test_shared_available_bytes() {
 
 int test_if_copy_copies_status() {
 	Buffers::Shared buffer1;
-	buffer1 << Buffers::Status::Closed;
+	buffer1 << Buffers::Status::ReadOnly;
 
 	Buffers::Shared buffer2 = buffer1; // Copy constructor
 
-	ASSERT_TRUE("test_if_copy_copies_status", buffer2.Status() == Buffers::Status::Closed);
+	ASSERT_TRUE("test_if_copy_copies_status", buffer2.Status() == Buffers::Status::ReadOnly);
 
 	return 0;
 }

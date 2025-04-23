@@ -20,7 +20,7 @@ int test_pipeline_integer_operations() {
 	Buffers::Data data(reinterpret_cast<const std::byte*>(input_data.data()),
 					reinterpret_cast<const std::byte*>(input_data.data()) + input_data.size() * sizeof(int));
 	input_buffer.Write(std::move(data)); // Use std::move to avoid unnecessary copy
-	input_buffer << Buffers::Status::Closed; // Mark as finished
+	input_buffer << Buffers::Status::ReadOnly; // Mark as finished
 
 	// Define the pipeline
 	Buffers::Pipeline pipeline;
@@ -49,7 +49,7 @@ int test_pipeline_integer_operations() {
 			std::cout << "[Pipe 1]: Writing value " << value << " to output buffer" << std::endl;
 			output.Write(std::move(output_data)); // Use std::move to avoid unnecessary copy
 		}
-		output << Buffers::Status::Closed; // Mark as finished
+		output << Buffers::Status::ReadOnly; // Mark as finished
 	});
 
 	// Pipe 2: Add 5
@@ -70,7 +70,7 @@ int test_pipeline_integer_operations() {
 			std::cout << "[Pipe 2]: Writing value " << value << " to output buffer" << std::endl;
 			output.Write(std::move(output_data)); // Use std::move to avoid unnecessary copy
 		}
-		output << Buffers::Status::Closed; // Mark as finished
+		output << Buffers::Status::ReadOnly; // Mark as finished
 	});
 
 	// Pipe 3: Subtract 5
@@ -91,7 +91,7 @@ int test_pipeline_integer_operations() {
 			std::cout << "[Pipe 3]: Writing value " << value << " to output buffer" << std::endl;
 			output.Write(std::move(output_data)); // Use std::move to avoid unnecessary copy
 		}
-		output << Buffers::Status::Closed; // Mark as finished
+		output << Buffers::Status::ReadOnly; // Mark as finished
 	});
 
 	// Pipe 4: Divide by 2
@@ -112,7 +112,7 @@ int test_pipeline_integer_operations() {
 			std::cout << "[Pipe 4]: Writing value " << value << " to output buffer" << std::endl;
 			output.Write(std::move(output_data)); // Use std::move to avoid unnecessary copy
 		}
-		output << Buffers::Status::Closed; // Mark as finished
+		output << Buffers::Status::ReadOnly; // Mark as finished
 	});
 
 	// Process the pipeline
