@@ -135,13 +135,15 @@ namespace StormByte::Buffers {
 
 	// Data types
 	using Byte							= std::byte;											///< Represents a single byte of data.
-	using Data							= std::vector<Byte>;									///< Represents a collection of bytes stored in the buffer.
+	using Data							= std::vector<Byte>;									///< Represents  collection of bytes stored in the buffer.
+	using ByteSpan						= std::span<Byte>;										///< Represents a span of bytes.
+	using ConstByteSpan					= std::span<const Byte>;								///< Represents a constant span of bytes.
 	template<class T>
 	using ExpectedByte					= Expected<Byte, T>;									///< Represents a single byte with error handling.
 	template<class T>
 	using ExpectedByteRef				= Expected<Byte&, T>;									///< Represents a reference to a single byte with error handling.
 	template<class T>
-	using ExpectedByteSpan				= Expected<std::span<Byte>, T>;							///< Represents a span of bytes with error handling.
+	using ExpectedByteSpan				= Expected<ByteSpan, T>;								///< Represents a span of bytes with error handling.
 	template<class T>
 	using ExpectedConstByte				= Expected<const Byte, T>;								///< Represents a constant byte with error handling.
 	template<class T>
