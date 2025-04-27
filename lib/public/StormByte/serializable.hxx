@@ -143,10 +143,14 @@ namespace StormByte {
 				std::size_t size = m_data.size();
 				Serializable<std::size_t> size_serial(size);
 				Buffers::Simple buffer(std::move(size_serial.Serialize()));
-				for (const auto& element: m_data) {
+
+				for (const auto& element : m_data) {
 					Serializable<std::decay_t<decltype(element)>> element_serial(element);
-					buffer << std::move(element_serial.Serialize());
+					// Serialize the element and move the result into the buffer
+					Buffers::Simple element_buffer = element_serial.Serialize();
+					buffer << std::move(element_buffer); // Ensure ownership is transferred
 				}
+
 				return buffer;
 			}
 

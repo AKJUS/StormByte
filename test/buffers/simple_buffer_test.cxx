@@ -226,6 +226,32 @@ int test_simple_available_bytes() {
     RETURN_TEST("test_simple_available_bytes", 0);
 }
 
+int test_simple_copy_out_of_scope() {
+	Buffers::Simple buffer2, buffer3;
+
+	{
+		Buffers::Simple buffer1 { "Hello, World!", 13 };
+		buffer2 << buffer1; // Copy data from buffer1 to buffer2
+		std::cout << "Buffer1: " << std::endl << buffer1.HexData() << std::endl;
+	}
+
+	{
+		Buffers::Simple buffer1 { "Hello, World!", 13 };
+		buffer3 = buffer1; // Copy data from buffer1 to buffer2
+		std::cout << "Buffer1: " << std::endl << buffer1.HexData() << std::endl;
+	}
+
+	// Verify the content of buffer2
+	std::string expected_data = "Hello, World!";
+	std::string actual_data2(reinterpret_cast<const char*>(buffer2.Span().data()), buffer2.Size());
+	ASSERT_EQUAL("test_simple_copy_out_of_scope", expected_data, actual_data2);
+
+	std::string actual_data3(reinterpret_cast<const char*>(buffer3.Span().data()), buffer3.Size());
+	ASSERT_EQUAL("test_simple_copy_out_of_scope", expected_data, actual_data3);
+
+	RETURN_TEST("test_simple_copy_out_of_scope", 0);
+}
+
 int main() {
 	int result = 0;
 	result += test_simple_buffer();
@@ -237,8 +263,9 @@ int main() {
 	result += test_discard_function();
 	result += test_discard_modes();
 	result += test_process_function();
-	result += test_extract_into(); // Add the new test here
-	result += test_simple_available_bytes(); // Add the new test here
+	result += test_extract_into();
+	result += test_simple_available_bytes();
+	result += test_simple_copy_out_of_scope();
 
 	if (result == 0) {
 		std::cout << "All tests passed!" << std::endl;

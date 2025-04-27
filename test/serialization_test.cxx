@@ -240,6 +240,17 @@ int test_serialize_optional_string() {
 	RETURN_TEST("test_serialize_optional_string", 0);
 }
 
+int test_serialize_out_of_scope() {
+    Buffers::Simple m_buffer, buffer;
+    {
+        Serializable<std::string> serial("Hello, World!");
+        buffer = serial.Serialize(); // Serialize the data into a buffer
+    }
+    // Ensure `buffer` owns all its data and does not depend on `serial`
+    m_buffer << buffer;
+    return 0;
+}
+
 int main() {
 	int result = 0;
 	result += test_serialize_int();
@@ -255,6 +266,7 @@ int main() {
 	result += test_serialize_optional_notempty();
 	result += test_serialize_optional_empty();
 	result += test_serialize_optional_string();
+	result += test_serialize_out_of_scope();
 
 	if (result == 0) {
 		std::cout << "All tests passed!" << std::endl;
