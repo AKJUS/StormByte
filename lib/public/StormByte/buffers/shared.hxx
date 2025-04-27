@@ -150,6 +150,24 @@ namespace StormByte::Buffers {
              */
             Shared& 															operator<<(Buffers::Data&& data);
 
+			/**
+			 * @brief Appends a numeric value to the current simple buffer.
+			 * 
+			 * This templated method allows appending numeric values (e.g., integers, floating-point numbers)
+			 * to the buffer. The numeric value is serialized into its binary representation and appended
+			 * to the buffer.
+			 * 
+			 * @tparam NumericType The type of the numeric value to append.
+			 * @param value The numeric value to append.
+			 * @return Reference to the updated simple buffer.
+			 */
+			template <typename NumericType, typename = std::enable_if_t<std::is_arithmetic_v<std::decay_t<NumericType>>>>
+			Shared& operator<<(const NumericType& value) {
+				std::unique_lock lock(m_data_mutex);
+				Simple::operator<<(value);
+				return *this;
+			}
+
             /**
              * @brief Appends current shared buffer to target shared buffer
              * Thread-safe version of @see Simple::operator>>.
