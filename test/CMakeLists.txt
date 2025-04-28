@@ -25,4 +25,10 @@ if(ENABLE_TEST AND NOT STORMBYTE_AS_DEPENDENCY)
 	add_executable(SystemTests system_test.cxx)
 	target_link_libraries(SystemTests StormByte)
 	add_test(NAME SystemTests COMMAND SystemTests)
+
+
+	# Github special test
+	add_executable(GithubTests github_test.cxx)
+	target_link_libraries(GithubTests StormByte)
+	add_test(NAME GithubTests COMMAND GithubTests)
 endif()
