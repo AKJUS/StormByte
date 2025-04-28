@@ -1,22 +1,22 @@
 #pragma once
 
-#include <StormByte/buffers/consumer.hxx>
-#include <StormByte/buffers/producer.hxx>
-#include <StormByte/buffers/typedefs.hxx>
+#include <StormByte/buffer/consumer.hxx>
+#include <StormByte/buffer/producer.hxx>
+#include <StormByte/buffer/typedefs.hxx>
 
 /**
- * @namespace Buffers
+ * @namespace Buffer
  * @brief Namespace for buffer-related components in the StormByte library.
  *
- * The `StormByte::Buffers` namespace provides classes and utilities for managing simple, shared, and producer/consumer
+ * The Buffer namespace provides classes and utilities for managing simple, shared, and producer/consumer
  * buffers in both single-threaded and multi-threaded environments. It supports a variety of use cases, including:
- * - **Simple Buffers**: Lightweight, non-thread-safe buffers for single-threaded environments.
- * - **Shared Buffers**: Flexible and efficient storage for byte data with concurrent access support.
- * - **Producer/Consumer Buffers**: Advanced models for managing data flow between producers and consumers
+ * - **Simple Buffer**: Lightweight, non-thread-safe buffers for single-threaded environments.
+ * - **Shared Buffer**: Flexible and efficient storage for byte data with concurrent access support.
+ * - **Producer/Consumer Buffer**: Advanced models for managing data flow between producers and consumers
  *   with status tracking (e.g., `Ready`, `EoF`, `Error`).
  * - **Thread Safety**: Shared and producer/consumer buffers are designed to ensure consistent behavior in multi-threaded environments.
  */
-namespace StormByte::Buffers {
+namespace StormByte::Buffer {
     /**
      * @class Pipeline
      * @brief A class designed to execute a sequence of functions asynchronously in a pipeline.
@@ -49,7 +49,7 @@ namespace StormByte::Buffers {
      * **Important Notes:**
      * - Functions must not throw exceptions.
      * - If any function does not return a `bool` or does not finish execution, the behavior of the pipeline is undefined.
-     * - The lifetime of intermediate buffers is managed automatically through `std::shared_ptr`. Buffers are destroyed when no longer needed.
+     * - The lifetime of intermediate buffers is managed automatically through `std::shared_ptr`. Buffer are destroyed when no longer needed.
      */
     class STORMBYTE_PUBLIC Pipeline final {
         public:

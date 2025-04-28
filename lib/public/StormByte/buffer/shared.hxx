@@ -1,6 +1,6 @@
 #pragma once
 
-#include <StormByte/buffers/simple.hxx>
+#include <StormByte/buffer/simple.hxx>
 
 #include <atomic>
 #include <cstddef>
@@ -10,18 +10,18 @@
 #include <string>
 
 /**
- * @namespace Buffers
+ * @namespace Buffer
  * @brief Namespace for buffer-related components in the StormByte library.
  *
- * The `StormByte::Buffers` namespace provides classes and utilities for managing simple, shared, and producer/consumer
+ * The Buffer namespace provides classes and utilities for managing simple, shared, and producer/consumer
  * buffers in both single-threaded and multi-threaded environments. It supports a variety of use cases, including:
- * - **Simple Buffers**: Lightweight, non-thread-safe buffers for single-threaded environments.
- * - **Shared Buffers**: Flexible and efficient storage for byte data with concurrent access support.
- * - **Producer/Consumer Buffers**: Advanced models for managing data flow between producers and consumers
+ * - **Simple Buffer**: Lightweight, non-thread-safe buffers for single-threaded environments.
+ * - **Shared Buffer**: Flexible and efficient storage for byte data with concurrent access support.
+ * - **Producer/Consumer Buffer**: Advanced models for managing data flow between producers and consumers
  *   with status tracking (e.g., `Ready`, `EoF`, `Error`).
  * - **Thread Safety**: Shared and producer/consumer buffers are designed to ensure consistent behavior in multi-threaded environments.
  */
-namespace StormByte::Buffers {
+namespace StormByte::Buffer {
     /**
      * @class Shared
      * @brief A thread-safe version of the `Simple` buffer.
@@ -68,13 +68,13 @@ namespace StormByte::Buffers {
              * @brief Constructor
              * @param data Vector of bytes to set as buffer content.
              */
-            Shared(const Buffers::Data& data);
+            Shared(const Buffer::Data& data);
 
             /**
              * @brief Constructor
              * @param data Vector of bytes to move into the buffer.
              */
-            Shared(Buffers::Data&& data);
+            Shared(Buffer::Data&& data);
 
             /**
              * @brief Constructor
@@ -116,7 +116,7 @@ namespace StormByte::Buffers {
 
             /**
              * @brief Sets the buffer status
-             * @see Buffers::Status
+             * @see Buffer::Status
              */
             Shared& 															operator<<(const Status& status);
 
@@ -142,13 +142,13 @@ namespace StormByte::Buffers {
              * @brief Appends a byte vector to the current shared buffer
              * Thread-safe version of @see Simple::operator<<.
              */
-            Shared& 															operator<<(const Buffers::Data& data);
+            Shared& 															operator<<(const Buffer::Data& data);
 
             /**
              * @brief Moves a byte vector and appends to the current shared buffer
              * Thread-safe version of @see Simple::operator<<.
              */
-            Shared& 															operator<<(Buffers::Data&& data);
+            Shared& 															operator<<(Buffer::Data&& data);
 
 			/**
 			 * @brief Appends a numeric value to the current simple buffer.
@@ -196,7 +196,7 @@ namespace StormByte::Buffers {
              * @brief Retrieves a copy of the buffer data
              * Thread-safe version of @see Simple::Data.
              */
-            Buffers::Data 														Data() const noexcept override;
+            Buffer::Data 														Data() const noexcept override;
 
             /**
              * @brief Discards data from the buffer
@@ -370,7 +370,7 @@ namespace StormByte::Buffers {
              * @param data Byte vector to write.
              * @return Write::Status of the operation.
              */
-            Write::Status 														Write(const Buffers::Data& data) override;
+            Write::Status 														Write(const Buffer::Data& data) override;
 
             /**
              * @brief Moves a byte vector and writes it to the current shared buffer
@@ -379,7 +379,7 @@ namespace StormByte::Buffers {
              * @param data Byte vector to write.
              * @return Write::Status of the operation.
              */
-            Write::Status 														Write(Buffers::Data&& data) override;
+            Write::Status 														Write(Buffer::Data&& data) override;
 
         protected:
             mutable std::shared_mutex m_data_mutex; 							///< Mutex for thread safety.

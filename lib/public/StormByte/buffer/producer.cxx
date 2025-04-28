@@ -1,7 +1,7 @@
-#include <StormByte/buffers/producer.hxx>
-#include <StormByte/buffers/consumer.hxx>
+#include <StormByte/buffer/producer.hxx>
+#include <StormByte/buffer/consumer.hxx>
 
-using namespace StormByte::Buffers;
+using namespace StormByte::Buffer;
 
 // Default constructor
 Producer::Producer() noexcept: m_shared(std::make_shared<Shared>()) {}
@@ -35,20 +35,20 @@ Producer& Producer::operator<<(const std::string& data) {
 }
 
 // Appends a byte vector to the current shared buffer
-Producer& Producer::operator<<(const Buffers::Data& data) {
+Producer& Producer::operator<<(const Buffer::Data& data) {
 	*m_shared << data;
 	return *this;
 }
 
 // Moves a byte vector and appends it to the current shared buffer
-Producer& Producer::operator<<(Buffers::Data&& data) {
+Producer& Producer::operator<<(Buffer::Data&& data) {
 	*m_shared << std::move(data);
 	return *this;
 }
 
 // Gets the consumer interface to consume this buffer
 Consumer Producer::Consumer() const {
-	return Buffers::Consumer(m_shared);
+	return Buffer::Consumer(m_shared);
 }
 
 // Locks the shared buffer for exclusive access
@@ -82,12 +82,12 @@ Write::Status Producer::Write(const std::string& data) {
 }
 
 // Writes a byte vector to the current shared buffer
-Write::Status Producer::Write(const Buffers::Data& data) {
+Write::Status Producer::Write(const Buffer::Data& data) {
 	return m_shared->Write(data);
 }
 
 // Moves a byte vector and writes it to the current shared buffer
-Write::Status Producer::Write(Buffers::Data&& data) {
+Write::Status Producer::Write(Buffer::Data&& data) {
 	return m_shared->Write(std::move(data));
 }
 

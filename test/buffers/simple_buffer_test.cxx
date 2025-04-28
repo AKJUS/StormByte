@@ -1,4 +1,4 @@
-#include <StormByte/buffers/simple.hxx>
+#include <StormByte/buffer/simple.hxx>
 #include <StormByte/test_handlers.h>
 
 #include <iostream>
@@ -8,7 +8,7 @@ using namespace StormByte;
 
 // Test comparisons
 int test_simple_buffer() {
-	Buffers::Simple buffer { "Hello", 5 };
+	Buffer::Simple buffer { "Hello", 5 };
 	auto buffer_data = buffer.Data();
 	std::string original("Hello"), expected(reinterpret_cast<const char*>(buffer.Data().data()), buffer.Size());
 	ASSERT_EQUAL("test_simple_buffer", original, expected);
@@ -16,16 +16,16 @@ int test_simple_buffer() {
 }
 
 int test_buffer_copy() {
-	Buffers::Simple buffer1 { "Hello", 5 };
-	Buffers::Simple buffer2(buffer1);
+	Buffer::Simple buffer1 { "Hello", 5 };
+	Buffer::Simple buffer2(buffer1);
 	std::string original(reinterpret_cast<const char*>(buffer1.Data().data()), buffer1.Size()), copy(reinterpret_cast<const char*>(buffer2.Data().data()), buffer2.Size());
 	ASSERT_EQUAL("test_buffer_copy", original, copy);
 	RETURN_TEST("test_buffer_copy", 0);
 }
 
 int test_buffer_move() {
-	Buffers::Simple buffer1 { "Hello", 5 };
-	Buffers::Simple buffer2(std::move(buffer1));
+	Buffer::Simple buffer1 { "Hello", 5 };
+	Buffer::Simple buffer2(std::move(buffer1));
 	std::string original("Hello"), expected(reinterpret_cast<const char*>(buffer2.Data().data()), buffer2.Size());
 	ASSERT_EQUAL("test_buffer_move", original, expected);
 	ASSERT_EQUAL("test_buffer_move", 0, buffer1.Size());
@@ -33,7 +33,7 @@ int test_buffer_move() {
 }
 
 int test_buffer_append() {
-	Buffers::Simple buffer;
+	Buffer::Simple buffer;
 	buffer << "Hello" << " " << "World!";
 	std::string original("Hello World!"), expected(reinterpret_cast<const char*>(buffer.Data().data()), buffer.Size());
 	ASSERT_EQUAL("test_buffer_append", original, expected);
@@ -41,7 +41,7 @@ int test_buffer_append() {
 }
 
 int test_append_string() {
-	Buffers::Simple buffer;
+	Buffer::Simple buffer;
 	std::string str = "Hello, World!";
 	buffer << str;
 	std::string expected(reinterpret_cast<const char*>(buffer.Data().data()), buffer.Size());
@@ -50,7 +50,7 @@ int test_append_string() {
 }
 
 int test_peek_function() {
-	Buffers::Simple buffer { "Hello", 5 };
+	Buffer::Simple buffer { "Hello", 5 };
 	auto peeked = buffer.Peek();
 	ASSERT_TRUE("test_peek_function", peeked.has_value());
 	ASSERT_EQUAL("test_peek_function", static_cast<char>(peeked.value()), 'H');
@@ -63,7 +63,7 @@ int test_peek_function() {
 }
 
 int test_discard_function() {
-	Buffers::Simple buffer;
+	Buffer::Simple buffer;
 
 	// Add data to the buffer
 	std::string initial_data = "Hello, World!";
@@ -75,7 +75,7 @@ int test_discard_function() {
 	ASSERT_EQUAL("test_discard_function", initial_data, expected_initial);
 
 	// Discard the first 7 bytes ("Hello, ")
-	buffer.Discard(7, Buffers::Read::Position::Begin);
+	buffer.Discard(7, Buffer::Read::Position::Begin);
 
 	// Verify the new size and content
 	std::string expected_remaining = "World!";
@@ -93,14 +93,14 @@ int test_discard_function() {
 }
 
 int test_discard_modes() {
-	Buffers::Simple buffer;
+	Buffer::Simple buffer;
 
 	// Add data to the buffer
 	std::string initial_data = "Hello, World!";
 	buffer << initial_data;
 
 	// Test Discard from Begin
-	buffer.Discard(7, Buffers::Read::Position::Begin);
+	buffer.Discard(7, Buffer::Read::Position::Begin);
 	ASSERT_EQUAL("test_discard_modes (Begin)", 6, buffer.Size());
 	ASSERT_EQUAL("test_discard_modes (Begin)", "World!", std::string(reinterpret_cast<const char*>(buffer.Data().data()), buffer.Size()));
 
@@ -109,7 +109,7 @@ int test_discard_modes() {
 	buffer << initial_data;
 
 	// Test Discard from End
-	buffer.Discard(6, Buffers::Read::Position::End);
+	buffer.Discard(6, Buffer::Read::Position::End);
 	ASSERT_EQUAL("test_discard_modes (End)", 7, buffer.Size());
 	ASSERT_EQUAL("test_discard_modes (End)", "Hello, ", std::string(reinterpret_cast<const char*>(buffer.Data().data()), buffer.Size()));
 
@@ -118,8 +118,8 @@ int test_discard_modes() {
 	buffer << initial_data;
 
 	// Test Discard Relative
-	buffer.Seek(7, Buffers::Read::Position::Begin); // Move position to 7
-	buffer.Discard(2, Buffers::Read::Position::Relative);
+	buffer.Seek(7, Buffer::Read::Position::Begin); // Move position to 7
+	buffer.Discard(2, Buffer::Read::Position::Relative);
 	ASSERT_EQUAL("test_discard_modes (Relative)", 11, buffer.Size());
 	ASSERT_EQUAL("test_discard_modes (Relative)", "Hello, rld!", std::string(reinterpret_cast<const char*>(buffer.Data().data()), buffer.Size()));
 
@@ -128,7 +128,7 @@ int test_discard_modes() {
 	buffer << initial_data;
 
 	// Test Discard Absolute
-	buffer.Discard(5, Buffers::Read::Position::Absolute);
+	buffer.Discard(5, Buffer::Read::Position::Absolute);
 	ASSERT_EQUAL("test_discard_modes (Absolute)", 8, buffer.Size());
 	ASSERT_EQUAL("test_discard_modes (Absolute)", ", World!", std::string(reinterpret_cast<const char*>(buffer.Data().data()), buffer.Size()));
 
@@ -136,17 +136,17 @@ int test_discard_modes() {
 }
 
 int test_process_function() {
-	Buffers::Simple input_buffer;
-	Buffers::Simple output_buffer;
+	Buffer::Simple input_buffer;
+	Buffer::Simple output_buffer;
 
 	// Add data to the input buffer
 	std::string initial_data = "Hello, World!";
 	input_buffer << initial_data;
 
 	// Define a processing function that converts all characters to uppercase
-	auto to_uppercase = [](const Buffers::Simple& buffer) -> std::shared_ptr<Buffers::Simple> {
+	auto to_uppercase = [](const Buffer::Simple& buffer) -> std::shared_ptr<Buffer::Simple> {
 		auto data = buffer.Data();
-		auto result = std::make_shared<Buffers::Simple>();
+		auto result = std::make_shared<Buffer::Simple>();
 		for (auto byte : data) {
 			char c = static_cast<char>(byte);
 			result->Write(std::string(1, std::toupper(c)));
@@ -158,7 +158,7 @@ int test_process_function() {
 	auto status = input_buffer.Process(initial_data.size(), to_uppercase, output_buffer);
 
 	// Verify the status
-	ASSERT_TRUE("test_process_function", Buffers::Read::Status::Success == status);
+	ASSERT_TRUE("test_process_function", Buffer::Read::Status::Success == status);
 
 	// Verify the output buffer content
 	std::string expected_output = "HELLO, WORLD!";
@@ -172,8 +172,8 @@ int test_process_function() {
 }
 
 int test_extract_into() {
-	Buffers::Simple source_buffer;
-	Buffers::Simple target_buffer;
+	Buffer::Simple source_buffer;
+	Buffer::Simple target_buffer;
 
 	// Add data to the source buffer
 	std::string initial_data = "Hello, World!";
@@ -183,7 +183,7 @@ int test_extract_into() {
 	auto status = source_buffer.ExtractInto(5, target_buffer);
 
 	// Verify the status
-	ASSERT_TRUE("test_extract_into", Buffers::Read::Status::Success == status);
+	ASSERT_TRUE("test_extract_into", Buffer::Read::Status::Success == status);
 
 	// Verify the target buffer content
 	std::string expected_target = "Hello";
@@ -202,7 +202,7 @@ int test_extract_into() {
 }
 
 int test_simple_available_bytes() {
-    Buffers::Simple buffer;
+    Buffer::Simple buffer;
 
     // Add data to the buffer
     std::string data = "Hello, World!";

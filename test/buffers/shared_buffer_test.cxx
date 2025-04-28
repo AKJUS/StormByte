@@ -1,4 +1,4 @@
-#include <StormByte/buffers/shared.hxx>
+#include <StormByte/buffer/shared.hxx>
 #include <StormByte/test_handlers.h>
 
 #include <set>
@@ -7,7 +7,7 @@
 using namespace StormByte;
 
 int test_concurrent_writes() {
-	Buffers::Shared buffer;
+	Buffer::Shared buffer;
 
 	auto writer = [&buffer](const std::string& data) {
 		for (int i = 0; i < 100; ++i) {
@@ -53,7 +53,7 @@ int test_concurrent_writes() {
 }
 
 int test_concurrent_reads_and_writes() {
-	Buffers::Shared buffer;
+	Buffer::Shared buffer;
 
 	auto writer = [&buffer]() {
 		for (int i = 0; i < 100; ++i) {
@@ -86,7 +86,7 @@ int test_concurrent_reads_and_writes() {
 }
 
 int test_manual_locking() {
-	Buffers::Shared buffer;
+	Buffer::Shared buffer;
 
 	// Pre-fill the buffer with some data
 	buffer << "InitialData";
@@ -128,18 +128,18 @@ int test_manual_locking() {
 }
 
 int test_write_after_close() {
-	Buffers::Shared buffer;
+	Buffer::Shared buffer;
 
 	// Set the buffer to EOF
-	buffer << Buffers::Status::ReadOnly;
+	buffer << Buffer::Status::ReadOnly;
 
 	// Attempt to write to the buffer
-	Buffers::Write::Status status1 = buffer.Write("TestData1");
-	Buffers::Write::Status status2 = buffer.Write("TestData2");
+	Buffer::Write::Status status1 = buffer.Write("TestData1");
+	Buffer::Write::Status status2 = buffer.Write("TestData2");
 
 	// Verify that the writes return an error
-	ASSERT_TRUE("test_write_after_eof", Buffers::Write::Status::Error == status1);
-	ASSERT_TRUE("test_write_after_eof", Buffers::Write::Status::Error == status2);
+	ASSERT_TRUE("test_write_after_eof", Buffer::Write::Status::Error == status1);
+	ASSERT_TRUE("test_write_after_eof", Buffer::Write::Status::Error == status2);
 
 	// Verify that the buffer content remains unchanged
 	std::string result(reinterpret_cast<const char*>(buffer.Data().data()), buffer.Size());
@@ -149,20 +149,20 @@ int test_write_after_close() {
 }
 
 int test_process_shared_buffer_multithreaded() {
-	Buffers::Shared input_buffer;
-	Buffers::Shared output_buffer;
+	Buffer::Shared input_buffer;
+	Buffer::Shared output_buffer;
 
 	// Add data to the input buffer
 	std::string initial_data = "Hello, World!";
 	for (int i = 0; i < 10; ++i) {
 		input_buffer << initial_data; // Add the same data multiple times
 	}
-	input_buffer << Buffers::Status::ReadOnly; // Mark the input buffer as closed
+	input_buffer << Buffer::Status::ReadOnly; // Mark the input buffer as closed
 
 	// Define a processing function that converts all characters to uppercase
-	auto to_uppercase = [](const Buffers::Simple& buffer) -> std::shared_ptr<Buffers::Simple> {
+	auto to_uppercase = [](const Buffer::Simple& buffer) -> std::shared_ptr<Buffer::Simple> {
 		auto data = buffer.Data();
-		auto result = std::make_shared<Buffers::Simple>();
+		auto result = std::make_shared<Buffer::Simple>();
 		for (auto byte : data) {
 			char c = static_cast<char>(byte);
 			result->Write(std::string(1, std::toupper(c)));
@@ -200,7 +200,7 @@ int test_process_shared_buffer_multithreaded() {
 }
 
 int test_extract_into_multithreaded() {
-	Buffers::Shared source_buffer;
+	Buffer::Shared source_buffer;
 
 	// Add data to the source buffer
 	std::string initial_data = "Hello, World!";
@@ -208,11 +208,11 @@ int test_extract_into_multithreaded() {
 		source_buffer << initial_data; // Add the same data multiple times
 	}
 
-	Buffers::Shared target_buffer1;
-	Buffers::Shared target_buffer2;
+	Buffer::Shared target_buffer1;
+	Buffer::Shared target_buffer2;
 
 	// Define a task to extract data into a target buffer
-	auto extract_task = [&source_buffer](Buffers::Shared& target_buffer, int iterations, std::size_t length) {
+	auto extract_task = [&source_buffer](Buffer::Shared& target_buffer, int iterations, std::size_t length) {
 		for (int i = 0; i < iterations; ++i) {
 			source_buffer.ExtractInto(length, target_buffer);
 		}
@@ -228,7 +228,7 @@ int test_extract_into_multithreaded() {
 	// Verify that the source buffer is empty after all extractions
 	ASSERT_TRUE("test_extract_into_multithreaded", source_buffer.Empty());
 
-	// Verify the content of the target buffers
+	// Verify the content of the target buffer
 	std::string expected_output;
 	for (int i = 0; i < 50; ++i) {
 		expected_output += initial_data;
@@ -244,7 +244,7 @@ int test_extract_into_multithreaded() {
 }
 
 int test_shared_available_bytes() {
-    Buffers::Shared buffer;
+    Buffer::Shared buffer;
 
     // Add data to the buffer
     std::string data = "Hello, World!";
@@ -269,12 +269,12 @@ int test_shared_available_bytes() {
 }
 
 int test_if_copy_copies_status() {
-	Buffers::Shared buffer1;
-	buffer1 << Buffers::Status::ReadOnly;
+	Buffer::Shared buffer1;
+	buffer1 << Buffer::Status::ReadOnly;
 
-	Buffers::Shared buffer2 = buffer1; // Copy constructor
+	Buffer::Shared buffer2 = buffer1; // Copy constructor
 
-	ASSERT_TRUE("test_if_copy_copies_status", buffer2.Status() == Buffers::Status::ReadOnly);
+	ASSERT_TRUE("test_if_copy_copies_status", buffer2.Status() == Buffer::Status::ReadOnly);
 
 	return 0;
 }

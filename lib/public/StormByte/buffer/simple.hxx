@@ -1,24 +1,24 @@
 #pragma once
 
-#include <StormByte/buffers/exception.hxx>
-#include <StormByte/buffers/typedefs.hxx>
+#include <StormByte/buffer/exception.hxx>
+#include <StormByte/buffer/typedefs.hxx>
 #include <StormByte/visibility.h>
 
 #include <functional>
 
 /**
- * @namespace Buffers
+ * @namespace Buffer
  * @brief Namespace for buffer-related components in the StormByte library.
  *
- * The `StormByte::Buffers` namespace provides classes and utilities for managing simple, shared, and producer/consumer
+ * The Buffer namespace provides classes and utilities for managing simple, shared, and producer/consumer
  * buffers in both single-threaded and multi-threaded environments. It supports a variety of use cases, including:
- * - **Simple Buffers**: Lightweight, non-thread-safe buffers for single-threaded environments.
- * - **Shared Buffers**: Flexible and efficient storage for byte data with concurrent access support.
- * - **Producer/Consumer Buffers**: Advanced models for managing data flow between producers and consumers
+ * - **Simple Buffer**: Lightweight, non-thread-safe buffers for single-threaded environments.
+ * - **Shared Buffer**: Flexible and efficient storage for byte data with concurrent access support.
+ * - **Producer/Consumer Buffer**: Advanced models for managing data flow between producers and consumers
  *   with status tracking (e.g., `Ready`, `EoF`, `Error`).
  * - **Thread Safety**: Shared and producer/consumer buffers are designed to ensure consistent behavior in multi-threaded environments.
  */
-namespace StormByte::Buffers {
+namespace StormByte::Buffer {
 	/**
 	 * @class Simple
 	 * @brief A lightweight class for storing and manipulating simple byte buffers.
@@ -200,7 +200,7 @@ namespace StormByte::Buffers {
 			 * 
 			 * @return A copy of the buffer data as a vector of bytes.
 			 */
-			virtual Buffers::Data 													Data() const noexcept;
+			virtual Buffer::Data 													Data() const noexcept;
 
 			/**
 			 * @brief Discards data from the buffer.
@@ -376,7 +376,7 @@ namespace StormByte::Buffers {
 			 * @param data Byte vector to write.
 			 * @return Write::Status of the operation.
 			 */
-			virtual Write::Status 													Write(const Buffers::Data& data);
+			virtual Write::Status 													Write(const Buffer::Data& data);
 
 			/**
 			 * @brief Moves a byte vector and writes it to the current simple buffer.
@@ -386,7 +386,7 @@ namespace StormByte::Buffers {
 			 * @param data Byte vector to write.
 			 * @return Write::Status of the operation.
 			 */
-			virtual Write::Status 													Write(Buffers::Data&& data);
+			virtual Write::Status 													Write(Buffer::Data&& data);
 
 			/**
 			 * @brief Writes a simple buffer to the current simple buffer.

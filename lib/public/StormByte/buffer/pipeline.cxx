@@ -1,9 +1,9 @@
-#include <StormByte/buffers/consumer.hxx>
-#include <StormByte/buffers/pipeline.hxx>
-#include <StormByte/buffers/producer.hxx>
+#include <StormByte/buffer/consumer.hxx>
+#include <StormByte/buffer/pipeline.hxx>
+#include <StormByte/buffer/producer.hxx>
 #include <thread>
 
-using namespace StormByte::Buffers;
+using namespace StormByte::Buffer;
 
 void Pipeline::AddPipe(const PipeFunction& pipe) {
 	m_pipes.push_back(pipe);

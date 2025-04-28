@@ -1,21 +1,21 @@
 #pragma once
 
-#include <StormByte/buffers/shared.hxx>
+#include <StormByte/buffer/shared.hxx>
 #include <memory>
 
 /**
- * @namespace Buffers
+ * @namespace Buffer
  * @brief Namespace for buffer-related components in the StormByte library.
  *
- * The `StormByte::Buffers` namespace provides classes and utilities for managing simple, shared, and producer/consumer
+ * The Buffer namespace provides classes and utilities for managing simple, shared, and producer/consumer
  * buffers in both single-threaded and multi-threaded environments. It supports a variety of use cases, including:
- * - **Simple Buffers**: Lightweight, non-thread-safe buffers for single-threaded environments.
- * - **Shared Buffers**: Flexible and efficient storage for byte data with concurrent access support.
- * - **Producer/Consumer Buffers**: Advanced models for managing data flow between producers and consumers
+ * - **Simple Buffer**: Lightweight, non-thread-safe buffers for single-threaded environments.
+ * - **Shared Buffer**: Flexible and efficient storage for byte data with concurrent access support.
+ * - **Producer/Consumer Buffer**: Advanced models for managing data flow between producers and consumers
  *   with status tracking (e.g., `Ready`, `EoF`, `Error`).
  * - **Thread Safety**: Shared and producer/consumer buffers are designed to ensure consistent behavior in multi-threaded environments.
  */
-namespace StormByte::Buffers {
+namespace StormByte::Buffer {
     /**
      * @class Producer
      * @brief A write-only interface for accessing a shared buffer.
@@ -88,7 +88,7 @@ namespace StormByte::Buffers {
 
 			/**
 			 * @brief Sets the buffer status
-			 * @see Buffers::Status
+			 * @see Buffer::Status
 			 */
 			Producer& 													operator<<(const Status& status);
 
@@ -118,14 +118,14 @@ namespace StormByte::Buffers {
              * @param data The byte vector to append.
              * @return Reference to the updated producer.
              */
-            Producer& 													operator<<(const Buffers::Data& data);
+            Producer& 													operator<<(const Buffer::Data& data);
 
             /**
              * @brief Moves a byte vector and appends it to the current shared buffer.
              * @param data The byte vector to append.
              * @return Reference to the updated producer.
              */
-            Producer& 													operator<<(Buffers::Data&& data);
+            Producer& 													operator<<(Buffer::Data&& data);
 
             /**
              * @brief Gets the consumer interface to consume this buffer.
@@ -181,14 +181,14 @@ namespace StormByte::Buffers {
              * @param data The byte vector to write.
              * @return Write::Status of the operation.
              */
-            Write::Status 												Write(const Buffers::Data& data);
+            Write::Status 												Write(const Buffer::Data& data);
 
             /**
              * @brief Moves a byte vector and writes it to the current shared buffer.
              * @param data The byte vector to write.
              * @return Write::Status of the operation.
              */
-            Write::Status 												Write(Buffers::Data&& data);
+            Write::Status 												Write(Buffer::Data&& data);
 
         private:
             std::shared_ptr<Shared> m_shared; ///< The shared buffer instance.

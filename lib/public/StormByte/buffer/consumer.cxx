@@ -1,6 +1,6 @@
-#include <StormByte/buffers/consumer.hxx>
+#include <StormByte/buffer/consumer.hxx>
 
-using namespace StormByte::Buffers;
+using namespace StormByte::Buffer;
 
 // Constructor that initializes the consumer with a shared buffer
 Consumer::Consumer(std::shared_ptr<Shared> shared) noexcept

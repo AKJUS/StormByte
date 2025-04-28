@@ -3,24 +3,24 @@
 #include <StormByte/exception.hxx>
 
 /**
- * @namespace Buffers
+ * @namespace Buffer
  * @brief Namespace for buffer-related components in the StormByte library.
  *
- * The `StormByte::Buffers` namespace provides classes and utilities for managing simple, shared, and producer/consumer
+ * The Buffer namespace provides classes and utilities for managing simple, shared, and producer/consumer
  * buffers in both single-threaded and multi-threaded environments. It supports a variety of use cases, including:
- * - **Simple Buffers**: Lightweight, non-thread-safe buffers for single-threaded environments.
- * - **Shared Buffers**: Flexible and efficient storage for byte data with concurrent access support.
- * - **Producer/Consumer Buffers**: Advanced models for managing data flow between producers and consumers
+ * - **Simple Buffer**: Lightweight, non-thread-safe buffers for single-threaded environments.
+ * - **Shared Buffer**: Flexible and efficient storage for byte data with concurrent access support.
+ * - **Producer/Consumer Buffer**: Advanced models for managing data flow between producers and consumers
  *   with status tracking (e.g., `Ready`, `EoF`, `Error`).
  * - **Thread Safety**: Shared and producer/consumer buffers are designed to ensure consistent behavior in multi-threaded environments.
  */
-namespace StormByte::Buffers {
+namespace StormByte::Buffer {
     /**
      * @class Exception
      * @brief Base exception class for buffer-related errors.
      *
      * The `Exception` class serves as the base class for all exceptions related
-     * to buffer operations in the `Buffers` namespace. It provides a unified interface
+     * to buffer operations in the `Buffer` namespace. It provides a unified interface
      * for handling errors that occur during buffer operations, such as overflows or
      * readiness issues.
      *
@@ -43,15 +43,15 @@ namespace StormByte::Buffers {
      * more data to a buffer than it can hold. This exception ensures that buffer
      * integrity is maintained by preventing overflows.
      *
-     * Inherits all functionality from the `StormByte::Buffers::Exception` class.
+     * Inherits all functionality from the `StormByte::Buffer::Exception` class.
      */
-    class STORMBYTE_PUBLIC BufferOverflow: public StormByte::Buffers::Exception {
+    class STORMBYTE_PUBLIC BufferOverflow: public StormByte::Buffer::Exception {
         public:
             /**
              * @brief Constructor
              * @param reason A description of the exception as a `std::string`.
              */
-            using StormByte::Buffers::Exception::Exception;
+            using StormByte::Buffer::Exception::Exception;
     };
 
     /**
@@ -65,14 +65,14 @@ namespace StormByte::Buffers {
      * This exception ensures that operations are only performed when the buffer is
      * in a valid state, preventing undefined behavior.
      *
-     * Inherits all functionality from the `StormByte::Buffers::Exception` class.
+     * Inherits all functionality from the `StormByte::Buffer::Exception` class.
      */
-    class STORMBYTE_PUBLIC BufferNotReady: public StormByte::Buffers::Exception {
+    class STORMBYTE_PUBLIC BufferNotReady: public StormByte::Buffer::Exception {
         public:
             /**
              * @brief Constructor
              * @param reason A description of the exception as a `std::string`.
              */
-            using StormByte::Buffers::Exception::Exception;
+            using StormByte::Buffer::Exception::Exception;
     };
 }

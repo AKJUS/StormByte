@@ -1,10 +1,10 @@
-#include <StormByte/buffers/simple.hxx>
+#include <StormByte/buffer/simple.hxx>
 
 #include <algorithm>
 #include <cstring>
 #include <format>
 
-using namespace StormByte::Buffers;
+using namespace StormByte::Buffer;
 
 Simple::Simple() noexcept : m_data(), m_position(0), m_minimum_chunk_size(0) {}
 
@@ -26,9 +26,9 @@ Simple::Simple(const std::string& data): m_data(data.size()), m_position(0), m_m
 	}
 }
 
-Simple::Simple(const Buffers::Data& data): m_data(data), m_position(0), m_minimum_chunk_size(0) {}
+Simple::Simple(const Buffer::Data& data): m_data(data), m_position(0), m_minimum_chunk_size(0) {}
 
-Simple::Simple(Buffers::Data&& data): m_data(std::move(data)), m_position(0) {}
+Simple::Simple(Buffer::Data&& data): m_data(std::move(data)), m_position(0) {}
 
 Simple::Simple(const std::span<const Byte>& data): m_data(data.begin(), data.end()), m_position(0), m_minimum_chunk_size(0) {}
 
@@ -47,12 +47,12 @@ Simple& Simple::operator<<(const std::string& data) {
 	return *this;
 }
 
-Simple& Simple::operator<<(const Buffers::Data& data) {
+Simple& Simple::operator<<(const Buffer::Data& data) {
 	Write(data);
 	return *this;
 }
 
-Simple& Simple::operator<<(Buffers::Data&& data) {
+Simple& Simple::operator<<(Buffer::Data&& data) {
 	Write(std::move(data));
 	return *this;
 }
@@ -78,7 +78,7 @@ void Simple::Clear() {
 	m_position = 0;
 }
 
-StormByte::Buffers::Data Simple::Data() const noexcept {
+StormByte::Buffer::Data Simple::Data() const noexcept {
 	return m_data;
 }
 
@@ -131,7 +131,7 @@ ExpectedData<BufferOverflow> Simple::Extract(const std::size_t& length) {
 	auto start = m_data.begin() + m_position;
 	auto end = start + length;
 
-	Buffers::Data extracted_data(std::make_move_iterator(start), std::make_move_iterator(end));
+	Buffer::Data extracted_data(std::make_move_iterator(start), std::make_move_iterator(end));
 
 	Discard(length, Read::Position::Relative);
 
@@ -227,7 +227,7 @@ ExpectedData<BufferOverflow> Simple::Read(const std::size_t& length) const {
 	auto start = m_data.begin() + m_position;
 	auto end = start + length;
 
-	Buffers::Data read_data(start, end); // Create a copy of the requested data
+	Buffer::Data read_data(start, end); // Create a copy of the requested data
 	m_position += length; // Advance the read position
 
 	return read_data;
@@ -305,13 +305,13 @@ Write::Status Simple::Write(const std::string& data) {
 	return Write::Status::Success;
 }
 
-Write::Status Simple::Write(const Buffers::Data& data) {
+Write::Status Simple::Write(const Buffer::Data& data) {
 	m_data.reserve(m_data.size() + data.size());
 	m_data.insert(m_data.end(), data.begin(), data.end());
 	return Write::Status::Success;
 }
 
-Write::Status Simple::Write(Buffers::Data&& data) {
+Write::Status Simple::Write(Buffer::Data&& data) {
 	m_data.reserve(m_data.size() + data.size());
 	m_data.insert(m_data.end(),
 				std::make_move_iterator(data.begin()),

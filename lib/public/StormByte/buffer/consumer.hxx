@@ -1,21 +1,21 @@
 #pragma once
 
-#include <StormByte/buffers/shared.hxx>
+#include <StormByte/buffer/shared.hxx>
 #include <memory>
 
 /**
- * @namespace Buffers
+ * @namespace Buffer
  * @brief Namespace for buffer-related components in the StormByte library.
  *
- * The `StormByte::Buffers` namespace provides classes and utilities for managing simple, shared, and producer/consumer
+ * The Buffer namespace provides classes and utilities for managing simple, shared, and producer/consumer
  * buffers in both single-threaded and multi-threaded environments. It supports a variety of use cases, including:
- * - **Simple Buffers**: Lightweight, non-thread-safe buffers for single-threaded environments.
- * - **Shared Buffers**: Flexible and efficient storage for byte data with concurrent access support.
- * - **Producer/Consumer Buffers**: Advanced models for managing data flow between producers and consumers
+ * - **Simple Buffer**: Lightweight, non-thread-safe buffers for single-threaded environments.
+ * - **Shared Buffer**: Flexible and efficient storage for byte data with concurrent access support.
+ * - **Producer/Consumer Buffer**: Advanced models for managing data flow between producers and consumers
  *   with status tracking (e.g., `Ready`, `EoF`, `Error`).
  * - **Thread Safety**: Shared and producer/consumer buffers are designed to ensure consistent behavior in multi-threaded environments.
  */
-namespace StormByte::Buffers {
+namespace StormByte::Buffer {
 	/**
 	 * @class Consumer
 	 * @brief A read-only interface for accessing a shared buffer.
@@ -80,7 +80,7 @@ namespace StormByte::Buffers {
 			 * @brief Retrieves a copy of the buffer data.
 			 * @return A copy of the buffer data.
 			 */
-			Buffers::Data 												Data() const noexcept;
+			Buffer::Data 												Data() const noexcept;
 
 			/**
 			 * @brief Discards data from the buffer.

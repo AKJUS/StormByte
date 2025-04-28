@@ -1,9 +1,9 @@
-#include <StormByte/buffers/shared.hxx>
+#include <StormByte/buffer/shared.hxx>
 
 #include <algorithm>
 #include <thread>
 
-using namespace StormByte::Buffers;
+using namespace StormByte::Buffer;
 
 Shared::Shared() noexcept: Simple(), m_status(Status::Ready) {}
 
@@ -13,9 +13,9 @@ Shared::Shared(const char* data, const std::size_t& length): Simple(data, length
 
 Shared::Shared(const std::string& data): Simple(data), m_status(Status::Ready) {}
 
-Shared::Shared(const Buffers::Data& data): Simple(data), m_status(Status::Ready) {}
+Shared::Shared(const Buffer::Data& data): Simple(data), m_status(Status::Ready) {}
 
-Shared::Shared(Buffers::Data&& data): Simple(std::move(data)), m_status(Status::Ready) {}
+Shared::Shared(Buffer::Data&& data): Simple(std::move(data)), m_status(Status::Ready) {}
 
 Shared::Shared(const std::span<const Byte>& data): Simple(data), m_status(Status::Ready) {}
 
@@ -63,12 +63,12 @@ Shared& Shared::operator<<(const std::string& data) {
 	return *this;
 }
 
-Shared& Shared::operator<<(const Buffers::Data& data) {
+Shared& Shared::operator<<(const Buffer::Data& data) {
 	Write(data);
 	return *this;
 }
 
-Shared& Shared::operator<<(Buffers::Data&& data) {
+Shared& Shared::operator<<(Buffer::Data&& data) {
 	Write(std::move(data));
 	return *this;
 }
@@ -126,7 +126,7 @@ ExpectedData<BufferOverflow> Shared::Extract(const std::size_t& length) {
 		return StormByte::Unexpected<BufferOverflow>("Not enough data to extract.");
 	}
 
-	Buffers::Data extracted_data;
+	Buffer::Data extracted_data;
 
 	// Check if there is enough data to extract
 	if (!HasEnoughData(length)) {
@@ -139,7 +139,7 @@ ExpectedData<BufferOverflow> Shared::Extract(const std::size_t& length) {
 	// Move the extracted data into a new buffer
 	auto start = m_data.begin() + m_position;
 	auto end = start + length;
-	extracted_data = Buffers::Data(std::make_move_iterator(start), std::make_move_iterator(end));
+	extracted_data = Buffer::Data(std::make_move_iterator(start), std::make_move_iterator(end));
 
 	// Use Discard to remove the extracted data
 	Simple::Discard(length, Read::Position::Relative);
@@ -241,7 +241,7 @@ void Shared::Unlock() {
 	m_data_mutex.unlock();
 }
 
-Write::Status Shared::Write(const Buffers::Data& data) {
+Write::Status Shared::Write(const Buffer::Data& data) {
 	if (!IsWritable()) {
 		return Write::Status::Error;
 	}
@@ -249,7 +249,7 @@ Write::Status Shared::Write(const Buffers::Data& data) {
 	return Simple::Write(data);
 }
 
-Write::Status Shared::Write(Buffers::Data&& data) {
+Write::Status Shared::Write(Buffer::Data&& data) {
 	if (!IsWritable()) {
 		return Write::Status::Error;
 	}

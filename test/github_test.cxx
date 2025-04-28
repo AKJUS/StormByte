@@ -8,7 +8,7 @@
 #include <vector>
 
 int github_clang_libstdcpp_bus_error() {
-	StormByte::Buffers::Simple buffer;
+	StormByte::Buffer::Simple buffer;
 	
 	{
 		std::string str = "Hello World!";
@@ -21,7 +21,7 @@ int github_clang_libstdcpp_bus_error() {
 }
 
 int github_clang_libstdcpp_bus_error2() {
-	StormByte::Buffers::Simple buffer1, buffer2;;
+	StormByte::Buffer::Simple buffer1, buffer2;;
 	
 	{
 		std::string str = "Hello World!";
@@ -35,7 +35,7 @@ int github_clang_libstdcpp_bus_error2() {
 }
 
 int github_clang_libstdcpp_bus_error3() {
-	StormByte::Buffers::Simple buffer1, buffer2;;
+	StormByte::Buffer::Simple buffer1, buffer2;;
 	
 	{
 		std::string str = "Hello World!";
