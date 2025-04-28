@@ -125,7 +125,7 @@ The `Simple` buffer is designed for performance-critical, single-threaded scenar
 
 int main() {
     // Create a simple buffer with initial data.
-    StormByte::Buffers::Simple simpleBuffer("Initial data");
+    StormByte::Buffer::Simple simpleBuffer("Initial data");
     simpleBuffer << " appended text";
     
     // Retrieve the buffer content.
@@ -146,12 +146,12 @@ The `Shared` buffer extends `Simple` by adding thread safety through a `std::sha
 #include <iostream>
 #include <thread>
 
-void writeData(StormByte::Buffers::Shared& sharedBuffer) {
+void writeData(StormByte::Buffer::Shared& sharedBuffer) {
     sharedBuffer << " Thread data";
 }
 
 int main() {
-    StormByte::Buffers::Shared sharedBuffer("Start");
+    StormByte::Buffer::Shared sharedBuffer("Start");
     
     // Launch two threads that write data concurrently.
     std::thread t1(writeData, std::ref(sharedBuffer));
@@ -181,14 +181,14 @@ The `Async` class provides the foundation for a multi-threaded producer/consumer
 
 int main() {
     // Create a shared Async buffer and obtain Producer and Consumer instances.
-    auto asyncBuffer = std::make_shared<StormByte::Buffers::Async>();
+    auto asyncBuffer = std::make_shared<StormByte::Buffer::Async>();
     auto producer = asyncBuffer->Producer();
     auto consumer = asyncBuffer->Consumer();
     
     // Producer thread: Append some data and signal the End of File.
     std::thread prod([&]() {
         *producer << "Async data: Hello from producer.";
-        *producer << StormByte::Buffers::Status::EoF;
+        *producer << StormByte::Buffer::Status::EoF;
     });
     
     // Consumer thread: Extract data from the buffer.
@@ -218,12 +218,12 @@ The `Producer` is a write-only buffer designed for use in producer/consumer mode
 
 int main() {
     // Create an Async buffer and initialize a Producer instance with it.
-    StormByte::Buffers::Async asyncBuffer;
-    StormByte::Buffers::Producer producer(asyncBuffer);
+    StormByte::Buffer::Async asyncBuffer;
+    StormByte::Buffer::Producer producer(asyncBuffer);
     
     // Append data to the buffer.
     producer << "Producer writes data.";
-    producer << StormByte::Buffers::Status::EoF;
+    producer << StormByte::Buffer::Status::EoF;
     
     std::cout << "Data appended by Producer." << std::endl;
     return 0;
@@ -241,8 +241,8 @@ The `Consumer` buffer supports destructive read operations in a thread-safe mann
 
 int main() {
     // Create an Async buffer and initialize a Consumer instance with it.
-    StormByte::Buffers::Async asyncBuffer;
-    StormByte::Buffers::Consumer consumer(asyncBuffer);
+    StormByte::Buffer::Async asyncBuffer;
+    StormByte::Buffer::Consumer consumer(asyncBuffer);
     
     // In a real-world scenario, a Producer would be adding data.
     // Here we simulate data already being available.
