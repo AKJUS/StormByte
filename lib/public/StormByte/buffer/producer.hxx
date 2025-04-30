@@ -128,6 +128,13 @@ namespace StormByte::Buffer {
 			Producer& operator=(Producer&& other) noexcept 				= default;
 
 			/**
+			 * @brief Assignment operator using a consumer
+			 * 
+			 * Allows binding a producer to a consumer. This is useful for initializing a producer with an existing consumer.
+			 */
+			Producer& operator=(const Consumer& consumer) noexcept;
+
+			/**
 			 * @brief Sets the buffer status
 			 * @see Buffer::Status
 			 */
