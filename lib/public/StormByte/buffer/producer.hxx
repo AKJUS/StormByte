@@ -50,6 +50,15 @@ namespace StormByte::Buffer {
 			/**
 			 * @brief Constructor
 			 * 
+			 * Binds a producer with a consumer
+			 * 
+			 * @param consumer The consumer to bind to.
+			 */
+			Producer(const Consumer& consumer);
+
+			/**
+			 * @brief Constructor
+			 * 
 			 * Initializes a producer with a shared buffer.
 			 * 
 			 * @param shared The shared buffer to bind to.
