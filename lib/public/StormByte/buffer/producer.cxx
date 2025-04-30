@@ -10,6 +10,10 @@ Producer::Producer(const Shared& shared) noexcept: m_shared(std::make_shared<Sha
 
 Producer::Producer(Shared&& shared) noexcept: m_shared(std::make_shared<Shared>(std::move(shared))) {}
 
+Producer::Producer(const Simple& simple) noexcept: m_shared(std::make_shared<Shared>(simple)) {}
+
+Producer::Producer(Simple&& simple) noexcept: m_shared(std::make_shared<Shared>(std::move(simple))) {}
+
 // Sets the buffer status
 Producer& Producer::operator<<(const Status& status) {
 	*m_shared << status;

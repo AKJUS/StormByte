@@ -23,6 +23,10 @@ Shared::Shared(const Shared& other): Simple(other), m_status(other.m_status.load
 
 Shared::Shared(Shared&& other) noexcept: Simple(std::move(other)), m_status(other.m_status.load()) {}
 
+Shared::Shared(const Simple& other): Simple(other), m_status(Status::Ready) {}
+
+Shared::Shared(Simple&& other) noexcept: Simple(std::move(other)), m_status(Status::Ready) {}
+
 Shared& Shared::operator=(const Shared& other) {
 	if (this != &other) {
 		std::unique_lock lock(m_data_mutex);
