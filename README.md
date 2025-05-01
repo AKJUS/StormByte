@@ -166,47 +166,6 @@ int main() {
 }
 ```
 
-#### Async Buffer
-
-The `Async` class provides the foundation for a multi-threaded producer/consumer model. It safely handles concurrent reads and writes by offering helper methods to obtain `Producer` and `Consumer` instances.
-
-**Example:**
-```cpp
-#include <StormByte/buffers/async.hxx>
-#include <StormByte/buffers/producer.hxx>
-#include <StormByte/buffers/consumer.hxx>
-#include <iostream>
-#include <memory>
-#include <thread>
-
-int main() {
-    // Create a shared Async buffer and obtain Producer and Consumer instances.
-    auto asyncBuffer = std::make_shared<StormByte::Buffer::Async>();
-    auto producer = asyncBuffer->Producer();
-    auto consumer = asyncBuffer->Consumer();
-    
-    // Producer thread: Append some data and signal the End of File.
-    std::thread prod([&]() {
-        *producer << "Async data: Hello from producer.";
-        *producer << StormByte::Buffer::Status::EoF;
-    });
-    
-    // Consumer thread: Extract data from the buffer.
-    std::thread cons([&]() {
-        auto data = consumer->Extract(25);
-        if (data) {
-            std::string output(data.value().begin(), data.value().end());
-            std::cout << "Async Buffer extracted: " << output << std::endl;
-        }
-    });
-    
-    prod.join();
-    cons.join();
-    
-    return 0;
-}
-```
-
 #### Producer Buffer
 
 The `Producer` is a write-only buffer designed for use in producer/consumer models. It supports appending data using overloaded `operator<<` calls, seamlessly integrating various data sources.
