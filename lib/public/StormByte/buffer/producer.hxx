@@ -16,6 +16,8 @@
  * - **Thread Safety**: Shared and producer/consumer buffers are designed to ensure consistent behavior in multi-threaded environments.
  */
 namespace StormByte::Buffer {
+	class Consumer; // Forward declaration of the Consumer class
+
 	/**
 	 * @class Producer
 	 * @brief A write-only interface for accessing a shared buffer.
@@ -183,7 +185,7 @@ namespace StormByte::Buffer {
 			 * 
 			 * @return A `Consumer` instance bound to this producer's buffer.
 			 */
-			Consumer 													Consumer() const;
+			Consumer 													Consumer() const noexcept;
 
 			/**
 			 * @brief Locks the shared buffer for exclusive access.

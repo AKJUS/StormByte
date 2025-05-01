@@ -62,7 +62,7 @@ Producer& Producer::operator<<(Buffer::Data&& data) {
 }
 
 // Gets the consumer interface to consume this buffer
-Consumer Producer::Consumer() const {
+Consumer Producer::Consumer() const noexcept {
 	return Buffer::Consumer(m_shared);
 }
 

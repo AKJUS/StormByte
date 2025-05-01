@@ -16,6 +16,8 @@
  * - **Thread Safety**: Shared and producer/consumer buffers are designed to ensure consistent behavior in multi-threaded environments.
  */
 namespace StormByte::Buffer {
+	class Producer; // Forward declaration of the Producer class
+
 	/**
 	 * @class Consumer
 	 * @brief A read-only interface for accessing a shared buffer.
@@ -35,6 +37,13 @@ namespace StormByte::Buffer {
 		friend class Producer;
 
 		public:
+			/**
+			 * @brief Default constructor
+			 * 
+			 * Creates an unconnected `Consumer` instance.
+			 */
+			Consumer() noexcept;
+
 			/**
 			 * @brief Deleted copy constructor
 			 * 
@@ -179,6 +188,12 @@ namespace StormByte::Buffer {
 			 * @return The current status of the buffer.
 			 */
 			enum Status 												Status() const noexcept;
+
+			/**
+			 * @brief Creates a producer instance for this consumer.
+			 * @return A `Producer` instance bound to this consumer's buffer.
+			 */
+			Producer 													Producer() const noexcept;
 
 		private:
 			std::shared_ptr<Shared> m_shared; 							///< The shared buffer instance.
