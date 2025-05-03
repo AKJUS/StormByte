@@ -10,6 +10,8 @@ Producer::Producer(const class Consumer& consumer) {
 	m_shared = consumer.m_shared;
 }
 
+Producer::Producer(std::shared_ptr<Shared> shared) noexcept: m_shared(shared) {}
+
 Producer::Producer(const Shared& shared) noexcept: m_shared(std::make_shared<Shared>(shared)) {}
 
 Producer::Producer(Shared&& shared) noexcept: m_shared(std::make_shared<Shared>(std::move(shared))) {}

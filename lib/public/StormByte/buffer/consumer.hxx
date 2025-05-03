@@ -45,6 +45,12 @@ namespace StormByte::Buffer {
 			Consumer() noexcept;
 
 			/**
+			 * @brief Constructor that initializes the consumer with a shared buffer.
+			 * @param shared A shared pointer to the shared buffer.
+			 */
+			explicit Consumer(std::shared_ptr<Shared> shared) noexcept;
+
+			/**
 			 * @brief Deleted copy constructor
 			 * 
 			 * The `Consumer` class cannot be copied to ensure data integrity and prevent unintended sharing of the buffer.
@@ -197,13 +203,5 @@ namespace StormByte::Buffer {
 
 		private:
 			std::shared_ptr<Shared> m_shared; 							///< The shared buffer instance.
-
-			/**
-			 * @brief Constructor that initializes the consumer with a shared buffer.
-			 * @param shared A shared pointer to the shared buffer.
-			 */
-			explicit Consumer(std::shared_ptr<Shared> shared) noexcept;
-
-			
 	};
 }
