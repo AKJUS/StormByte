@@ -226,6 +226,22 @@ int test_simple_available_bytes() {
     RETURN_TEST("test_simple_available_bytes", 0);
 }
 
+int test_copy_empty_buffer() {
+	Buffer::Simple buffer1;
+	Buffer::Simple buffer2(buffer1);
+	ASSERT_TRUE("test_copy_empty_buffer", buffer1.Empty());
+	ASSERT_TRUE("test_copy_empty_buffer", buffer1.Empty());
+	RETURN_TEST("test_copy_empty_buffer", 0);
+}
+
+int test_move_empty_buffer() {
+	Buffer::Simple buffer1;
+	Buffer::Simple buffer2(std::move(buffer1));
+	ASSERT_TRUE("test_move_empty_buffer", buffer1.Empty());
+	ASSERT_TRUE("test_move_empty_buffer", buffer2.Empty());
+	RETURN_TEST("test_move_empty_buffer", 0);
+}
+
 int main() {
 	int result = 0;
 	result += test_simple_buffer();
@@ -237,8 +253,10 @@ int main() {
 	result += test_discard_function();
 	result += test_discard_modes();
 	result += test_process_function();
-	result += test_extract_into(); // Add the new test here
-	result += test_simple_available_bytes(); // Add the new test here
+	result += test_extract_into();
+	result += test_simple_available_bytes();
+	result += test_copy_empty_buffer();
+	result += test_move_empty_buffer();
 
 	if (result == 0) {
 		std::cout << "All tests passed!" << std::endl;
