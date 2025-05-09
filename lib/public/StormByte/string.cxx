@@ -260,6 +260,20 @@ namespace StormByte::String {
 		return std::regex_replace(str, std::regex("\r\n"), "\n");
 	}
 
+	std::string FromBuffer(const Buffer::Simple& buffer) noexcept {
+		auto span = buffer.Span();
+		return FromBuffer(span);
+	}
+
+	std::string FromBuffer(const Buffer::Data& data) noexcept {
+		auto span = std::span<const std::byte>(data.data(), data.size());
+		return FromBuffer(span);
+	}
+
+	std::string FromBuffer(const std::span<const std::byte>& span) noexcept {
+		return std::string(reinterpret_cast<const char*>(span.data()), span.size());
+	}
+
 	template STORMBYTE_PUBLIC std::string HumanReadable<int>(const int&, const Format&, const std::string&) noexcept;
 	template STORMBYTE_PUBLIC std::string HumanReadable<unsigned int>(const unsigned int&, const Format&, const std::string&) noexcept;
 	template STORMBYTE_PUBLIC std::string HumanReadable<long>(const long&, const Format&, const std::string&) noexcept;

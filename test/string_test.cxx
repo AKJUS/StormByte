@@ -1,4 +1,4 @@
-#include <StormByte/exception.hxx>
+#include <StormByte/buffer/simple.hxx>
 #include <StormByte/string.hxx>
 #include <StormByte/system.hxx>
 #include <StormByte/test_handlers.h>
@@ -120,6 +120,15 @@ int test_human_readable_number() {
 	RETURN_TEST("test_human_readable_number", result);
 }
 
+int test_buffer_to_string() {
+	const std::string test_string = "test_buffer_to_string";
+	StormByte::Buffer::Simple buffer;
+	buffer << test_string;
+	std::string str = StormByte::String::FromBuffer(buffer);
+	ASSERT_EQUAL("test_buffer_to_string", test_string, str);
+	RETURN_TEST("test_buffer_to_string", 0);
+}
+
 int main() {
     int result = 0;
     try {
@@ -129,6 +138,7 @@ int main() {
 		result += test_temp_path();
 		result += test_human_readable_byte_size();
 		result += test_human_readable_number();
+		result += test_buffer_to_string();
 
     } catch (const StormByte::Exception& ex) {
         std::cerr << ex.what() << std::endl;

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <StormByte/expected.hxx>
-#include <StormByte/exception.hxx>
+#include <StormByte/buffer/simple.hxx>
 
 #include <algorithm>
 #include <cstdint>
@@ -36,7 +35,11 @@ namespace StormByte::String {
 
 	/**
 	 * @brief Creates a string with a given level of indentation.
-	 * @param level The level of indentation.
+	 * 
+	 * This function generates a string consisting of tab characters (`\t`) repeated
+	 * according to the specified indentation level.
+	 * 
+	 * @param level The level of indentation. If `0`, an empty string is returned.
 	 * @return A string with the specified indentation.
 	 */
 	constexpr STORMBYTE_PUBLIC std::string Indent(const int& level) noexcept {
@@ -45,6 +48,9 @@ namespace StormByte::String {
 
 	/**
 	 * @brief Checks if a string is numeric.
+	 * 
+	 * This function determines whether the given string contains only numeric characters.
+	 * 
 	 * @param str The string to check.
 	 * @return `true` if the string is numeric, `false` otherwise.
 	 */
@@ -54,6 +60,9 @@ namespace StormByte::String {
 
 	/**
 	 * @brief Converts a string to lowercase.
+	 * 
+	 * This function converts all characters in the input string to their lowercase equivalents.
+	 * 
 	 * @param str The string to convert.
 	 * @return The lowercase version of the string.
 	 */
@@ -61,6 +70,9 @@ namespace StormByte::String {
 
 	/**
 	 * @brief Converts a string to uppercase.
+	 * 
+	 * This function converts all characters in the input string to their uppercase equivalents.
+	 * 
 	 * @param str The string to convert.
 	 * @return The uppercase version of the string.
 	 */
@@ -68,6 +80,10 @@ namespace StormByte::String {
 
 	/**
 	 * @brief Splits a string into a queue of substrings based on a delimiter.
+	 * 
+	 * This function splits the input string into substrings using the specified delimiter
+	 * and stores the substrings in a queue.
+	 * 
 	 * @param str The string to split.
 	 * @param delimiter The delimiter character.
 	 * @return A queue of substrings.
@@ -76,6 +92,10 @@ namespace StormByte::String {
 
 	/**
 	 * @brief Splits a string into a vector of substrings delimited by spaces.
+	 * 
+	 * This function splits the input string into substrings using spaces as the delimiter
+	 * and stores the substrings in a vector.
+	 * 
 	 * @param str The string to split.
 	 * @return A vector of substrings.
 	 */
@@ -83,43 +103,103 @@ namespace StormByte::String {
 
 	/**
 	 * @brief Splits a fraction string into a pair of integers.
-	 * @param fraction The fraction string to split.
-	 * @return A pair of integers representing the numerator and denominator.
+	 * 
+	 * This function parses a fraction string (e.g., "3/4") and returns the numerator
+	 * and denominator as a pair of integers.
+	 * 
+	 * @param fraction The fraction string to split (e.g., "3/4").
+	 * @return An `Expected` object containing a pair of integers (numerator and denominator)
+	 *         on success, or an `Exception` on failure.
 	 */
 	STORMBYTE_PUBLIC StormByte::Expected<std::pair<int, int>, Exception> SplitFraction(const std::string& fraction);
 
 	/**
 	 * @brief Splits a fraction string into a pair of integers and scales it to a desired denominator.
-	 * @param str The fraction string to split.
-	 * @param denominator The desired denominator.
-	 * @return A pair of integers representing the scaled numerator and denominator.
+	 * 
+	 * This function parses a fraction string (e.g., "3/4") and scales it to a specified denominator.
+	 * If the scaling is not possible, an exception is returned.
+	 * 
+	 * @param str The fraction string to split (e.g., "3/4").
+	 * @param denominator The desired denominator to scale the fraction to.
+	 * @return An `Expected` object containing a pair of integers (numerator and denominator)
+	 *         on success, or an `Exception` on failure.
 	 */
 	STORMBYTE_PUBLIC StormByte::Expected<std::pair<int, int>, Exception> SplitFraction(const std::string& str, const int& denominator);
 
-	// Main HumanReadable template function
+	/**
+	 * @brief Converts a number into a human-readable string format.
+	 * 
+	 * This template function formats a numeric value into a human-readable string based on the specified format.
+	 * It supports arithmetic types (e.g., integers, floating-point numbers) and excludes `wchar_t`.
+	 * 
+	 * @tparam T The numeric type of the input value.
+	 * @param number The number to format.
+	 * @param format The desired format (e.g., raw, human-readable number, or human-readable bytes).
+	 * @param locale The locale to use for formatting (default is "en_US.UTF-8").
+	 * @return A human-readable string representation of the number.
+	 */
 	template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T> && !std::is_same_v<T, wchar_t>>>
 	STORMBYTE_PUBLIC std::string HumanReadable(const T& number, const Format& format, const std::string& locale = "en_US.UTF-8") noexcept;
 
 	/**
 	 * @brief Converts a wide string to a UTF-8 encoded string.
+	 * 
+	 * This function converts a wide string (e.g., `std::wstring`) into a UTF-8 encoded string.
+	 * 
 	 * @param ws The wide string to convert.
-	 * @throws std::runtime_error if the conversion fails.
+	 * @throws std::runtime_error If the conversion fails.
 	 * @return The UTF-8 encoded string.
 	 */
 	STORMBYTE_PUBLIC std::string UTF8Encode(const std::wstring& ws);
 
 	/**
 	 * @brief Converts a UTF-8 encoded string to a wide string.
+	 * 
+	 * This function converts a UTF-8 encoded string (e.g., `std::string`) into a wide string.
+	 * 
 	 * @param s The UTF-8 encoded string to convert.
-	 * @throws std::runtime_error if the conversion fails.
+	 * @throws std::runtime_error If the conversion fails.
 	 * @return The wide string.
 	 */
 	STORMBYTE_PUBLIC std::wstring UTF8Decode(const std::string& s);
 
 	/**
 	 * @brief Sanitizes newlines in a string.
+	 * 
+	 * This function replaces all newline characters (`\n` or `\r\n`) in the input string with a consistent format.
+	 * 
 	 * @param str The string to sanitize.
-	 * @return The sanitized string.
+	 * @return The sanitized string with consistent newline formatting.
 	 */
 	STORMBYTE_PUBLIC std::string SanitizeNewlines(const std::string& str) noexcept;
+
+	/**
+	 * @brief Converts a `Buffer::Simple` object to a string.
+	 * 
+	 * This function extracts the contents of a `Buffer::Simple` object and converts it into a string.
+	 * 
+	 * @param buffer The `Buffer::Simple` object to convert.
+	 * @return The string representation of the buffer's contents.
+	 */
+	STORMBYTE_PUBLIC std::string FromBuffer(const Buffer::Simple& buffer) noexcept;
+
+	/**
+	 * @brief Converts a `Buffer::Data` object to a string.
+	 * 
+	 * This function extracts the contents of a `Buffer::Data` object and converts it into a string.
+	 * 
+	 * @param data The `Buffer::Data` object to convert.
+	 * @return The string representation of the buffer's contents.
+	 */
+	STORMBYTE_PUBLIC std::string FromBuffer(const Buffer::Data& data) noexcept;
+
+	/**
+	 * @brief Converts a span of bytes to a string.
+	 * 
+	 * This function converts a span of bytes (`std::span<const std::byte>`) into a string representation.
+	 * 
+	 * @param span The span of bytes to convert.
+	 * @return The string representation of the byte span.
+	 */
+	STORMBYTE_PUBLIC std::string FromBuffer(const std::span<const std::byte>& span) noexcept;
 }
