@@ -182,7 +182,7 @@ int main() {
     
     // Append data to the buffer.
     producer << "Producer writes data.";
-    producer << StormByte::Buffer::Status::EoF;
+    producer << StormByte::Buffer::Status::ReadOnly;
     
     std::cout << "Data appended by Producer." << std::endl;
     return 0;
