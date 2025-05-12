@@ -110,7 +110,7 @@ namespace StormByte::Buffer {
 			 * @brief Destructor
 			 * Cleans up the shared buffer.
 			 */
-			virtual ~Shared() noexcept override = default;
+			virtual ~Shared() noexcept override 								= default;
 
 			/**
 			 * @brief Copy assignment operator
@@ -174,7 +174,7 @@ namespace StormByte::Buffer {
 			 * @return Reference to the updated simple buffer.
 			 */
 			template <typename NumericType, typename = std::enable_if_t<std::is_arithmetic_v<std::decay_t<NumericType>>>>
-			Shared& operator<<(const NumericType& value) {
+			Shared& 															operator<<(const NumericType& value) {
 				std::unique_lock lock(m_data_mutex);
 				Simple::operator<<(value);
 				return *this;
@@ -239,7 +239,7 @@ namespace StormByte::Buffer {
 			 *         insufficient data exists and the buffer is no longer readable.
 			 * @see Simple::Extract
 			 */
-			ExpectedData<BufferOverflow> 										Extract(const size_t& length) override;
+			virtual ExpectedData<BufferOverflow> 								Extract(const size_t& length) override;
 
 			/**
 			 * @brief Extracts a specific size of data and moves it directly into the provided buffer.
@@ -252,7 +252,7 @@ namespace StormByte::Buffer {
 			 * @return `Read::Status` indicating the success or failure of the operation.
 			 * @see Simple::ExtractInto
 			 */
-			Read::Status 														ExtractInto(const size_t& length, Shared& output) noexcept;
+			virtual Read::Status 												ExtractInto(const size_t& length, Shared& output) noexcept;
 
 			/**
 			 * @brief Checks if the shared buffer has enough data starting from the current read position
@@ -317,7 +317,7 @@ namespace StormByte::Buffer {
 			 *         if insufficient data exists and the buffer is no longer readable.
 			 * @see Simple::Read
 			 */
-			ExpectedData<BufferOverflow> 										Read(const size_t& length) const override;
+			virtual ExpectedData<BufferOverflow> 								Read(const size_t& length) const override;
 
 			/**
 			 * @brief Reserves shared buffer size
