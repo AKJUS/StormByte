@@ -11,6 +11,7 @@
  * buffers in both single-threaded and multi-threaded environments. It supports a variety of use cases, including:
  * - **Simple Buffer**: Lightweight, non-thread-safe buffers for single-threaded environments.
  * - **Shared Buffer**: Flexible and efficient storage for byte data with concurrent access support.
+ * - **External Buffer**: An enhancement of the `Shared` buffer allowing external reader function be executed before every read.
  * - **Producer/Consumer Buffer**: Advanced models for managing data flow between producers and consumers
  *   with status tracking (e.g., `Ready`, `EoF`, `Error`).
  * - **Thread Safety**: Shared and producer/consumer buffers are designed to ensure consistent behavior in multi-threaded environments.
