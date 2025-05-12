@@ -71,20 +71,11 @@ namespace StormByte::Buffer {
 			/**
 			 * @brief Constructor
 			 * 
-			 * Initializes a producer with a shared buffer.
+			 * Initializes a producer taking ownership of a shared buffer.
 			 * 
 			 * @param shared The shared buffer to bind to.
 			 */
-			Producer(const Shared& shared) noexcept;
-
-			/**
-			 * @brief Move constructor
-			 * 
-			 * Initializes a producer with a shared buffer.
-			 * 
-			 * @param shared The shared buffer to bind to.
-			 */
-			Producer(Shared&& shared) noexcept;
+			Producer(std::shared_ptr<Shared>&& shared) noexcept;
 
 			/**
 			 * @brief Constructor
