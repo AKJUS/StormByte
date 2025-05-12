@@ -155,6 +155,7 @@ namespace StormByte::Buffer {
 	using ExpectedData					= Expected<Data, T>;									///< Represents a collection of bytes with error handling.
 	using PipeFunction					= std::function<void(Consumer, Producer)>;				///< Represents a function that processes a data pipe.
 	using Processor						= std::function<std::shared_ptr<Simple>(const Simple&)>;///< Represents a function that processes a buffer.
+	using ExternalReaderFunction		= std::function<ExpectedData<Exception>()>;				///< Represents a function that reads data from a buffer.
 
 	/**
 	 * @brief Wrapper for `operator<<` to support `std::shared_ptr` or `std::unique_ptr` as the left-hand parameter.

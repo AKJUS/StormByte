@@ -259,7 +259,7 @@ namespace StormByte::Buffer {
 			 * @brief Checks if the shared buffer has enough data starting from the current read position
 			 * Thread-safe version of @see Simple::HasEnoughData.
 			 */
-			bool 																HasEnoughData(const std::size_t& length) const override;
+			virtual bool 														HasEnoughData(const std::size_t& length) const override;
 
 			/**
 			 * @brief Retrieves the stored value as a hexadecimal string
@@ -412,6 +412,6 @@ namespace StormByte::Buffer {
 			 * @param length The number of bytes to wait for.
 			 * @return `Read::Status` indicating the result of the wait operation.
 			 */
-			Read::Status 														Wait(const std::size_t length) const noexcept;
+			virtual Read::Status 												Wait(const std::size_t& length) const noexcept;
 	};
 }

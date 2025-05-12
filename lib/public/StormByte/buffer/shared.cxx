@@ -285,7 +285,7 @@ Write::Status Shared::Write(const std::string& data) {
 	return Simple::Write(data);
 }
 
-Read::Status Shared::Wait(const std::size_t length) const noexcept {
+Read::Status Shared::Wait(const std::size_t& length) const noexcept {
 	if (HasEnoughData(length)) {
 		return Read::Status::Success;
 	} else {

@@ -4,8 +4,6 @@
 #include <StormByte/buffer/typedefs.hxx>
 #include <StormByte/visibility.h>
 
-#include <functional>
-
 /**
  * @namespace Buffer
  * @brief Namespace for buffer-related components in the StormByte library.

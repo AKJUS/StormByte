@@ -166,6 +166,52 @@ int main() {
 }
 ```
 
+#### External Buffer
+The External buffer extends the Shared buffer by integrating an external reader function. This allows the buffer to dynamically fetch or generate data on demand before every read operation. It is ideal for scenarios where data is not readily available in memory and must be retrieved from external sources like files, network streams, or other producers.
+
+**Example:**
+```cpp
+#include <StormByte/buffers/external.hxx>
+#include <iostream>
+#include <atomic>
+
+int main() {
+    std::atomic<int> counter = 0;
+
+    // Define an external reader function that generates data dynamically.
+    StormByte::Buffer::ExternalReaderFunction reader = [&counter]() -> StormByte::Buffer::ExpectedData<StormByte::Buffer::Exception> {
+        if (counter < 5) {
+            ++counter;
+            std::string data = "Data" + std::to_string(counter);
+            return StormByte::Buffer::Data(reinterpret_cast<const std::byte*>(data.data()),
+                                           reinterpret_cast<const std::byte*>(data.data() + data.size()));
+        }
+        return StormByte::Unexpected<StormByte::Buffer::Exception>("End of data");
+    };
+
+    // Create an External buffer with the reader function.
+    StormByte::Buffer::External externalBuffer(reader);
+
+    // Read data from the buffer.
+    for (int i = 0; i < 5; ++i) {
+        auto data = externalBuffer.Read(5); // Read 5 bytes
+        if (data.has_value()) {
+            std::string result(reinterpret_cast<const char*>(data->data()), data->size());
+            std::cout << "Read from External Buffer: " << result << std::endl;
+        } else {
+            std::cerr << "Failed to read data." << std::endl;
+        }
+    }
+
+    // Check if the buffer has reached EOF.
+    if (externalBuffer.IsEoF()) {
+        std::cout << "External Buffer reached EOF." << std::endl;
+    }
+
+    return 0;
+}
+```
+
 #### Producer Buffer
 
 The `Producer` is a write-only buffer designed for use in producer/consumer models. It supports appending data using overloaded `operator<<` calls, seamlessly integrating various data sources.
