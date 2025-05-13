@@ -254,7 +254,7 @@ namespace StormByte::Buffer {
 			 * @param length Length of the data to check.
 			 * @return True if the simple buffer has enough data starting from the current position, false otherwise.
 			 */
-			virtual bool 															HasEnoughData(const std::size_t& length) const;
+			virtual bool 															HasEnoughData(const std::size_t& length);
 
 			/**
 			 * @brief Retrieves the stored value as a hexadecimal string.

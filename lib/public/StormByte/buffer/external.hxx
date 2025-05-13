@@ -204,17 +204,6 @@ namespace StormByte::Buffer {
 			void 																Reader(class Reader&& reader) noexcept;
 
 			/**
-			 * @brief Gets the number of bytes available to read from the buffer.
-			 * @return The number of bytes available to read.
-			 *
-			 * Extends the `Shared` buffer's functionality by transparently calling the `Reader`'s `Read()` method
-			 * to ensure the buffer is populated with the latest data before returning the available byte count.
-			 *
-			 * @see Reader
-			 */
-			size_t 																AvailableBytes() const noexcept override;
-
-			/**
 			 * @brief Checks if the buffer has enough data to satisfy a read request.
 			 * @param length The number of bytes to check for.
 			 * @return `true` if enough data is available, `false` otherwise.
@@ -224,7 +213,7 @@ namespace StormByte::Buffer {
 			 *
 			 * @see Reader
 			 */
-			bool 																HasEnoughData(const std::size_t& length) const override;
+			bool 																HasEnoughData(const std::size_t& length) override;
 
 			/**
 			 * @brief Reads a specific size of data from the buffer.
@@ -247,7 +236,7 @@ namespace StormByte::Buffer {
 			 *
 			 * This method blocks until the requested data is available or the buffer is marked as `EoF` or `Error`.
 			 */
-			Read::Status 														Wait(const std::size_t& length) const noexcept override;
+			Read::Status 														Wait(const std::size_t& length) noexcept override;
 
 			/**
 			 * @brief Reads data from the external `Reader` and writes it to the buffer.

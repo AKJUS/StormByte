@@ -175,7 +175,7 @@ Read::Status Shared::ExtractInto(const std::size_t& length, Shared& output) noex
 	return Read::Status::Success;
 }
 
-bool Shared::HasEnoughData(const std::size_t& length) const {
+bool Shared::HasEnoughData(const std::size_t& length) {
 	std::shared_lock lock(m_data_mutex);
 	return Simple::HasEnoughData(length);
 }
@@ -214,7 +214,7 @@ std::size_t Shared::Position() const noexcept {
 }
 
 ExpectedData<BufferOverflow> Shared::Read(const std::size_t& length) const {
-	auto wait_status = Wait(length);
+	auto wait_status = const_cast<Shared*>(this)->Wait(length);
 	if (wait_status != Read::Status::Success) {
 		return StormByte::Unexpected<BufferOverflow>("Not enough data to read.");
 	}
@@ -285,7 +285,7 @@ Write::Status Shared::Write(const std::string& data) {
 	return Simple::Write(data);
 }
 
-Read::Status Shared::Wait(const std::size_t& length) const noexcept {
+Read::Status Shared::Wait(const std::size_t& length) noexcept {
 	if (HasEnoughData(length)) {
 		return Read::Status::Success;
 	} else {

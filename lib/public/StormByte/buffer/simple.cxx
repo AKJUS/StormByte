@@ -159,7 +159,7 @@ Read::Status Simple::ExtractInto(const std::size_t& length, Simple& output) noex
 	return Read::Status::Success;
 }
 
-bool Simple::HasEnoughData(const std::size_t& length) const {
+bool Simple::HasEnoughData(const std::size_t& length) {
 	return m_position + length <= m_data.size();
 }
 

@@ -51,13 +51,8 @@ void External::Reader(class Reader&& reader) noexcept {
 	m_external_reader = reader.Move();
 }
 
-size_t External::AvailableBytes() const noexcept {
-	const_cast<External*>(this)->ReadExternalData(1); // Minimum 1 byte
-	return Shared::AvailableBytes();
-}
-
-bool External::HasEnoughData(const std::size_t& length) const {
-	const_cast<External*>(this)->ReadExternalData(length);
+bool External::HasEnoughData(const std::size_t& length) {
+	ReadExternalData(length);
 	return Shared::HasEnoughData(length);
 }
 
@@ -66,8 +61,8 @@ ExpectedData<BufferOverflow> External::Read(const size_t& length) const {
 	return Shared::Read(length);
 }
 
-Read::Status External::Wait(const std::size_t& length) const noexcept {
-	if (const_cast<External*>(this)->ReadExternalData(length))
+Read::Status External::Wait(const std::size_t& length) noexcept {
+	if (ReadExternalData(length))
 		return Read::Status::Success;
 	else
 		return Read::Status::Error;

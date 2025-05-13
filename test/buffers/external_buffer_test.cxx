@@ -41,16 +41,16 @@ int test_external_buffer_with_reader_function() {
 
     // Verify that the buffer reads data from the external reader
     for (int i = 1; i <= 5; ++i) {
-        std::cout << "[DEBUG] Iteration " << i << ": Checking AvailableBytes()." << std::endl;
-        auto available = buffer.AvailableBytes();
-        std::cout << "[DEBUG] AvailableBytes(): " << available << std::endl;
+        std::cout << "[DEBUG] Iteration " << i << ": Checking HasEnoughData(5)." << std::endl;
+        auto available = buffer.HasEnoughData(5);
+        std::cout << "[DEBUG] HasEnoughData(): " << std::boolalpha << available << std::noboolalpha << std::endl;
 
-        if (available == 0 && buffer.IsEoF()) {
+        if (!available && buffer.IsEoF()) {
             std::cout << "[DEBUG] End of data stream detected." << std::endl;
             break;
         }
 
-        ASSERT_TRUE("test_external_buffer_with_reader_function", available >= 5);
+        ASSERT_TRUE("test_external_buffer_with_reader_function", available);
 
         std::cout << "[DEBUG] Iteration " << i << ": Reading data from buffer." << std::endl;
         auto data = buffer.Read(5); // Read 5 bytes ("Data1", "Data2", etc.)
@@ -62,9 +62,9 @@ int test_external_buffer_with_reader_function() {
 
     // Verify that no more data is available
     std::cout << "[DEBUG] Checking if buffer is empty." << std::endl;
-    auto available = buffer.AvailableBytes();
-    std::cout << "[DEBUG] AvailableBytes(): " << available << std::endl;
-    ASSERT_TRUE("test_external_buffer_with_reader_function (no more data)", available == 0);
+    auto available = buffer.HasEnoughData(5);
+    std::cout << "[DEBUG] HasEnoughData(5): " << std::boolalpha << available << std::noboolalpha << std::endl;
+    ASSERT_FALSE("test_external_buffer_with_reader_function (no more data)", available);
     ASSERT_TRUE("test_external_buffer_with_reader_function (EOF)", buffer.IsEoF());
     auto data = buffer.Read(5);
     ASSERT_FALSE("test_external_buffer_with_reader_function (no more data)", data.has_value());
