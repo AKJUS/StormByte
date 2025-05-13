@@ -1,5 +1,6 @@
 #pragma once
 
+#include <StormByte/buffer/reader.hxx>
 #include <StormByte/buffer/shared.hxx>
 
 /**
@@ -18,39 +19,52 @@
 namespace StormByte::Buffer {
 	/**
 	 * @class External
-	 * @brief A specialized buffer that extends the functionality of the `Shared` buffer by integrating an external reader function.
+	 * @brief A specialized buffer that extends the functionality of the `Shared` buffer by integrating an external `Reader` class.
 	 *
-	 * The `External` buffer builds upon the `Shared` buffer by allowing an external reader function
-	 * to be executed before every read operation. This enables dynamic data generation or retrieval from external sources
-	 * (e.g., files, network streams, or other producers) on demand.
+	 * The `External` buffer builds upon the `Shared` buffer by allowing an external `Reader` class
+	 * to dynamically fetch or generate data before every read operation. This enables integration with external sources
+	 * such as files, network streams, or other producers.
 	 *
 	 * **Key Features:**
-	 * - **Dynamic Data Retrieval:** Automatically fetches or generates data using the external reader function when needed.
+	 * - **Dynamic Data Retrieval:** Automatically fetches or generates data using the `Reader` class when needed.
 	 * - **Thread-Safe Operations:** Inherits thread-safe behavior from the `Shared` buffer.
-	 * - **EOF and Error Handling:** Supports marking the buffer as `EoF` (End of File) or `Error` based on the external reader's return value.
+	 * - **EOF and Error Handling:** Supports marking the buffer as `EoF` (End of File) or `Error` based on the `Reader`'s return value.
 	 * - **Flexible Data Appending:** Allows appending data from various sources, including other buffers, strings, and numeric values.
 	 *
 	 * This class is ideal for scenarios where data is not readily available in memory and must be fetched or generated
 	 * dynamically during read operations.
+	 *
+	 * @see Reader
 	 */
 	class STORMBYTE_PUBLIC External: public Shared {
 		public:
 			/**
-			 * @brief Constructs an `External` buffer with a specified reader function.
-			 * @param fn The external reader function to be executed before every read operation.
+			 * @brief Constructs an `External` buffer with a specified `Reader` instance.
+			 * @param reader The external `Reader` instance to be used for dynamic data retrieval.
 			 *
-			 * The reader function is expected to return either valid data (`Buffer::Data`) or an exception
-			 * (`Unexpected<Buffer::Exception>`). Returning an exception automatically marks the buffer as `EoF` or `Error`.
+			 * The `Reader` class provides the `Read()` method, which dynamically fetches or generates data
+			 * to populate the buffer before read operations. For more details, see the `Reader` class documentation.
 			 *
-			 * This constructor extends the `Shared` buffer by adding support for dynamic data retrieval.
+			 * @see Reader
 			 */
-			External(const ExternalReaderFunction& fn) noexcept;
+			External(const Reader& reader) noexcept;
+
+			/**
+			 * @brief Constructs an `External` buffer taking ownership of a specified `Reader` instance.
+			 * @param reader The external `Reader` instance to be used for dynamic data retrieval.
+			 *
+			 * The `Reader` class provides the `Read()` method, which dynamically fetches or generates data
+			 * to populate the buffer before read operations. For more details, see the `Reader` class documentation.
+			 *
+			 * @see Reader
+			 */
+			External(Reader&& reader) noexcept;
 
 			/**
 			 * @brief Copy constructor.
 			 * @param other The `External` buffer to copy from.
 			 *
-			 * Copies the state of the `External` buffer, including its `Shared` buffer functionality.
+			 * Copies the state of the `External` buffer, including its `Shared` buffer functionality and the associated `Reader`.
 			 */
 			External(const External& other)										= default;
 
@@ -58,7 +72,7 @@ namespace StormByte::Buffer {
 			 * @brief Move constructor.
 			 * @param other The `External` buffer to move from.
 			 *
-			 * Moves the state of the `External` buffer, including its `Shared` buffer functionality.
+			 * Moves the state of the `External` buffer, including its `Shared` buffer functionality and the associated `Reader`.
 			 */
 			External(External&& other) noexcept									= default;
 
@@ -66,7 +80,7 @@ namespace StormByte::Buffer {
 			 * @brief Destructor.
 			 * Cleans up the buffer and releases any associated resources.
 			 *
-			 * Extends the `Shared` buffer's cleanup process to include the external reader function.
+			 * Extends the `Shared` buffer's cleanup process to include the external `Reader` instance.
 			 */
 			~External() noexcept override 										= default;
 
@@ -75,7 +89,7 @@ namespace StormByte::Buffer {
 			 * @param other The `External` buffer to copy from.
 			 * @return Reference to the updated buffer.
 			 *
-			 * Copies the state of the `External` buffer, including its `Shared` buffer functionality.
+			 * Copies the state of the `External` buffer, including its `Shared` buffer functionality and the associated `Reader`.
 			 */
 			External& operator=(const External& other) 							= default;
 
@@ -84,7 +98,7 @@ namespace StormByte::Buffer {
 			 * @param other The `External` buffer to move from.
 			 * @return Reference to the updated buffer.
 			 *
-			 * Moves the state of the `External` buffer, including its `Shared` buffer functionality.
+			 * Moves the state of the `External` buffer, including its `Shared` buffer functionality and the associated `Reader`.
 			 */
 			External& operator=(External&& other) noexcept						= default;
 
@@ -168,50 +182,47 @@ namespace StormByte::Buffer {
 			External& 															operator>>(External& buffer);
 
 			/**
-			 * @brief Sets the external reader function.
-			 * @param fn The external reader function to set.
+			 * @brief Sets the external `Reader` instance.
+			 * @param reader The external `Reader` instance to set.
 			 *
-			 * The reader function is executed before every read operation to dynamically fetch or generate data.
-			 * Extends the `Shared` buffer's functionality by adding support for dynamic data retrieval.
+			 * The `Reader` class provides the `Read()` method, which dynamically fetches or generates data
+			 * to populate the buffer before read operations. For more details, see the `Reader` class documentation.
+			 *
+			 * @see Reader
 			 */
-			void 																Reader(const ExternalReaderFunction& fn) noexcept;
+			void 																Reader(const class Reader& reader) noexcept;
+
+			/**
+			 * @brief Sets the external `Reader` instance taking ownership of it.
+			 * @param reader The external `Reader` instance to set.
+			 *
+			 * The `Reader` class provides the `Read()` method, which dynamically fetches or generates data
+			 * to populate the buffer before read operations. For more details, see the `Reader` class documentation.
+			 *
+			 * @see Reader
+			 */
+			void 																Reader(class Reader&& reader) noexcept;
 
 			/**
 			 * @brief Gets the number of bytes available to read from the buffer.
 			 * @return The number of bytes available to read.
 			 *
-			 * Extends the `Shared` buffer's functionality by transparently calling the external reader function
+			 * Extends the `Shared` buffer's functionality by transparently calling the `Reader`'s `Read()` method
 			 * to ensure the buffer is populated with the latest data before returning the available byte count.
+			 *
+			 * @see Reader
 			 */
 			size_t 																AvailableBytes() const noexcept override;
-
-			/**
-			 * @brief Extracts a specific size of data from the buffer.
-			 * @param length The number of bytes to extract.
-			 * @return The extracted data or a `BufferOverflow` error if insufficient data exists.
-			 *
-			 * This method removes the extracted data from the buffer and takes ownership of it.
-			 * It waits for the requested data to become available while the buffer is readable.
-			 */
-			ExpectedData<BufferOverflow> 										Extract(const size_t& length) override;
-
-			/**
-			 * @brief Extracts a specific size of data and moves it into another buffer.
-			 * @param length The number of bytes to extract.
-			 * @param output The target buffer to move the extracted data into.
-			 * @return `Read::Status` indicating the success or failure of the operation.
-			 *
-			 * This method waits for the requested data to become available while the buffer is readable.
-			 */
-			Read::Status 														ExtractInto(const size_t& length, External& output) noexcept;
 
 			/**
 			 * @brief Checks if the buffer has enough data to satisfy a read request.
 			 * @param length The number of bytes to check for.
 			 * @return `true` if enough data is available, `false` otherwise.
 			 *
-			 * This method transparently calls the external reader function to ensure the buffer is populated
+			 * This method transparently calls the `Reader`'s `Read()` method to ensure the buffer is populated
 			 * with the latest data before performing the check.
+			 *
+			 * @see Reader
 			 */
 			bool 																HasEnoughData(const std::size_t& length) const override;
 
@@ -221,11 +232,13 @@ namespace StormByte::Buffer {
 			 * @return The requested data or a `BufferOverflow` error if insufficient data exists.
 			 *
 			 * This method waits for the requested data to become available while the buffer is readable.
+			 *
+			 * @see Reader
 			 */
 			ExpectedData<BufferOverflow> 										Read(const size_t& length) const override;
 
 		private:
-			ExternalReaderFunction m_external_reader; 							///< The external reader function.
+			std::shared_ptr<class Reader> m_external_reader; 					///< The external `Reader` instance.
 
 			/**
 			 * @brief Waits for a specific amount of data to become available in the buffer.
@@ -237,11 +250,13 @@ namespace StormByte::Buffer {
 			Read::Status 														Wait(const std::size_t& length) const noexcept override;
 
 			/**
-			 * @brief Reads data from the external reader function and writes it to the buffer.
+			 * @brief Reads data from the external `Reader` and writes it to the buffer.
 			 *
 			 * This method is called automatically before every read operation to ensure the buffer is populated
-			 * with the latest data from the external reader.
+			 * with the latest data from the external `Reader`.
+			 *
+			 * @see Reader
 			 */
-			void 																WriteExternalData() noexcept;
+			bool 																ReadExternalData(const size_t& bytes) noexcept;
 	};
 }

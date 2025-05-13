@@ -2,8 +2,11 @@
 
 using namespace StormByte::Buffer;
 
-External::External(const ExternalReaderFunction& fn) noexcept
-:Shared(), m_external_reader(fn) {}
+External::External(const class Reader& reader) noexcept
+:Shared(), m_external_reader(reader.Clone()) {}
+
+External::External(class Reader&& reader) noexcept
+:Shared(), m_external_reader(reader.Move()) {}
 
 External& External::operator<<(const Buffer::Status& status) {
 	Shared::operator<<(status);
@@ -40,46 +43,45 @@ External& External::operator>>(External& buffer) {
 	return *this;
 }
 
-void External::Reader(const ExternalReaderFunction& fn) noexcept {
-	m_external_reader = fn;
+void External::Reader(const class Reader& reader) noexcept {
+	m_external_reader = reader.Clone();
+}
+
+void External::Reader(class Reader&& reader) noexcept {
+	m_external_reader = reader.Move();
 }
 
 size_t External::AvailableBytes() const noexcept {
-	const_cast<External*>(this)->WriteExternalData();
+	const_cast<External*>(this)->ReadExternalData(1); // Minimum 1 byte
 	return Shared::AvailableBytes();
 }
 
-ExpectedData<BufferOverflow> External::Extract(const size_t& length) {
-	WriteExternalData();
-	return Shared::Extract(length);
-}
-
-Read::Status External::ExtractInto(const size_t& length, External& output) noexcept {
-	WriteExternalData();
-	return Shared::ExtractInto(length, output);
-}
-
 bool External::HasEnoughData(const std::size_t& length) const {
-	const_cast<External*>(this)->WriteExternalData();
+	const_cast<External*>(this)->ReadExternalData(length);
 	return Shared::HasEnoughData(length);
 }
 
 ExpectedData<BufferOverflow> External::Read(const size_t& length) const {
-	const_cast<External*>(this)->WriteExternalData();
+	const_cast<External*>(this)->ReadExternalData(length);
 	return Shared::Read(length);
 }
 
 Read::Status External::Wait(const std::size_t& length) const noexcept {
-	const_cast<External*>(this)->WriteExternalData();
-	return Shared::Wait(length);
+	if (const_cast<External*>(this)->ReadExternalData(length))
+		return Read::Status::Success;
+	else
+		return Read::Status::Error;
 }
 
-void External::WriteExternalData() noexcept {
-	auto expected_data = m_external_reader();
-	if (!expected_data) {
-		operator<<(Buffer::Status::ReadOnly);
+bool External::ReadExternalData(const size_t& length) noexcept {
+	while(Shared::AvailableBytes() < length) {
+		auto expected_data = m_external_reader->Read(length);
+		if (!expected_data) {
+			operator<<(Buffer::Status::ReadOnly);
+			return false;
+		}
+
+		Write(std::move(expected_data.value()));
 	}
-	else {
-		operator<<(std::move(expected_data.value()));
-	}
+	return true;
 }

@@ -7,24 +7,37 @@
 
 using namespace StormByte;
 
+class ReaderSimulator: public Buffer::Reader {
+	public:
+		ReaderSimulator() noexcept: Reader(), m_counter(0) {}
+		ReaderSimulator(const ReaderSimulator& other) noexcept = default;
+		ReaderSimulator(ReaderSimulator&& other) noexcept = default;
+		~ReaderSimulator() noexcept override = default;
+		ReaderSimulator& operator=(const ReaderSimulator& other) noexcept = default;
+		ReaderSimulator& operator=(ReaderSimulator&& other) noexcept = default;
+		std::shared_ptr<Reader> Clone() const noexcept override {
+			return std::make_shared<ReaderSimulator>(*this);
+		}
+		std::shared_ptr<Reader> Move() noexcept override {
+			return std::make_shared<ReaderSimulator>(std::move(*this));
+		}
+		// Simulate reading data from an external source
+		Expected<Buffer::Simple, Buffer::Exception> Read(const size_t& min = 0) const noexcept override {
+			if (m_counter < 5) {
+				++m_counter;
+				std::string data = "Data" + std::to_string(m_counter);
+				return Buffer::Simple(data);
+			}
+			return Unexpected<Buffer::Exception>("End of data");
+		}
+
+	private:
+		mutable uint8_t m_counter;
+};
+
 int test_external_buffer_with_reader_function() {
-    std::atomic<int> counter = 0;
-
-    // Define an external reader function that generates data
-    Buffer::ExternalReaderFunction reader = [&counter]() -> Buffer::ExpectedData<Buffer::Exception> {
-        std::cout << "[DEBUG] Reader function called. Counter: " << counter << std::endl;
-        if (counter < 5) {
-            ++counter;
-            std::string data = "Data" + std::to_string(counter);
-            std::cout << "[DEBUG] Reader generated data: " << data << std::endl;
-            return Buffer::Data(reinterpret_cast<const std::byte*>(data.data()),
-                                reinterpret_cast<const std::byte*>(data.data() + data.size()));
-        }
-        std::cout << "[DEBUG] Reader returning EOF exception." << std::endl;
-        return Unexpected<Buffer::Exception>("End of data");
-    };
-
-    Buffer::External buffer(reader);
+	ReaderSimulator reader;
+    Buffer::External buffer(std::move(reader));
 
     // Verify that the buffer reads data from the external reader
     for (int i = 1; i <= 5; ++i) {
