@@ -173,24 +173,45 @@ The External buffer extends the Shared buffer by integrating an external reader 
 ```cpp
 #include <StormByte/buffers/external.hxx>
 #include <iostream>
-#include <atomic>
 
+/**
+ * @brief Demonstrates the usage of the External buffer with a custom Reader class.
+ *
+ * This example shows how to use the `External` buffer to dynamically fetch or generate data
+ * using an external `Reader` class. The `Reader` class provides the `Read()` method, which
+ * is called by the `External` buffer to populate its internal buffer with data.
+ */
 int main() {
-    std::atomic<int> counter = 0;
+    // Define a custom Reader class that generates data dynamically.
+    class CustomReader: public StormByte::Buffer::Reader {
+    public:
+        CustomReader() noexcept: m_counter(0) {}
 
-    // Define an external reader function that generates data dynamically.
-    StormByte::Buffer::ExternalReaderFunction reader = [&counter]() -> StormByte::Buffer::ExpectedData<StormByte::Buffer::Exception> {
-        if (counter < 5) {
-            ++counter;
-            std::string data = "Data" + std::to_string(counter);
-            return StormByte::Buffer::Data(reinterpret_cast<const std::byte*>(data.data()),
-                                           reinterpret_cast<const std::byte*>(data.data() + data.size()));
+        /**
+         * @brief Reads data dynamically.
+         * @return An `Expected<Buffer::Simple, Buffer::Exception>` containing the read data or an exception.
+         *
+         * This method generates data dynamically up to 5 times. After that, it returns an exception
+         * to signal the end of the data stream.
+         */
+        StormByte::Buffer::Expected<StormByte::Buffer::Simple, StormByte::Buffer::Exception> Read() const noexcept override {
+            if (m_counter < 5) {
+                ++m_counter;
+                std::string data = "Data" + std::to_string(m_counter);
+                return StormByte::Buffer::Simple(data);
+            }
+            return StormByte::Unexpected<StormByte::Buffer::Exception>("End of data");
         }
-        return StormByte::Unexpected<StormByte::Buffer::Exception>("End of data");
+
+    private:
+        mutable int m_counter; ///< Counter to track the number of data reads.
     };
 
-    // Create an External buffer with the reader function.
-    StormByte::Buffer::External externalBuffer(reader);
+    // Create an instance of the custom Reader.
+    CustomReader reader;
+
+    // Create an External buffer with the custom Reader taking ownership to avoid memory copies.
+    StormByte::Buffer::External externalBuffer(std::move(reader));
 
     // Read data from the buffer.
     for (int i = 0; i < 5; ++i) {

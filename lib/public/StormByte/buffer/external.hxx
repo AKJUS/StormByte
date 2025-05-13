@@ -31,6 +31,15 @@ namespace StormByte::Buffer {
 	 * - **EOF and Error Handling:** Supports marking the buffer as `EoF` (End of File) or `Error` based on the `Reader`'s return value.
 	 * - **Flexible Data Appending:** Allows appending data from various sources, including other buffers, strings, and numeric values.
 	 *
+	 * **Behavior:**
+	 * This class expects to have an external `Reader` to fill its internal buffer. The `AvailableBytes()` method
+	 * will only return the number of bytes currently available in the buffer without invoking the `Reader`.
+	 * To ensure the `Reader` is called and the buffer is populated with the latest data, use `HasEnoughData()` or `Wait()`.
+	 *
+	 * The `HasEnoughData(size_t length)` and `Wait(size_t length)` methods take a parameter specifying the number of bytes
+	 * required. These methods will invoke the `Reader` repeatedly until the specified number of bytes is available in the buffer
+	 * or the `Reader` returns an error. If an error occurs, the buffer is marked as read-only.
+	 *
 	 * This class is ideal for scenarios where data is not readily available in memory and must be fetched or generated
 	 * dynamically during read operations.
 	 *
