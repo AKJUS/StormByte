@@ -355,4 +355,4 @@ Contributions are welcome! Please fork the repository and submit pull requests f
 
 ## License
 
-This project is licensed under GPL v3 License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
